@@ -1,5 +1,6 @@
 import React from "react";
 import LoginForm from "./components/LoginForm";
+import PasswordResetFlow from "./components/PasswordResetFlow";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 function App() {
@@ -7,8 +8,8 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginForm />} />
-        
-      </Routes>
+        <Route path="/password-reset" element={<PasswordResetFlow />} /> 
+             </Routes>
     </BrowserRouter>
   );
 }
