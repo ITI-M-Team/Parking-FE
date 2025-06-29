@@ -1,6 +1,6 @@
 import React from "react";
 import LoginForm from "./components/LoginForm";
-import PasswordResetFlow from "./components/PasswordResetFlow";
+import PasswordResetFlow from "./PasswordResetFlow/pages/PasswordResetFlow";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 function App() {
