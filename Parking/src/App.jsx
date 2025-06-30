@@ -12,11 +12,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={<LoginForm />} />
-        <Route path="/password-reset" element={<PasswordResetFlow />} />
-        <Route path="/register" element={<RegisterUser />} />
-        <Route path="/home" element={<Home />} />
-        <RouteList/>
+               <RouteList/>
       </Routes>
     </BrowserRouter>
   );
