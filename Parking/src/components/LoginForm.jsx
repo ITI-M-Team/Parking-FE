@@ -103,7 +103,7 @@ const LoginForm = ({ onLoginSuccess }) => {
               <div style={styles.characterPhone}></div>
             </div>
           </div>
-          
+
           {/* Mobile Frame */}
           <div style={styles.mobileFrame}>
             <div style={styles.mobileNotch}></div>
@@ -111,13 +111,13 @@ const LoginForm = ({ onLoginSuccess }) => {
               <div style={styles.backArrow}>←</div>
               <div style={styles.registerLink}>Register</div>
             </div>
-            
+
             <div style={styles.mobileContent}>
               <h3 style={styles.mobileTitle}>Sign In</h3>
               <p style={styles.mobileSubtitle}>
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit.
               </p>
-              
+
               <div style={styles.mobileInputs}>
                 <div style={styles.mobileInput}>
                   <span style={styles.inputPlaceholder}>Username</span>
@@ -126,17 +126,17 @@ const LoginForm = ({ onLoginSuccess }) => {
                   <span style={styles.inputPlaceholder}>Password</span>
                 </div>
               </div>
-              
+
               <div style={styles.forgotPasswordMobile}>Forgot password?</div>
-              
+
               <button style={styles.mobileSignInButton}>Sign In</button>
-              
+
               <div style={styles.orDivider}>
                 <div style={styles.orLine}></div>
                 <span style={styles.orText}>Or</span>
                 <div style={styles.orLine}></div>
               </div>
-              
+
               <button style={styles.mobileGoogleButton}>
                 Sign In With Google →
               </button>
@@ -193,13 +193,13 @@ const LoginForm = ({ onLoginSuccess }) => {
                   />
                   Remember me this device
                 </label>
-                <a href="#" style={styles.forgotLink}>Forgot password?</a>
+                <a href="/password-reset" style={styles.forgotLink}>Forgot password?</a>
               </div>
 
               {error && <p style={styles.error}>{error}</p>}
 
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={handleSubmit}
                 style={{
                   ...styles.loginButton,
@@ -239,12 +239,12 @@ const styles = {
     height: "calc(100vh - 60px)",
     backgroundColor: "#f5f5f5",
     flexWrap: "wrap",
-    justifyContent: "center",     
-    alignItems: "center", 
+    justifyContent: "center",
+    alignItems: "center",
   },
   leftSide: {
     flex: 1,
-    maxWidth: "600px",   
+    maxWidth: "600px",
     minWidth: "400px",
     display: "flex",
     justifyContent: "center",
