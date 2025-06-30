@@ -200,7 +200,7 @@ const LoginForm = ({ onLoginSuccess, darkMode, setDarkMode }) => {
                   />
                   Remember me this device
                 </label>
-                <a href="#" style={styles.forgotLink}>Forgot password?</a>
+                <a href="/password-reset" style={styles.forgotLink}>Forgot password?</a>
               </div>
 
               {error && <p style={styles.error}>{error}</p>}

@@ -1,0 +1,108 @@
+import React, { useState } from "react";
+import Step1_RequestOTP from "../components/Step1_RequestOTP";
+import Step2_VerifyOTP from "../components/Step2_VerifyOTP";
+import Step3_ConfirmPassword from "../components/Step3_ConfirmPassword";
+import Step4_Success from "../components/Step4_Success";
+import "../styles/PasswordResetFlow.css";
+
+const PasswordResetFlow = () => {
+  const [step, setStep] = useState(1);
+  const [method, setMethod] = useState("email");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [otp, setOTP] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [darkMode, setDarkMode] = useState(false);
+
+  const resetMessages = () => {
+    setMessage("");
+    setError("");
+  };
+
+  return (
+    <div className={`min-h-screen ${darkMode ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"} transition-colors`}>
+      {/* Navbar */}
+      <nav className={`w-full p-4 shadow-md flex justify-between items-center ${darkMode ? "bg-gray-800" : "bg-white"}`}>
+        <h1 className="text-xl font-bold">Parking App</h1>
+        <button
+          onClick={() => setDarkMode(!darkMode)}
+          className={`px-4 py-2 text-sm rounded-md transition hover:scale-105 ${darkMode ? "bg-gray-700 text-white" : "bg-gray-300 text-gray-900"}`}
+        >
+          {darkMode ? "☀ Light Mode" : "🌙 Dark Mode"}
+        </button>
+      </nav>
+
+      {/* Main content */}
+      <div className="flex justify-center items-center px-4 py-12">
+        <div className={`w-full max-w-xl rounded-lg shadow-md p-8 transition-colors ${darkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"}`}>
+          <h2 className="text-2xl font-bold mb-6 text-center">Reset Your Password</h2>
+
+          {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
+          {message && <p className="text-green-500 mb-4 text-center">{message}</p>}
+
+          {step === 1 && (
+            <Step1_RequestOTP
+              {...{
+                method,
+                setMethod,
+                email,
+                setEmail,
+                phone,
+                setPhone,
+                setStep,
+                setMessage,
+                setError,
+                resetMessages,
+                darkMode,
+                setDarkMode,
+              }}
+            />
+          )}
+          {step === 2 && (
+            <Step2_VerifyOTP
+              {...{
+                method,
+                email,
+                phone,
+                otp,
+                setOTP,
+                setStep,
+                setMessage,
+                setError,
+                resetMessages,
+                darkMode,
+                setDarkMode,
+              }}
+            />
+          )}
+          {step === 3 && (
+            <Step3_ConfirmPassword
+              {...{
+                method,
+                email,
+                phone,
+                otp,
+                newPassword,
+                setNewPassword,
+                confirmPassword,
+                setConfirmPassword,
+                setStep,
+                setMessage,
+                setError,
+                resetMessages,
+                darkMode,
+                setDarkMode,
+              }}
+            />
+          )}
+          {step === 4 && <Step4_Success darkMode={darkMode} setDarkMode={setDarkMode} />}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default PasswordResetFlow;
