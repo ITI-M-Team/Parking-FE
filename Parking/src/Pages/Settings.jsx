@@ -1,46 +1,116 @@
 import React from 'react'
-import { useState } from "react";
+import { useState,useEffect } from "react";
+import { Link } from "react-router-dom";
 import { ChevronLeft, Upload, Eye, EyeOff, Plus } from 'lucide-react';
-
+import instance from "../apis/config.js"
 const Settings = ({ darkMode, setDarkMode }) => {
-const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [profileImage, setProfileImage] = useState(null);
   const [formData, setFormData] = useState({
-    name: '',
-    surname: '',
+    username: '',
     email: '',
     phone: '',
+    national_id: '',
     newPassword: '',
     confirmPassword: '',
     vehiclePlate: '',
     vehicleType: 'Car'
   });
-
+  // ??First load Current user Data
+    useEffect(() => {
+      loadUserData();
+    }, []);
+    const loadUserData = async () => {
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    try {
+      const res = await instance.get('/user-info/', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      setFormData(prev => ({
+        ...prev,
+        username: res.data.username || '',
+        email: res.data.email || '',
+        phone: res.data.phone || '',
+        national_id: res.data.national_id || ''
+      }));
+    } catch (err) {
+      console.error('Failed to load user data:', err);
+    }
+  };
+  /// End Loaded user data 
+  /// handle new fields Updates
   const handleInputChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
+      setFormData({
+        ...formData,
+        [e.target.name]: e.target.value
+      });
+    };
+  ///End of handle save updates
+  
+  const handleSaveChanges = async() => {
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    const formDataToSend = new FormData();
+    const fieldsToUpdate = ['username', 'email', 'phone', 'national_id'];
+    fieldsToUpdate.forEach(field => {
+      if (formData[field]) {
+        formDataToSend.append(field, formData[field]);
+      }
     });
-  };
 
-  const handleSaveChanges = () => {
-    console.log('Saving changes:', formData);
-    // Add your save logic here
+    // Add profile image if selected
+    if (profileImage && typeof profileImage !== 'string') {
+      formDataToSend.append('national_id_img', profileImage);
+    }
+     try {
+      const res = await instance.put('/user-info/', formDataToSend, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+      alert("Profile updated successfully!");
+      console.log('Saving changes:', formDataToSend);
+    } catch (err) {
+    console.error(err);
+    alert("Update failed!"+(err.response?.data?.message || err.message));
+  }
   };
-
-  const handleChangePassword = () => {
+  // Password aheck then change then appand at form data 
+  const handleChangePassword = async () => {
+    if (!formData.newPassword || !formData.confirmPassword) {
+      alert('Please fill in both password fields');
+      return;
+    }
     if (formData.newPassword !== formData.confirmPassword) {
       alert('Passwords do not match');
       return;
     }
-    console.log('Changing password');
-    // Add your password change logic here
-  };
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    const passwordData = new FormData();
+    passwordData.append('new_password', formData.newPassword);
+    passwordData.append('confirm_password', formData.confirmPassword);
+    try {
+      const res = await instance.put('/user-info/', passwordData, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      alert("Password updated successfully!");
+      setFormData({ ...formData, newPassword: '', confirmPassword: '' });
+    } catch (err) {
+      console.error(err);
+      alert("Password update failed: " + (err.response?.data?.message || err.message));
+    }
+  }
 
   const handleAddVehicle = () => {
     if (formData.vehiclePlate) {
       console.log('Adding vehicle:', formData.vehiclePlate, formData.vehicleType);
-      // Add your vehicle addition logic here
+
       setFormData({ ...formData, vehiclePlate: '' });
     }
   };
@@ -81,9 +151,11 @@ const [showPassword, setShowPassword] = useState(false);
               {darkMode ? "☀ Light Mode" : "🌙 Dark Mode"}
             </button>
             <span className={`text-sm transition-colors ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>Hossam</span>
-            <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
-              <span className="text-white text-sm font-medium">H</span>
-            </div>
+            <Link to={"/profile"}>
+              <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
+                <span className="text-white text-sm font-medium">H</span>
+              </div>
+            </Link>
           </div>
         </div>
       </div>
@@ -136,26 +208,14 @@ const [showPassword, setShowPassword] = useState(false);
                 <label className={`block text-sm font-medium mb-2 transition-colors ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Name</label>
                 <input
                   type="text"
-                  name="name"
-                  value={formData.name}
+                  name="username"
+                  value={formData.username}
                   onChange={handleInputChange}
                   className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all ${darkMode ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' : 'border-gray-300 bg-white text-gray-900'}`}
                   placeholder="Enter your name"
                 />
               </div>
-              
-              <div>
-                <label className={`block text-sm font-medium mb-2 transition-colors ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Surname</label>
-                <input
-                  type="text"
-                  name="surname"
-                  value={formData.surname}
-                  onChange={handleInputChange}
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all ${darkMode ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' : 'border-gray-300 bg-white text-gray-900'}`}
-                  placeholder="Enter your surname"
-                />
-              </div>
-              
+
               <div>
                 <label className={`block text-sm font-medium mb-2 transition-colors ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Email</label>
                 <input
@@ -167,7 +227,19 @@ const [showPassword, setShowPassword] = useState(false);
                   placeholder="Enter your email"
                 />
               </div>
-              
+
+               <div>
+                <label className={`block text-sm font-medium mb-2 transition-colors ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>National ID</label>
+                <input
+                  type="text"
+                  name="national_id"
+                  value={formData.national_id}
+                  onChange={handleInputChange}
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all ${darkMode ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' : 'border-gray-300 bg-white text-gray-900'}`}
+                  placeholder="Enter your National ID"
+                />
+              </div>
+
               <div>
                 <label className={`block text-sm font-medium mb-2 transition-colors ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Phone number</label>
                 <input
