@@ -53,7 +53,7 @@ function RegisterUser() {
 
       if (res.ok) {
         alert("Registered successfully");
-        navigate("/home");
+        navigate("/login");
       } else {
         const data = await res.json();
         console.log(data);
