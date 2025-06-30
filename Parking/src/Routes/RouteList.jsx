@@ -7,7 +7,6 @@
     import GarageDashboard from '../components/GarageDashboard';   
     import RegisterUser from '../components/RegisterUser'
     import Home from '../components/Home'
-    import NewLogin from '../components/NewLogin'
     import Profile from '../Pages/Profile'
     import Settings from '../Pages/Settings'
     function RouteList() {
