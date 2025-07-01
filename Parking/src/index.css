@@ -1,12 +1,13 @@
+ 
 /* :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
+=======
+ 4171aa7c8675ebb9636c2288ad44eadad60f83c7
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
 
+<<<<<<< HEAD
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -67,4 +68,14 @@ button:focus-visible {
   }
 }
  */
- 
+ /* علشان تظهر الخريطة صح */
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+  z-index: 0;
+}
+
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

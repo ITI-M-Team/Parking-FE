@@ -14,7 +14,9 @@
     "axios": "^1.10.0",
     "bootstrap": "^5.3.7",
     "leaflet": "^1.9.4",
+    "lucide-react": "^0.525.0",
     "react": "^19.1.0",
+    "react-animated-3d-card": "^1.0.2",
     "react-dom": "^19.1.0",
     "react-icons": "^5.5.0",
     "react-leaflet": "^5.0.0",
@@ -22,6 +24,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.29.0",
+    "@tailwindcss/postcss": "^4.1.11",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^4.5.2",
@@ -31,7 +34,7 @@
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.2.0",
     "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.11",
+    "tailwindcss": "^3.4.17",
     "vite": "^4.5.14"
   }
 }
