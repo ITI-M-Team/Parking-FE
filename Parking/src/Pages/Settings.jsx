@@ -22,7 +22,8 @@ const Settings = ({ darkMode, setDarkMode }) => {
       loadUserData();
     }, []);
     const loadUserData = async () => {
-    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    const storedToken = localStorage.getItem("authTokens") || sessionStorage.getItem("authTokens");
+    const token = storedToken ? JSON.parse(storedToken).access : null;
     try {
       const res = await instance.get('/user-info/', {
         headers: {
@@ -51,7 +52,8 @@ const Settings = ({ darkMode, setDarkMode }) => {
   ///End of handle save updates
   
   const handleSaveChanges = async() => {
-    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    const storedToken = localStorage.getItem("authTokens") || sessionStorage.getItem("authTokens");
+    const token = storedToken ? JSON.parse(storedToken).access : null;
     const formDataToSend = new FormData();
     const fieldsToUpdate = ['username', 'email', 'phone', 'national_id'];
     fieldsToUpdate.forEach(field => {
@@ -88,7 +90,8 @@ const Settings = ({ darkMode, setDarkMode }) => {
       alert('Passwords do not match');
       return;
     }
-    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    const storedToken = localStorage.getItem("authTokens") || sessionStorage.getItem("authTokens");
+    const token = storedToken ? JSON.parse(storedToken).access : null;
     const passwordData = new FormData();
     passwordData.append('new_password', formData.newPassword);
     passwordData.append('confirm_password', formData.confirmPassword);

@@ -19,7 +19,8 @@ function Profile({ darkMode, setDarkMode }) {
       setError('');
       
       // Get token from storage
-      const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+      const storedToken = localStorage.getItem("authTokens") || sessionStorage.getItem("authTokens");
+      const token = storedToken ? JSON.parse(storedToken).access : null;
       
       if (!token) {
         setError('Authentication token not found. Please login again.');
@@ -40,8 +41,8 @@ function Profile({ darkMode, setDarkMode }) {
       if (err.response?.status === 401) {
         setError('Authentication failed. Please login again.');
         // Clear invalid token
-        localStorage.removeItem('token');
-        sessionStorage.removeItem('token');
+        localStorage.removeItem('authTokens');
+        sessionStorage.removeItem('authTokens');
       } else {
         setError('Failed to fetch user information. Please try again.');
       }

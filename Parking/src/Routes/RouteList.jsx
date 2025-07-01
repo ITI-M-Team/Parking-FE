@@ -9,6 +9,7 @@
     import Home from '../components/Home'
     import Profile from '../Pages/Profile'
     import Settings from '../Pages/Settings'
+    import PasswordResetFlow from "../PasswordResetFlow/pages/PasswordResetFlow";
     function RouteList() {
         const [darkMode, setDarkMode] = useState(() => {
             return localStorage.getItem("theme") === "dark";
@@ -18,9 +19,7 @@
             localStorage.setItem("theme", darkMode ? "dark" : "light");
         }, [darkMode]);
     return (
-
             <Routes>
-            
                 <Route path="/" element={<ProtectedRedirect darkMode={darkMode} setDarkMode={setDarkMode} />} />
                 <Route path='/register' element={<RegisterUser darkMode={darkMode} setDarkMode={setDarkMode}/>}/>
                 <Route path='/home' element={<Home darkMode={darkMode} setDarkMode={setDarkMode}/>}/>
@@ -29,8 +28,8 @@
                 <Route path="/dashboard/garage" element={<GarageDashboard darkMode={darkMode} setDarkMode={setDarkMode}/>} />
                 <Route path='/profile' element={<Profile darkMode={darkMode} setDarkMode={setDarkMode}/>}/>
                 <Route path='/settings' element={<Settings darkMode={darkMode} setDarkMode={setDarkMode}/>}/>
+                <Route path="/password-reset" element={<PasswordResetFlow darkMode={darkMode} setDarkMode={setDarkMode}/>} />
             </Routes>
-
     )
     }
 
