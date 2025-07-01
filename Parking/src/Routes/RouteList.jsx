@@ -10,6 +10,7 @@
     import Profile from '../Pages/Profile'
     import Settings from '../Pages/Settings'
     import NearbyGarages from "../components/NearbyGarages";
+    import GarageDetails from '../Pages/GarageDetails'
 
     import PasswordResetFlow from "../PasswordResetFlow/pages/PasswordResetFlow";
     function RouteList() {
@@ -31,6 +32,7 @@
                 <Route path='/profile' element={<Profile darkMode={darkMode} setDarkMode={setDarkMode}/>}/>
                 <Route path='/settings' element={<Settings darkMode={darkMode} setDarkMode={setDarkMode}/>}/>
                 <Route path="/nearby-garages" element={<NearbyGarages darkMode={darkMode} setDarkMode={setDarkMode} />} />
+                <Route path="/garages/:id" element={<GarageDetails />} />
 
                 <Route path="/password-reset" element={<PasswordResetFlow darkMode={darkMode} setDarkMode={setDarkMode}/>} />
             </Routes>
