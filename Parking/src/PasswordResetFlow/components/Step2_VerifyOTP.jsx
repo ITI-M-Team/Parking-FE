@@ -1,5 +1,5 @@
 import React from "react";
-import axios from "../../api/axios";
+import axios from "../../apis/config";
 
 const Step2_VerifyOTP = ({ method, email, phone, otp, setOTP, setStep, setMessage, setError, resetMessages }) => {
   const handleVerifyOTP = async () => {

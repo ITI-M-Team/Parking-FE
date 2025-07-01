@@ -285,12 +285,13 @@ const LoginForm = ({ onLoginSuccess }) => {
                 </label>
               </div>
 
+
               <a href="/password-reset" style={styles.forgotLink}>
                 Forgot password?
               </a>
             </div>
 
-            {error && <div style={styles.error}>{error}</div>}
+            {error && <p style={styles.error}>{error}</p>}
 
             <button
               onClick={handleSubmit}

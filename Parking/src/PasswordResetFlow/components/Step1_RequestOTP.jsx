@@ -1,5 +1,5 @@
 import React from "react";
-import axios from "../../api/axios";
+import axios from "../../apis/config";
 
 const Step1_RequestOTP = ({ method, setMethod, email, setEmail, phone, setPhone, setStep, setMessage, setError, resetMessages }) => {
   const handleRequestReset = async () => {
