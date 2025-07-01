@@ -19,7 +19,8 @@ function Profile({ darkMode, setDarkMode }) {
       setError('');
       
       // Get token from storage
-      const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+      const storedToken = localStorage.getItem("authTokens") || sessionStorage.getItem("authTokens");
+      const token = storedToken ? JSON.parse(storedToken).access : null;
       
       if (!token) {
         setError('Authentication token not found. Please login again.');
@@ -40,8 +41,8 @@ function Profile({ darkMode, setDarkMode }) {
       if (err.response?.status === 401) {
         setError('Authentication failed. Please login again.');
         // Clear invalid token
-        localStorage.removeItem('token');
-        sessionStorage.removeItem('token');
+        localStorage.removeItem('authTokens');
+        sessionStorage.removeItem('authTokens');
       } else {
         setError('Failed to fetch user information. Please try again.');
       }
@@ -108,7 +109,7 @@ function Profile({ darkMode, setDarkMode }) {
               {darkMode ? "☀ Light Mode" : "🌙 Dark Mode"}
             </button>
             <span className={`text-sm transition-colors ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>{userInfo?.username || 'User'}</span>
-            <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+            <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center">
               <span className="text-white text-sm font-medium">
                 {userInfo?.username ? userInfo.username.charAt(0).toUpperCase() : 'U'}
               </span>
@@ -124,7 +125,7 @@ function Profile({ darkMode, setDarkMode }) {
             <div className="flex flex-col items-center space-y-4">
               {/* Avatar */}
               <div className="relative">
-                <div className="w-32 h-32 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center">
+                <div className="w-32 h-32 bg-gradient-to-br from-red-400 to-red-600 rounded-full flex items-center justify-center">
                   <User className="w-16 h-16 text-white" />
                 </div>
                 <div className="absolute bottom-2 right-2 w-6 h-6 bg-green-500 border-2 border-white rounded-full"></div>

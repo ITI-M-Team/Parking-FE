@@ -1,11 +1,17 @@
 
+import React from "react";
+import LoginForm from "./components/LoginForm";
+import PasswordResetFlow from "./PasswordResetFlow/pages/PasswordResetFlow";
+import RegisterUser from "./components/RegisterUser";
+import Home from "./components/Home";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
 import RouteList from './Routes/RouteList'
-import { BrowserRouter} from "react-router-dom";
 
 function App() {
   return (
     <BrowserRouter>
-      <RouteList/>
+        <RouteList/>
     </BrowserRouter>
   );
 }
