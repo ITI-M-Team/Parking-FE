@@ -13,6 +13,7 @@
     import GarageDetails from '../Pages/GarageDetails'
 
     import PasswordResetFlow from "../PasswordResetFlow/pages/PasswordResetFlow";
+    import Activation from '../components/Activation';
     function RouteList() {
         const [darkMode, setDarkMode] = useState(() => {
             return localStorage.getItem("theme") === "dark";
@@ -35,6 +36,7 @@
                 <Route path="/garages/:id" element={<GarageDetails />} />
 
                 <Route path="/password-reset" element={<PasswordResetFlow darkMode={darkMode} setDarkMode={setDarkMode}/>} />
+                <Route path='/activation' element={<Activation darkMode={darkMode} setDarkMode={setDarkMode}/>}/>
             </Routes>
     )
     }
