@@ -21,7 +21,7 @@ const LoginForm = ({ onLoginSuccess }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [focusedField, setFocusedField] = useState("");
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(false); 
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -102,13 +102,7 @@ const LoginForm = ({ onLoginSuccess }) => {
   };
 
   return (
-    <div
-      className={darkMode ? "dark" : ""}
-      style={{
-        ...styles.container,
-        backgroundColor: darkMode ? "#1a202c" : "#f7fafc",
-      }}
-    >
+    <div className={darkMode ? "dark" : ""} style={{ ...styles.container, backgroundColor: darkMode ? "#1a202c" : "#f7fafc" }}>
       {showSuccessMessage && (
         <div style={styles.successOverlay}>
           <div style={styles.successModal}>
@@ -118,16 +112,9 @@ const LoginForm = ({ onLoginSuccess }) => {
               Welcome back! You have been successfully logged in.
             </p>
             <div style={styles.successDetails}>
-              <p>
-                <strong>Email:</strong> {formData.email}
-              </p>
-              <p>
-                <strong>Role:</strong> {loginData?.role}
-              </p>
-              <p>
-                <strong>Remember me:</strong>{" "}
-                {formData.rememberMe ? "Yes" : "No"}
-              </p>
+              <p><strong>Email:</strong> {formData.email}</p>
+              <p><strong>Role:</strong> {loginData?.role}</p>
+              <p><strong>Remember me:</strong> {formData.rememberMe ? "Yes" : "No"}</p>
             </div>
             <button style={styles.successButton} onClick={handleSuccessOk}>
               OK
@@ -135,52 +122,39 @@ const LoginForm = ({ onLoginSuccess }) => {
           </div>
         </div>
       )}
+     <header style={{
+  ...styles.header,
+  backgroundColor: darkMode ? "#2d3748" : "#edf2f7",
+  color: darkMode ? "#fff" : "#2d3748",
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  paddingInline: "20px"
+}}>
+  <span style={{ ...styles.headerText, color: darkMode ? "#fff" : "#2d3748", marginLeft: 0 }}>Login</span>
 
-      <header
-        style={{
-          ...styles.header,
-          backgroundColor: darkMode ? "#2d3748" : "#edf2f7",
-          color: darkMode ? "#fff" : "#2d3748",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          paddingInline: "20px",
-        }}
-      >
-        <span
-          style={{
-            ...styles.headerText,
-            color: darkMode ? "#fff" : "#2d3748",
-            marginLeft: 0,
-          }}
-        >
-          Login
-        </span>
-
-        <button
-          onClick={() => setDarkMode(!darkMode)}
-          style={{
-            padding: "6px 12px",
-            backgroundColor: darkMode ? "#4a5568" : "#e2e8f0",
-            color: darkMode ? "#fff" : "#2d3748",
-            borderRadius: "6px",
-            fontSize: "14px",
-            cursor: "pointer",
-            border: "none",
-          }}
-        >
-          {darkMode ? "☀ Light Mode" : "🌙 Dark Mode"}
-        </button>
-      </header>
+  <button
+    onClick={() => setDarkMode(!darkMode)}
+    style={{
+      padding: "6px 12px",
+      backgroundColor: darkMode ? "#4a5568" : "#e2e8f0",
+      color: darkMode ? "#fff" : "#2d3748",
+      borderRadius: "6px",
+      fontSize: "14px",
+      cursor: "pointer",
+      border: "none"
+    }}
+  >
+    {darkMode ? "☀ Light Mode" : "🌙 Dark Mode"}
+  </button>
+</header>
 
       <main style={styles.main}>
-        <div
-          style={{
-            ...styles.loginCard,
-            backgroundColor: darkMode ? "#2d3748" : "#fff",
-            color: darkMode ? "#e2e8f0" : "#2d3748",
-          }}
-        >
+        <div style={{
+          ...styles.loginCard,
+          backgroundColor: darkMode ? "#2d3748" : "#fff",
+          color: darkMode ? "#e2e8f0" : "#2d3748"
+        }}>
           <div style={styles.titleSection}>
             <h2 style={styles.formTitle}>Login to our app</h2>
             <p style={styles.formSubtitle}>Enter your email and password</p>
@@ -188,17 +162,12 @@ const LoginForm = ({ onLoginSuccess }) => {
 
           <div style={styles.form}>
             <div style={styles.inputGroup}>
-              <label
-                style={{
-                  ...styles.label,
-                  color:
-                    focusedField === "email"
-                      ? "#667eea"
-                      : darkMode
-                      ? "#e2e8f0"
-                      : "#4a5568",
-                }}
-              >
+              <label style={{
+                ...styles.label,
+                color: focusedField === "email"
+                  ? "#667eea"
+                  : darkMode ? "#e2e8f0" : "#4a5568"
+              }}>
                 E-mail
               </label>
               <input
@@ -212,31 +181,23 @@ const LoginForm = ({ onLoginSuccess }) => {
                 required
                 style={{
                   ...styles.input,
-                  borderColor:
-                    focusedField === "email"
-                      ? "#667eea"
-                      : darkMode
-                      ? "#4a5568"
-                      : "#e2e8f0",
+                  borderColor: focusedField === "email"
+                    ? "#667eea"
+                    : darkMode ? "#4a5568" : "#e2e8f0",
                   backgroundColor: darkMode ? "#4a5568" : "#f7fafc",
-                  color: darkMode ? "#fff" : "#000",
+                  color: darkMode ? "#fff" : "#000"
                 }}
                 disabled={isLoading}
               />
             </div>
 
             <div style={styles.inputGroup}>
-              <label
-                style={{
-                  ...styles.label,
-                  color:
-                    focusedField === "password"
-                      ? "#667eea"
-                      : darkMode
-                      ? "#e2e8f0"
-                      : "#4a5568",
-                }}
-              >
+              <label style={{
+                ...styles.label,
+                color: focusedField === "password"
+                  ? "#667eea"
+                  : darkMode ? "#e2e8f0" : "#4a5568"
+              }}>
                 Password
               </label>
               <input
@@ -250,20 +211,17 @@ const LoginForm = ({ onLoginSuccess }) => {
                 required
                 style={{
                   ...styles.input,
-                  borderColor:
-                    focusedField === "password"
-                      ? "#667eea"
-                      : darkMode
-                      ? "#4a5568"
-                      : "#e2e8f0",
+                  borderColor: focusedField === "password"
+                    ? "#667eea"
+                    : darkMode ? "#4a5568" : "#e2e8f0",
                   backgroundColor: darkMode ? "#4a5568" : "#f7fafc",
-                  color: darkMode ? "#fff" : "#000",
+                  color: darkMode ? "#fff" : "#000"
                 }}
                 disabled={isLoading}
               />
             </div>
 
-            <div style={styles.checkboxContainer}>
+            <div style={styles.optionsRow}>
               <div style={styles.rememberMe}>
                 <input
                   type="checkbox"
@@ -274,24 +232,22 @@ const LoginForm = ({ onLoginSuccess }) => {
                   style={styles.checkbox}
                   disabled={isLoading}
                 />
-                <label
-                  htmlFor="rememberMe"
-                  style={{
-                    ...styles.checkboxLabel,
-                    color: darkMode ? "#e2e8f0" : "#2d3748",
-                  }}
-                >
+                <label htmlFor="rememberMe" style={{
+                  ...styles.checkboxLabel,
+                  color: darkMode ? "#e2e8f0" : "#2d3748"
+                }}>
                   Remember me this device
                 </label>
               </div>
-
-
-              <a href="/password-reset" style={styles.forgotLink}>
+              <button
+                style={styles.forgotLink}
+                onClick={() => alert("Forgot password functionality will be added")}
+              >
                 Forgot password?
-              </a>
+              </button>
             </div>
 
-            {error && <p style={styles.error}>{error}</p>}
+            {error && <div style={styles.error}>{error}</div>}
 
             <button
               onClick={handleSubmit}
@@ -299,17 +255,14 @@ const LoginForm = ({ onLoginSuccess }) => {
                 ...styles.loginButton,
                 opacity: isLoading ? 0.7 : 1,
                 cursor: isLoading ? "not-allowed" : "pointer",
-                backgroundColor: darkMode ? "#667eea" : "#4a90e2",
+                backgroundColor: darkMode ? "#667eea" : "#4a90e2"
               }}
               disabled={isLoading}
             >
               {isLoading ? "Logging in..." : "Login"}
             </button>
 
-            <p
-              className="text-center text-sm"
-              style={{ color: darkMode ? "#cbd5e0" : "#4a5568" }}
-            >
+            <p className="text-center text-sm" style={{ color: darkMode ? "#cbd5e0" : "#4a5568" }}>
               Don't have an account?{" "}
               <a href="/register" className="text-red-500 underline">
                 Sign up
