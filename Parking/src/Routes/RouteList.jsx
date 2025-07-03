@@ -1,26 +1,28 @@
-import React, { useState, useEffect } from 'react'
-import { Route, Routes } from "react-router-dom"
-import Theme from '../components/Theme'
-import LoginForm from '../components/LoginForm'
-import ProtectedRedirect from '../components/ProtectedRedirect';
-import DriverDashboard from '../components/DriverDashboard';
-import GarageDashboard from '../components/GarageDashboard';
-import RegisterUser from '../components/RegisterUser'
-import Home from '../components/Home'
-import Profile from '../Pages/Profile'
-import Settings from '../Pages/Settings'
-import NearbyGarages from "../components/NearbyGarages";
-import GarageDetails from '../Pages/GarageDetails'
-import PasswordResetFlow from "../PasswordResetFlow/pages/PasswordResetFlow";
+
+    import React, { useState, useEffect } from 'react'
+    import {Route ,Routes} from "react-router-dom"
+    import Theme from '../components/Theme'
+    import LoginForm from '../components/LoginForm'
+    import ProtectedRedirect from '../components/ProtectedRedirect';
+    import DriverDashboard from '../components/DriverDashboard';     
+    import GarageDashboard from '../components/GarageDashboard';   
+    import RegisterUser from '../components/RegisterUser'
+    import Home from '../components/Home'
+    import Profile from '../Pages/Profile'
+    import Settings from '../Pages/Settings'
+    import NearbyGarages from "../components/NearbyGarages";
+    import GarageDetails from '../Pages/GarageDetails'
 import Manual from '../components/Manual';
-function RouteList() {
-    const [darkMode, setDarkMode] = useState(() => {
-        return localStorage.getItem("theme") === "dark";
-    });
-    useEffect(() => {
-        document.documentElement.classList.toggle("dark", darkMode);
-        localStorage.setItem("theme", darkMode ? "dark" : "light");
-    }, [darkMode]);
+    import PasswordResetFlow from "../PasswordResetFlow/pages/PasswordResetFlow";
+    import Activation from '../components/Activation';
+    function RouteList() {
+        const [darkMode, setDarkMode] = useState(() => {
+            return localStorage.getItem("theme") === "dark";
+        });
+        useEffect(() => {
+            document.documentElement.classList.toggle("dark", darkMode);
+            localStorage.setItem("theme", darkMode ? "dark" : "light");
+        }, [darkMode]);
     return (
         <Routes>
             <Route path="/" element={<ProtectedRedirect darkMode={darkMode} setDarkMode={setDarkMode} />} />
@@ -33,10 +35,10 @@ function RouteList() {
             <Route path='/settings' element={<Settings darkMode={darkMode} setDarkMode={setDarkMode} />} />
             <Route path="/nearby-garages" element={<NearbyGarages darkMode={darkMode} setDarkMode={setDarkMode} />} />
             <Route path="/garages/:id" element={<GarageDetails />} />
-
             <Route path="/password-reset" element={<PasswordResetFlow darkMode={darkMode} setDarkMode={setDarkMode} />} />
             <Route path="/manual" element={<Manual />} />
-        </Routes>
+            <Route path='/activation' element={<Activation darkMode={darkMode} setDarkMode={setDarkMode}/>}/>
+            </Routes>
     )
 }
 

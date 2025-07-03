@@ -4,6 +4,7 @@ import Step2_VerifyOTP from "../components/Step2_VerifyOTP";
 import Step3_ConfirmPassword from "../components/Step3_ConfirmPassword";
 import Step4_Success from "../components/Step4_Success";
 import "../styles/PasswordResetFlow.css";
+import bgImage from "../../assets/images/background-home.png"; // your renamed image path
 
 const PasswordResetFlow = () => {
   const [step, setStep] = useState(1);
@@ -23,82 +24,99 @@ const PasswordResetFlow = () => {
   };
 
   return (
-    <div className={`min-h-screen ${darkMode ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"} transition-colors`}>
-      {/* Navbar */}
-      <nav className={`w-full p-4 shadow-md flex justify-between items-center ${darkMode ? "bg-gray-800" : "bg-white"}`}>
-        <h1 className="text-xl font-bold">Parking App</h1>
-        <button
-          onClick={() => setDarkMode(!darkMode)}
-          className={`px-4 py-2 text-sm rounded-md transition hover:scale-105 ${darkMode ? "bg-gray-700 text-white" : "bg-gray-300 text-gray-900"}`}
-        >
-          {darkMode ? "☀ Light Mode" : "🌙 Dark Mode"}
-        </button>
-      </nav>
+    <div
+      className="relative min-h-screen bg-cover bg-center transition-colors"
+      style={{
+        backgroundImage: `url(${bgImage})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
+      {/* Dark overlay */}
+      <div className="absolute inset-0 bg-black/60 z-0" />
 
-      {/* Main content */}
-      <div className="flex justify-center items-center px-4 py-12">
-        <div className={`w-full max-w-xl rounded-lg shadow-md p-8 transition-colors ${darkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"}`}>
-          <h2 className="text-2xl font-bold mb-6 text-center">Reset Your Password</h2>
+      {/* Content */}
+      <div className={`relative z-10 min-h-screen ${darkMode ? "text-white" : "text-gray-900"}`}>
+        {/* Navbar */}
+        <nav className={`w-full p-4 shadow-md flex justify-between items-center ${darkMode ? "bg-gray-800/70" : "bg-white/70"} backdrop-blur`}>
+          <h1 className="text-xl font-bold">Parking App</h1>
+          <button
+            onClick={() => setDarkMode(!darkMode)}
+            className={`px-4 py-2 text-sm rounded-md transition hover:scale-105 ${darkMode ? "bg-gray-700 text-white" : "bg-gray-300 text-gray-900"}`}
+          >
+            {darkMode ? "☀ Light Mode" : "🌙 Dark Mode"}
+          </button>
+        </nav>
 
-          {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
-          {message && <p className="text-green-500 mb-4 text-center">{message}</p>}
+        {/* Main content */}
+        <div className="flex justify-center items-center px-4 py-12">
+          <div
+            className={`w-full max-w-xl rounded-lg shadow-lg p-8 transition-colors backdrop-blur-md ${
+              darkMode ? "bg-gray-800/90 text-white" : "bg-white/90 text-gray-900"
+            }`}
+          >
+            <h2 className="text-2xl font-bold mb-6 text-center">Reset Your Password</h2>
 
-          {step === 1 && (
-            <Step1_RequestOTP
-              {...{
-                method,
-                setMethod,
-                email,
-                setEmail,
-                phone,
-                setPhone,
-                setStep,
-                setMessage,
-                setError,
-                resetMessages,
-                darkMode,
-                setDarkMode,
-              }}
-            />
-          )}
-          {step === 2 && (
-            <Step2_VerifyOTP
-              {...{
-                method,
-                email,
-                phone,
-                otp,
-                setOTP,
-                setStep,
-                setMessage,
-                setError,
-                resetMessages,
-                darkMode,
-                setDarkMode,
-              }}
-            />
-          )}
-          {step === 3 && (
-            <Step3_ConfirmPassword
-              {...{
-                method,
-                email,
-                phone,
-                otp,
-                newPassword,
-                setNewPassword,
-                confirmPassword,
-                setConfirmPassword,
-                setStep,
-                setMessage,
-                setError,
-                resetMessages,
-                darkMode,
-                setDarkMode,
-              }}
-            />
-          )}
-          {step === 4 && <Step4_Success darkMode={darkMode} setDarkMode={setDarkMode} />}
+            {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
+            {message && <p className="text-green-500 mb-4 text-center">{message}</p>}
+
+            {step === 1 && (
+              <Step1_RequestOTP
+                {...{
+                  method,
+                  setMethod,
+                  email,
+                  setEmail,
+                  phone,
+                  setPhone,
+                  setStep,
+                  setMessage,
+                  setError,
+                  resetMessages,
+                  darkMode,
+                  setDarkMode,
+                }}
+              />
+            )}
+            {step === 2 && (
+              <Step2_VerifyOTP
+                {...{
+                  method,
+                  email,
+                  phone,
+                  otp,
+                  setOTP,
+                  setStep,
+                  setMessage,
+                  setError,
+                  resetMessages,
+                  darkMode,
+                  setDarkMode,
+                }}
+              />
+            )}
+            {step === 3 && (
+              <Step3_ConfirmPassword
+                {...{
+                  method,
+                  email,
+                  phone,
+                  otp,
+                  newPassword,
+                  setNewPassword,
+                  confirmPassword,
+                  setConfirmPassword,
+                  setStep,
+                  setMessage,
+                  setError,
+                  resetMessages,
+                  darkMode,
+                  setDarkMode,
+                }}
+              />
+            )}
+            {step === 4 && <Step4_Success darkMode={darkMode} setDarkMode={setDarkMode} />}
+          </div>
         </div>
       </div>
     </div>

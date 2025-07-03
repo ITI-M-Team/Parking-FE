@@ -1,17 +1,25 @@
-import { useState, useEffect, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
+import { useState, useEffect, useRef } from "react";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  useMapEvents,
+} from "react-leaflet";
+import { useNavigate } from "react-router-dom";
+import "leaflet/dist/leaflet.css";
 
 export default function NearbyGaragesMap() {
   const [userLocation, setUserLocation] = useState(null);
   const [location, setLocation] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [garages, setGarages] = useState([]);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
   const [darkMode, setDarkMode] = useState(false);
   const mapRef = useRef();
   const markerRefs = useRef({});
   const userMarkerRef = useRef();
+  const navigate = useNavigate();
 
   useEffect(() => {
     getUserLocationOnLoad();
@@ -27,47 +35,45 @@ export default function NearbyGaragesMap() {
         fetchGarages(coords.lat, coords.lng);
       },
       (err) => {
-        console.error('Geolocation error:', err);
-        setErrorMessage('Location access is required to show nearby garages.');
+        console.error("Geolocation error:", err);
+        setErrorMessage("Location access is required to show nearby garages.");
       }
     );
   };
 
-  const fetchGarages = async (lat, lon, query = '') => {
+  const fetchGarages = async (lat, lon, query = "") => {
     try {
       const res = await fetch(
-        `http://localhost:8000/api/garages/nearby/?lat=${lat}&lon=${lon}&search=${encodeURIComponent(query)}`
+        `http://localhost:8000/api/garages/nearby/?lat=${lat}&lon=${lon}&search=${encodeURIComponent(
+          query
+        )}`
       );
       const data = await res.json();
       setGarages(data);
-      setErrorMessage(data.length === 0 ? 'No nearby garages found.' : '');
+      setErrorMessage(data.length === 0 ? "No nearby garages found." : "");
     } catch (err) {
-      console.error('Fetch error:', err);
-      setErrorMessage('Failed to load garages.');
+      console.error("Fetch error:", err);
+      setErrorMessage("Failed to load garages.");
     }
   };
 
   const handleSearch = async () => {
-  if (!searchQuery || !userLocation) return;
+    if (!searchQuery || !userLocation) return;
 
-  await fetchGarages(userLocation.lat, userLocation.lng, searchQuery);
+    await fetchGarages(userLocation.lat, userLocation.lng, searchQuery);
 
-  setTimeout(() => {
-    if (garages.length > 0) {
-      const first = garages[0];
-      setLocation({ lat: first.latitude, lng: first.longitude });
-      mapRef.current?.flyTo([first.latitude, first.longitude], 14);
-
-      const marker = markerRefs.current[first.id];
-      if (marker) marker.openPopup();
-    } else {
-      setErrorMessage('No garages found for this place.');
-    }
-  }, 200);  
-};
-
-     
-  
+    setTimeout(() => {
+      if (garages.length > 0) {
+        const first = garages[0];
+        setLocation({ lat: first.latitude, lng: first.longitude });
+        mapRef.current?.flyTo([first.latitude, first.longitude], 14);
+        const marker = markerRefs.current[first.id];
+        if (marker) marker.openPopup();
+      } else {
+        setErrorMessage("No garages found for this place.");
+      }
+    }, 200);
+  };
 
   const handleUseMyLocation = () => {
     navigator.geolocation.getCurrentPosition(
@@ -88,14 +94,14 @@ export default function NearbyGaragesMap() {
           }
         }, 500);
 
-        document.querySelector('#map-section')?.scrollIntoView({
-          behavior: 'smooth',
-          block: 'center',
+        document.querySelector("#map-section")?.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
         });
       },
       (err) => {
-        console.error('Error getting location', err);
-        setErrorMessage('Location access is needed to find nearby garages.');
+        console.error("Error getting location", err);
+        setErrorMessage("Location access is needed to find nearby garages.");
       }
     );
   };
@@ -119,7 +125,7 @@ export default function NearbyGaragesMap() {
   return (
     <div style={styles.wrapper}>
       <button onClick={() => setDarkMode(!darkMode)} style={styles.darkModeToggle}>
-        {darkMode ? '☀️ Light' : '🌙 Dark'}
+        {darkMode ? "☀️ Light" : "🌙 Dark"}
       </button>
 
       <div style={styles.controls}>
@@ -130,8 +136,12 @@ export default function NearbyGaragesMap() {
           onChange={(e) => setSearchQuery(e.target.value)}
           style={styles.input}
         />
-        <button onClick={handleSearch} style={styles.button}>Search</button>
-        <button onClick={handleUseMyLocation} style={styles.button}>📍 Use My Location</button>
+        <button onClick={handleSearch} style={styles.button}>
+          Search
+        </button>
+        <button onClick={handleUseMyLocation} style={styles.button}>
+          📍 Use My Location
+        </button>
       </div>
 
       {errorMessage && <div style={styles.error}>{errorMessage}</div>}
@@ -159,10 +169,14 @@ export default function NearbyGaragesMap() {
               ref={(ref) => (markerRefs.current[garage.id] = ref)}
             >
               <Popup>
-                <strong>{garage.name}</strong><br />
-                {garage.address}<br />
-                Lat: {garage.latitude.toFixed(4)}<br />
-                Lng: {garage.longitude.toFixed(4)}<br />
+                <strong>{garage.name}</strong>
+                <br />
+                {garage.address}
+                <br />
+                Lat: {garage.latitude.toFixed(4)}
+                <br />
+                Lng: {garage.longitude.toFixed(4)}
+                <br />
                 Distance: {garage.distance?.toFixed(2)} km
               </Popup>
             </Marker>
@@ -170,82 +184,177 @@ export default function NearbyGaragesMap() {
         </MapContainer>
       </div>
 
-      {/* Show only the 5 nearest garages */}
       <div style={styles.cardContainer}>
         {[...garages]
           .sort((a, b) => a.distance - b.distance)
           .slice(0, 5)
           .map((garage) => (
-            <div key={garage.id} style={styles.card}>
-              <h3 style={{ marginBottom: '8px', fontSize: '18px' }}>{garage.name}</h3>
-              <p style={styles.cardInfo}>{garage.address}</p>
-              <p style={styles.cardInfo}><strong>Rate:</strong> {garage.hourly_rate} EGP/hour</p>
-              <p style={styles.cardInfo}><strong>Available Spots:</strong> {garage.available_spots}</p>
-              <p style={styles.cardInfo}><strong>Rating:</strong> {garage.average_rating ?? 'N/A'}</p>
-              <p style={styles.cardInfo}><strong>Distance:</strong> {garage.distance?.toFixed(2)} km</p>
-              <button
-                style={styles.cardButton}
-                onClick={() => {
-                  if (mapRef.current) {
-                    mapRef.current.setView([garage.latitude, garage.longitude], 16);
-                  }
-                  const marker = markerRefs.current[garage.id];
-                  if (marker) {
-                    marker.openPopup();
-                  }
-                  document.querySelector('#map-section')?.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'center',
-                  });
+            <div
+              key={garage.id}
+              style={{
+                background: "linear-gradient(to right, #0f0c29, #302b63, #24243e)",
+                width: "340px",
+                height: "280px",
+                borderRadius: "20px",
+                boxShadow: "0 10px 20px rgba(0,0,0,0.7)",
+                color: "white",
+                padding: "20px",
+                marginBottom: "20px",
+                position: "relative",
+                cursor: "pointer",
+                transition: "transform 0.3s ease",
+                overflow: "hidden",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
+              onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+            >
+              <h3
+                style={{
+                  marginBottom: "8px",
+                  fontSize: "22px",
+                  fontFamily: "'Fira Code', monospace",
                 }}
               >
-                View on Map
-              </button>
+                {garage.name}
+              </h3>
+              <p style={{ fontSize: "14px", marginBottom: "4px", opacity: 0.8 }}>
+                {garage.address}
+              </p>
+              <p style={{ fontSize: "14px", marginBottom: "4px", opacity: 0.8 }}>
+                <strong>Latitude:</strong> {garage.latitude.toFixed(4)}
+              </p>
+              <p style={{ fontSize: "14px", marginBottom: "4px", opacity: 0.8 }}>
+                <strong>Longitude:</strong> {garage.longitude.toFixed(4)}
+              </p>
+              <p style={{ fontSize: "14px", fontWeight: "bold", marginBottom: "50px" }}>
+                Distance: {garage.distance?.toFixed(2)} km
+              </p>
+              <div style={{ display: "flex", gap: "10px", position: "absolute", bottom: "20px", left: "20px", right: "20px" }}>
+                <button
+                  style={{
+                    backgroundColor: "#FF8C42",
+                    border: "none",
+                    borderRadius: "12px",
+                    padding: "8px 16px",
+                    color: "white",
+                    fontWeight: "600",
+                    cursor: "pointer",
+                    flex: 1,
+                    transition: "background-color 0.3s ease",
+                  }}
+                  onClick={() => {
+                    if (mapRef.current) {
+                      mapRef.current.setView([garage.latitude, garage.longitude], 16);
+                    }
+                    const marker = markerRefs.current[garage.id];
+                    if (marker) {
+                      marker.openPopup();
+                    }
+                    document.querySelector("#map-section")?.scrollIntoView({
+                      behavior: "smooth",
+                      block: "center",
+                    });
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#e57a32")}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#FF8C42")}
+                >
+                  View on Map
+                </button>
+                <button
+                  style={{
+                    backgroundColor: "#007bff",
+                    border: "none",
+                    borderRadius: "12px",
+                    padding: "8px 16px",
+                    color: "white",
+                    fontWeight: "600",
+                    cursor: "pointer",
+                    flex: 1,
+                    transition: "background-color 0.3s ease",
+                  }}
+                  onClick={() => navigate(`/garages/${garage.id}`)}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#0056b3")}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#007bff")}
+                >
+                  Details
+                </button>
+              </div>
             </div>
-        ))}
+          ))}
       </div>
     </div>
   );
 }
 
-// ----------- STYLES -----------
-
 const baseStyles = {
   wrapper: {
-    display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: '100vh', padding: '20px', position: 'relative',
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    minHeight: "100vh",
+    padding: "20px",
+    position: "relative",
   },
   darkModeToggle: {
-    position: 'absolute', top: '15px', right: '20px', padding: '8px 14px', fontSize: '16px', borderRadius: '8px', border: 'none', backgroundColor: '#555', color: 'white', cursor: 'pointer', zIndex: 1000,
+    position: "absolute",
+    top: "15px",
+    right: "20px",
+    padding: "8px 14px",
+    fontSize: "16px",
+    borderRadius: "8px",
+    border: "none",
+    backgroundColor: "#555",
+    color: "white",
+    cursor: "pointer",
+    zIndex: 1000,
   },
   controls: {
-    marginBottom: '15px', display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center',
+    marginBottom: "15px",
+    display: "flex",
+    gap: "10px",
+    flexWrap: "wrap",
+    justifyContent: "center",
   },
   input: {
-    padding: '8px', fontSize: '16px', width: '250px', borderRadius: '6px', border: '1px solid #ccc',
+    padding: "8px",
+    fontSize: "16px",
+    width: "250px",
+    borderRadius: "6px",
+    border: "1px solid #ccc",
   },
   button: {
-    padding: '8px 16px', fontSize: '16px', borderRadius: '6px', border: 'none', backgroundColor: '#4CAF50', color: 'white', cursor: 'pointer',
+    padding: "8px 16px",
+    fontSize: "16px",
+    borderRadius: "6px",
+    border: "none",
+    backgroundColor: "#4CAF50",
+    color: "white",
+    cursor: "pointer",
   },
   error: {
-    color: 'red', fontWeight: 'bold', marginBottom: '10px',
+    color: "red",
+    fontWeight: "bold",
+    marginBottom: "10px",
   },
   mapContainer: {
-    width: '90%', maxWidth: '1000px', height: '80vh', marginBottom: '30px',
+    width: "90%",
+    maxWidth: "1000px",
+    height: "80vh",
+    marginBottom: "30px",
   },
   map: {
-    width: '100%', height: '100%', borderRadius: '12px', boxShadow: '0 0 10px rgba(0,0,0,0.2)',
+    width: "100%",
+    height: "100%",
+    borderRadius: "12px",
+    boxShadow: "0 0 10px rgba(0,0,0,0.2)",
   },
   cardContainer: {
-    display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '20px', padding: '0 20px', width: '100%',
-  },
-  card: {
-    width: '280px', padding: '20px', borderRadius: '12px', backgroundColor: '#fff', boxShadow: '0 4px 15px rgba(0,0,0,0.1)', textAlign: 'left', transition: 'transform 0.2s ease',
-  },
-  cardInfo: {
-    margin: '4px 0', fontSize: '14px', lineHeight: '1.5',
-  },
-  cardButton: {
-    marginTop: '10px', padding: '8px 12px', border: 'none', borderRadius: '8px', backgroundColor: '#007bff', color: 'white', cursor: 'pointer',
+    display: "flex",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    gap: "20px",
+    padding: "0 20px",
+    width: "100%",
   },
 };
 
@@ -253,8 +362,8 @@ const lightStyles = {
   ...baseStyles,
   wrapper: {
     ...baseStyles.wrapper,
-    backgroundColor: '#f9f9f9',
-    color: '#000',
+    backgroundColor: "#f9f9f9",
+    color: "#000",
   },
 };
 
@@ -262,26 +371,17 @@ const darkStyles = {
   ...baseStyles,
   wrapper: {
     ...baseStyles.wrapper,
-    backgroundColor: '#1e1e1e',
-    color: '#fff',
+    backgroundColor: "#1e1e1e",
+    color: "#fff",
   },
   input: {
     ...baseStyles.input,
-    backgroundColor: '#333',
-    color: '#fff',
-    border: '1px solid #666',
+    backgroundColor: "#333",
+    color: "#fff",
+    border: "1px solid #666",
   },
   button: {
     ...baseStyles.button,
-    backgroundColor: '#666',
-  },
-  card: {
-    ...baseStyles.card,
-    backgroundColor: '#2c2c2c',
-    color: '#fff',
-  },
-  cardButton: {
-    ...baseStyles.cardButton,
-    backgroundColor: '#888',
+    backgroundColor: "#666",
   },
 };

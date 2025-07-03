@@ -153,10 +153,10 @@ const Settings = ({ darkMode, setDarkMode }) => {
             >
               {darkMode ? "☀ Light Mode" : "🌙 Dark Mode"}
             </button>
-            <span className={`text-sm transition-colors ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>Hossam</span>
+            <span className={`text-sm transition-colors ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>{formData?.username || 'User'}</span>
             <Link to={"/profile"}>
               <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
-                <span className="text-white text-sm font-medium">H</span>
+                <span className="text-white text-sm font-medium">{formData?.username ? formData.username.charAt(0).toUpperCase() : 'U'}</span>
               </div>
             </Link>
           </div>
