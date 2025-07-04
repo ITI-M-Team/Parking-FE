@@ -12,9 +12,12 @@
     import Settings from '../Pages/Settings'
     import NearbyGarages from "../components/NearbyGarages";
     import GarageDetails from '../Pages/GarageDetails'
-import Manual from '../components/Manual';
+    import Manual from '../components/Manual';
     import PasswordResetFlow from "../PasswordResetFlow/pages/PasswordResetFlow";
     import Activation from '../components/Activation';
+    import OwnerDashboard from '../components/OwnerDashboard'; 
+
+
     function RouteList() {
         const [darkMode, setDarkMode] = useState(() => {
             return localStorage.getItem("theme") === "dark";
@@ -38,6 +41,8 @@ import Manual from '../components/Manual';
             <Route path="/password-reset" element={<PasswordResetFlow darkMode={darkMode} setDarkMode={setDarkMode} />} />
             <Route path="/manual" element={<Manual />} />
             <Route path='/activation' element={<Activation darkMode={darkMode} setDarkMode={setDarkMode}/>}/>
+            <Route path="/dashboard/owner" element={<OwnerDashboard darkMode={darkMode} setDarkMode={setDarkMode} />} /> {/* <--- أضف هذا المسار */}
+
             </Routes>
     )
 }
