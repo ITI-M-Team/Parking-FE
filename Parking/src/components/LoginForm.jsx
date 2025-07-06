@@ -64,14 +64,14 @@ const LoginForm = ({ onLoginSuccess }) => {
       }
 
       const { access, refresh, user } = data;
-      const { role } = user;
+      const { role, is_superuser, is_staff } = user;
 
-      if (!access || !refresh || !role) {
+      if (!access || !refresh) {
         setError("Invalid server response");
         return;
       }
 
-      const tokenData = { access, refresh, role };
+      const tokenData = { access, refresh, role, is_superuser, is_staff };
       setLoginData(tokenData);
       const storage = formData.rememberMe ? localStorage : sessionStorage;
       storage.setItem("authTokens", JSON.stringify(tokenData));
