@@ -15,7 +15,13 @@
     import Manual from '../components/Manual';
     import PasswordResetFlow from "../PasswordResetFlow/pages/PasswordResetFlow";
     import Activation from '../components/Activation';
+
     import OwnerDashboard from '../components/OwnerDashboard'; 
+
+    import AdminDashboard from '../Pages/AdminDashboard';
+    import AdminProtectedRoute from '../components/AdminWrapper/AdminProtectedRoute';
+    import NotAuthorizedPage from '../components/AdminWrapper/NotAuthorizedPage';
+
 
 
     function RouteList() {
@@ -42,8 +48,10 @@
             <Route path="/manual" element={<Manual />} />
             <Route path='/activation' element={<Activation darkMode={darkMode} setDarkMode={setDarkMode}/>}/>
             <Route path="/dashboard/owner" element={<OwnerDashboard darkMode={darkMode} setDarkMode={setDarkMode} />} /> {/* <--- أضف هذا المسار */}
+            <Route path='/admin'element={<AdminProtectedRoute> <AdminDashboard darkMode={darkMode} setDarkMode={setDarkMode}/> </AdminProtectedRoute>}/>
+            <Route path='/not-authorized' element={<NotAuthorizedPage/>}/>
+        </Routes>
 
-            </Routes>
     )
 }
 

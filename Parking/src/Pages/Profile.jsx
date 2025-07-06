@@ -93,42 +93,75 @@ function Profile({ darkMode, setDarkMode }) {
   return (
      <div className={`min-h-screen transition-colors ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       {/* Header */}
-      <div className={`shadow-sm border-b px-6 py-4 transition-colors ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'}`}>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <button className="p-2 hover:bg-gray-100 rounded-lg">
+      <div className={`shadow-sm border-b px-4 sm:px-6 py-4 transition-colors ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'}`}>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-y-4">
+          <div className="flex items-center gap-3 flex-wrap">
+            {userInfo?.role && (
+              <Link
+                to={
+                  userInfo.role === "driver"
+                    ? "/dashboard/driver"
+                    : userInfo.role === "owner"
+                    ? "/dashboard/owner"
+                    : "/"
+                }
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+              >
+                <ChevronLeft className={`w-5 h-5 ${darkMode ? 'text-white ' : 'text-gray-900'}`} />
+              </Link>
+            )}
+            {/* <button className="p-2 hover:bg-gray-100 rounded-lg">
               <ChevronLeft className="w-5 h-5" />
-            </button>
-            <h1 className={`text-xl font-semibold transition-colors ${darkMode ? 'text-white' : 'text-gray-900'}`}>User Information</h1>
+            </button> */}
+            <h1 className={`text-lg sm:text-xl font-semibold transition-colors ${darkMode ? 'text-white' : 'text-gray-900'}`}>User Information</h1>
           </div>
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center gap-3 flex-wrap sm:flex-nowrap">
             <button
               onClick={() => setDarkMode(!darkMode)}
-              className={`px-4 py-2 text-sm rounded-md transition hover:scale-105 ${darkMode ? 'bg-gray-700 text-white' : 'bg-gray-300 text-gray-900'}`}
+              className={`px-4 py-2 text-sm rounded-md transition hover:scale-105 ${darkMode ? 'bg-gray-700 text-white hover:bg-gray-600' : 'bg-gray-300 text-gray-900 hover:bg-gray-200'}`}
             >
               {darkMode ? "☀ Light Mode" : "🌙 Dark Mode"}
             </button>
             <span className={`text-sm transition-colors ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>{userInfo?.username || 'User'}</span>
-            <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center">
-              <span className="text-white text-sm font-medium">
-                {userInfo?.username ? userInfo.username.charAt(0).toUpperCase() : 'U'}
-              </span>
-            </div>
+            
+             {userInfo?.profile_image ?(
+                <img
+                  src={userInfo?.profile_image}
+                  alt="Profile"
+                  className="w-8 h-8 rounded-full object-cover border border-white shadow"
+                />
+                ) : (
+                <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
+                  <span className="text-white text-sm font-medium">
+                    {userInfo?.username ? userInfo.username.charAt(0).toUpperCase() : 'U'}
+                  </span>
+                </div>
+              )}
+
           </div>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto p-6">
+      <div className="max-w-7xl mx-auto p-6">
         <div className={`rounded-lg shadow-sm transition-colors ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
           {/* Profile Section */}
           <div className={`p-8 border-b transition-colors ${darkMode ? 'border-gray-700' : ''}`}>
             <div className="flex flex-col items-center space-y-4">
               {/* Avatar */}
               <div className="relative">
-                <div className="w-32 h-32 bg-gradient-to-br from-red-400 to-red-600 rounded-full flex items-center justify-center">
-                  <User className="w-16 h-16 text-white" />
-                </div>
-                <div className="absolute bottom-2 right-2 w-6 h-6 bg-green-500 border-2 border-white rounded-full"></div>
+                {userInfo?.profile_image  ? (
+                  <img 
+                    src={userInfo?.profile_image } 
+                    alt="Profile" 
+                    className="w-32 h-32 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-32 h-32 bg-gradient-to-br from-red-400 to-red-600 rounded-full flex items-center justify-center">
+                    <div className="w-6 h-6 bg-black rounded-full mb-2"></div>
+                    <div className="w-6 h-6 bg-black rounded-full mb-2 ml-4"></div>
+                    <div className="w-16 h-8 bg-black rounded-full"></div>
+                  </div>
+                )}
               </div>
               
               <div className="text-center">
@@ -156,8 +189,8 @@ function Profile({ darkMode, setDarkMode }) {
                     <User className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                   </div>
                   <div>
-                    <p className={`text-sm font-medium transition-colors ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Username</p>
-                    <p className={`text-lg transition-colors ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                    <p className={`text-xs sm:text-sm font-medium transition-colors ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Username</p>
+                    <p className={`text-sm sm:text-base md:text-lg transition-colors ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                       {userInfo?.username || 'Not provided'}
                     </p>
                   </div>
@@ -168,8 +201,8 @@ function Profile({ darkMode, setDarkMode }) {
                     <Mail className="w-5 h-5 text-green-600 dark:text-green-400" />
                   </div>
                   <div>
-                    <p className={`text-sm font-medium transition-colors ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Email</p>
-                    <p className={`text-lg transition-colors ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                    <p className={`text-xs sm:text-sm font-medium transition-colors ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Email</p>
+                    <p className={`text-sm sm:text-base md:text-lg transition-colors ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                       {userInfo?.email || 'Not provided'}
                     </p>
                   </div>
@@ -180,8 +213,8 @@ function Profile({ darkMode, setDarkMode }) {
                     <Phone className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                   </div>
                   <div>
-                    <p className={`text-sm font-medium transition-colors ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Phone</p>
-                    <p className={`text-lg transition-colors ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                    <p className={`text-xs sm:text-sm font-medium transition-colors ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Phone</p>
+                    <p className={`text-sm sm:text-base md:text-lg transition-colors ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                       {userInfo?.phone || 'Not provided'}
                     </p>
                   </div>
@@ -192,8 +225,8 @@ function Profile({ darkMode, setDarkMode }) {
                     <CreditCard className="w-5 h-5 text-orange-600 dark:text-orange-400" />
                   </div>
                   <div>
-                    <p className={`text-sm font-medium transition-colors ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>National ID</p>
-                    <p className={`text-lg transition-colors ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                    <p className={`text-xs sm:text-sm font-medium transition-colors ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>National ID</p>
+                    <p className={`text-sm sm:text-base md:text-lg transition-colors ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                       {userInfo?.national_id || 'Not provided'}
                     </p>
                   </div>
@@ -204,8 +237,8 @@ function Profile({ darkMode, setDarkMode }) {
                     <FileText className="w-5 h-5 text-red-600 dark:text-red-400" />
                   </div>
                   <div>
-                    <p className={`text-sm font-medium transition-colors ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Role</p>
-                    <p className={`text-lg transition-colors ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                    <p className={`text-xs sm:text-sm font-medium transition-colors ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Role</p>
+                    <p className={`text-sm sm:text-base md:text-lg transition-colors ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                       {userInfo?.role || 'Not provided'}
                     </p>
                   </div>
@@ -316,16 +349,16 @@ function Profile({ darkMode, setDarkMode }) {
             </div>
 
             {/* Actions */}
-            <div className="flex justify-center pt-6 space-x-4 flex-wrap">
+            <div className="flex flex-col sm:flex-row justify-center pt-6 gap-4">
               <button
                 onClick={handleRetry}
-                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium w-full sm:w-auto"
               >
                 Refresh Information
               </button>
                <button
                 onClick={handleUpdate}
-                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium w-full sm:w-auto"
               >
                 Update Information
               </button>
