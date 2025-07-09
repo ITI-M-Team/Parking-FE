@@ -12,7 +12,8 @@
     import Settings from '../Pages/Settings'
     import NearbyGarages from "../components/NearbyGarages";
     import GarageDetails from '../Pages/GarageDetails'
-import Manual from '../components/Manual';
+    import BookingConfirmation from '../Pages/BookingConfirmation'
+    import Manual from '../components/Manual';
     import PasswordResetFlow from "../PasswordResetFlow/pages/PasswordResetFlow";
     import Activation from '../components/Activation';
     function RouteList() {
@@ -38,6 +39,9 @@ import Manual from '../components/Manual';
             <Route path="/password-reset" element={<PasswordResetFlow darkMode={darkMode} setDarkMode={setDarkMode} />} />
             <Route path="/manual" element={<Manual />} />
             <Route path='/activation' element={<Activation darkMode={darkMode} setDarkMode={setDarkMode}/>}/>
+            <Route path="/booking/confirmation/:bookingId" element={<BookingConfirmation />} />
+
+            
             </Routes>
     )
 }
