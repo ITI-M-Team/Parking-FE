@@ -17,7 +17,6 @@ const BookingConfirmation = () => {
         const data = await res.json();
         setBooking(data);
 
-        // Set countdown time if reservation_expiry_time exists
         if (data.reservation_expiry_time) {
           const expiryTime = new Date(data.reservation_expiry_time).getTime();
           const now = new Date().getTime();
@@ -32,7 +31,7 @@ const BookingConfirmation = () => {
   }, [bookingId]);
 
   useEffect(() => {
-    if (!timeLeft) return;
+    if (timeLeft === null) return;
 
     const interval = setInterval(() => {
       setTimeLeft((prev) => {
@@ -55,15 +54,24 @@ const BookingConfirmation = () => {
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
+  const formatDateTime = (iso) => {
+    const date = new Date(iso);
+    return date.toLocaleString(); // You can customize to your preferred format
+  };
+
   if (!booking) return <div className="text-center mt-10">Loading booking...</div>;
 
   return (
     <div className="max-w-xl mx-auto mt-10 p-6 bg-white border border-gray-200 shadow rounded-lg">
       <h1 className="text-2xl font-bold mb-4 text-[#CF0018]">Booking Confirmation</h1>
+
       <p><strong>Garage:</strong> {booking.garage.name}</p>
       <p><strong>Address:</strong> {booking.garage.address}</p>
       <p><strong>Spot:</strong> {booking.parking_spot.slot_number}</p>
-      <p><strong>Estimated Cost:</strong> {booking.estimated_cost} EGP</p>
+      <p><strong>Status:</strong> {booking.status}</p>
+      <p><strong>Estimated Arrival:</strong> {formatDateTime(booking.estimated_arrival_time)}</p>
+      <p><strong>Reservation Expires:</strong> {formatDateTime(booking.reservation_expiry_time)}</p>
+
       {timeLeft !== null && (
         <div className="mt-6">
           <p className="text-lg font-semibold text-gray-700">⏳ Time left to confirm:</p>
