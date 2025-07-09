@@ -22,8 +22,8 @@ import AdminDashboard from '../Pages/AdminDashboard';
 import AdminProtectedRoute from '../components/AdminWrapper/AdminProtectedRoute';
 import NotAuthorizedPage from '../components/AdminWrapper/NotAuthorizedPage';
 import GarageRegister from '../components/GarageData/GarageRegister';
-
-
+import GarageEdit from '../components/GarageData/GarageEdit';
+import GarageOccupancy from '../components/GarageData/GarageOccupancy';
 function RouteList() {
     const [darkMode, setDarkMode] = useState(() => {
         return localStorage.getItem("theme") === "dark";
@@ -51,6 +51,8 @@ function RouteList() {
             <Route path='/admin' element={<AdminProtectedRoute> <AdminDashboard darkMode={darkMode} setDarkMode={setDarkMode} /> </AdminProtectedRoute>} />
             <Route path='/not-authorized' element={<NotAuthorizedPage />} />
             <Route path="/garage/register" element={<GarageRegister darkMode={darkMode} setDarkMode={setDarkMode} />} />
+            <Route path="/garage/edit/:id" element={<GarageEdit darkMode={darkMode} setDarkMode={setDarkMode} />} />
+            <Route path="/garage/occupancy/:id" element={<GarageOccupancy darkMode={darkMode} setDarkMode={setDarkMode} />} />
         </Routes>
 
     )
