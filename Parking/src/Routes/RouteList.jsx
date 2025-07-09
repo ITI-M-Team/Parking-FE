@@ -17,6 +17,7 @@ import PasswordResetFlow from "../PasswordResetFlow/pages/PasswordResetFlow";
 import Activation from '../components/Activation';
 
 import OwnerDashboard from '../components/OwnerDashboard';
+    import BookingConfirmation from '../Pages/BookingConfirmation'
 
 import AdminDashboard from '../Pages/AdminDashboard';
 import AdminProtectedRoute from '../components/AdminWrapper/AdminProtectedRoute';
@@ -53,6 +54,8 @@ function RouteList() {
             <Route path="/garage/register" element={<GarageRegister darkMode={darkMode} setDarkMode={setDarkMode} />} />
             <Route path="/garage/edit/:id" element={<GarageEdit darkMode={darkMode} setDarkMode={setDarkMode} />} />
             <Route path="/garage/occupancy/:id" element={<GarageOccupancy darkMode={darkMode} setDarkMode={setDarkMode} />} />
+            <Route path="/booking/confirmation/:bookingId" element={<BookingConfirmation />} />
+
         </Routes>
 
     )
