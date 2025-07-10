@@ -1,8 +1,7 @@
-// ✅ Final React Component (BookingConfirmation.jsx)
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
-const BookingConfirmation = () => {
+const BookingConfirmation = ({ darkMode }) => {
   const { bookingId } = useParams();
   const [booking, setBooking] = useState(null);
   const [timeLeft, setTimeLeft] = useState(null);
@@ -10,7 +9,10 @@ const BookingConfirmation = () => {
   useEffect(() => {
     const fetchBooking = async () => {
       try {
-        const token = JSON.parse(localStorage.getItem("authTokens"))?.access;
+        const token =
+          JSON.parse(localStorage.getItem("authTokens"))?.access ||
+          JSON.parse(sessionStorage.getItem("authTokens"))?.access;
+
         const res = await fetch(`http://localhost:8000/api/bookings/${bookingId}/`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -60,10 +62,22 @@ const BookingConfirmation = () => {
     return date.toLocaleString();
   };
 
-  if (!booking) return <div className="text-center mt-10">Loading booking...</div>;
+  if (!booking) {
+    return (
+      <div className="text-center mt-10 text-lg font-medium text-gray-500">
+        Loading booking...
+      </div>
+    );
+  }
 
   return (
-    <div className="max-w-xl mx-auto mt-10 p-6 bg-white border border-gray-200 shadow rounded-lg">
+    <div
+      className={`max-w-xl mx-auto mt-10 p-6 border shadow rounded-lg transition-all duration-300 ${
+        darkMode
+          ? 'bg-gray-900 text-white border-gray-700'
+          : 'bg-white text-gray-900 border-gray-200'
+      }`}
+    >
       <h1 className="text-2xl font-bold mb-4 text-[#CF0018]">Booking Confirmation</h1>
 
       <p><strong>Garage:</strong> {booking.garage_name}</p>
@@ -74,8 +88,10 @@ const BookingConfirmation = () => {
 
       {timeLeft !== null && (
         <div className="mt-6">
-          <p className="text-lg font-semibold text-gray-700">⏳ Time left to confirm:</p>
-          <div className="text-3xl font-bold text-red-500 mt-2">{formatTime(timeLeft)}</div>
+          <p className="text-lg font-semibold">⏳ Time left to confirm:</p>
+          <div className="text-3xl font-bold text-red-500 mt-2">
+            {formatTime(timeLeft)}
+          </div>
         </div>
       )}
     </div>
