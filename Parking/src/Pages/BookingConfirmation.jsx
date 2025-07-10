@@ -96,6 +96,10 @@ const BookingConfirmation = () => {
       <p><strong>Estimated Arrival:</strong> {formatDateTime(booking.estimated_arrival_time)}</p>
       <p><strong>Reservation Expires:</strong> {formatDateTime(booking.reservation_expiry_time)}</p>
 
+      <p className="mt-2 text-green-700 font-medium">
+        💰 Wallet Balance After Booking: <strong>{booking.wallet_balance} EGP</strong>
+      </p>
+
       {booking.qr_code_image && (
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-600 mb-2">Scan this QR code at the entrance:</p>
@@ -110,7 +114,18 @@ const BookingConfirmation = () => {
       {timeLeft !== null && (
         <div className="mt-6 text-center">
           <p className="text-lg font-semibold text-gray-700">⏳ Time left before expiry:</p>
-          <div className="text-3xl font-bold text-red-500 mt-2">{formatTime(timeLeft)}</div>
+
+          <div className={`text-3xl font-bold mt-2 ${
+            timeLeft <= 5 * 60 * 1000 ? 'text-yellow-500 animate-pulse' : 'text-red-500'
+          }`}>
+            {formatTime(timeLeft)}
+          </div>
+
+          {timeLeft <= 5 * 60 * 1000 && (
+            <p className="text-sm text-yellow-600 mt-2">
+              ⚠️ Hurry up! Your reservation will expire soon.
+            </p>
+          )}
         </div>
       )}
     </div>
