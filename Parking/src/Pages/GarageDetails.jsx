@@ -54,7 +54,8 @@ const GarageDetails = () => {
       estimated_arrival_time: arrivalTime.toISOString(),
     };
 
-    const token = JSON.parse(localStorage.getItem("authTokens"))?.access;
+const token =
+  JSON.parse(localStorage.getItem("authTokens") || sessionStorage.getItem("authTokens"))?.access;
 
     try {
       const res = await fetch("http://localhost:8000/api/bookings/initiate/", {
