@@ -87,7 +87,15 @@ const GarageDetails = () => {
         body: JSON.stringify(payload),
       });
 
-      const data = await res.json();
+      let data;
+      try {
+        data = await res.json();
+      } catch (jsonErr) {
+        const fallback = await res.text();
+        console.error("❌ Failed to parse response JSON:", fallback);
+        alert("🚨 Server error. Please try again later.");
+        return;
+      }
 
       if (res.ok) {
         setConfirmationMessage("✅ Booking successful! Redirecting...");
@@ -108,8 +116,8 @@ const GarageDetails = () => {
         alert(errorMessage);
       }
     } catch (err) {
-      alert("🚨 Error during booking.");
-      console.error(err);
+      alert("🚨 Unexpected error during booking.");
+      console.error("🚨 Booking error:", err);
     }
   };
 
