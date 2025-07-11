@@ -5,28 +5,48 @@ const BookingConfirmation = ({ darkMode }) => {
   const { bookingId } = useParams();
   const [booking, setBooking] = useState(null);
   const [timeLeft, setTimeLeft] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchBooking = async () => {
       try {
-        const token =
-          JSON.parse(localStorage.getItem("authTokens"))?.access ||
-          JSON.parse(sessionStorage.getItem("authTokens"))?.access;
+        const storedToken = localStorage.getItem("authTokens") || sessionStorage.getItem("authTokens");
+        const token = storedToken ? JSON.parse(storedToken).access : null;
+
+        if (!token) {
+          setError("❌ Authentication token not found. Please log in again.");
+          setLoading(false);
+          return;
+        }
 
         const res = await fetch(`http://localhost:8000/api/bookings/${bookingId}/`, {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         });
 
-        const data = await res.json();
-        setBooking(data);
+        if (res.status === 401) {
+          setError("❌ Unauthorized. Please log in again.");
+        } else if (res.status === 404) {
+          setError("❌ Booking not found.");
+        } else if (!res.ok) {
+          setError("❌ Failed to fetch booking data.");
+        } else {
+          const data = await res.json();
+          setBooking(data);
 
-        if (data.reservation_expiry_time) {
-          const expiryTime = new Date(data.reservation_expiry_time).getTime();
-          const now = new Date().getTime();
-          setTimeLeft(Math.max(0, expiryTime - now));
+          if (data.reservation_expiry_time) {
+            const expiryTime = new Date(data.reservation_expiry_time).getTime();
+            const now = new Date().getTime();
+            setTimeLeft(Math.max(0, expiryTime - now));
+          }
         }
       } catch (err) {
-        console.error("Failed to fetch booking:", err);
+        console.error("Error fetching booking:", err);
+        setError("❌ An unexpected error occurred.");
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -52,48 +72,54 @@ const BookingConfirmation = ({ darkMode }) => {
 
   const formatTime = (ms) => {
     const totalSeconds = Math.floor(ms / 1000);
-    const mins = Math.floor(totalSeconds / 60);
-    const secs = totalSeconds % 60;
-    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    const mins = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+    const secs = (totalSeconds % 60).toString().padStart(2, '0');
+    return `${mins}:${secs}`;
   };
 
   const formatDateTime = (iso) => {
     const date = new Date(iso);
-    return date.toLocaleString();
+    return isNaN(date.getTime()) ? "N/A" : date.toLocaleString();
   };
 
-  if (!booking) {
+  if (loading) {
     return (
-      <div className="text-center mt-10 text-lg font-medium text-gray-500">
-        Loading booking...
+      <div className={`min-h-screen flex justify-center items-center ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-800'}`}>
+        <p className="text-lg font-medium">Loading booking...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={`min-h-screen flex justify-center items-center ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-800'}`}>
+        <p className="text-red-500 font-medium">{error}</p>
       </div>
     );
   }
 
   return (
-    <div
-      className={`max-w-xl mx-auto mt-10 p-6 border shadow rounded-lg transition-all duration-300 ${
-        darkMode
-          ? 'bg-gray-900 text-white border-gray-700'
-          : 'bg-white text-gray-900 border-gray-200'
-      }`}
-    >
-      <h1 className="text-2xl font-bold mb-4 text-[#CF0018]">Booking Confirmation</h1>
+    <div className={`min-h-screen px-4 py-10 flex justify-center ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
+      <div className={`w-full max-w-xl p-6 rounded-lg shadow-lg border transition-all duration-300 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+        <h1 className="text-2xl font-bold mb-4 text-[#CF0018]">Booking Confirmation</h1>
 
-      <p><strong>Garage:</strong> {booking.garage_name}</p>
-      <p><strong>Spot ID:</strong> {booking.spot_id}</p>
-      <p><strong>Status:</strong> {booking.status}</p>
-      <p><strong>Estimated Arrival:</strong> {formatDateTime(booking.estimated_arrival_time)}</p>
-      <p><strong>Reservation Expires:</strong> {formatDateTime(booking.reservation_expiry_time)}</p>
-
-      {timeLeft !== null && (
-        <div className="mt-6">
-          <p className="text-lg font-semibold">⏳ Time left to confirm:</p>
-          <div className="text-3xl font-bold text-red-500 mt-2">
-            {formatTime(timeLeft)}
-          </div>
+        <div className="space-y-2 text-base">
+          <p><strong>Garage:</strong> {booking.garage_name || 'N/A'}</p>
+          <p><strong>Spot ID:</strong> {booking.spot_id || 'N/A'}</p>
+          <p><strong>Status:</strong> {booking.status || 'N/A'}</p>
+          <p><strong>Estimated Arrival:</strong> {formatDateTime(booking.estimated_arrival_time)}</p>
+          <p><strong>Reservation Expires:</strong> {formatDateTime(booking.reservation_expiry_time)}</p>
         </div>
-      )}
+
+        {timeLeft !== null && (
+          <div className="mt-6">
+            <p className="text-lg font-semibold">⏳ Time left to confirm:</p>
+            <div className="text-3xl font-bold text-red-500 mt-2">
+              {formatTime(timeLeft)}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
