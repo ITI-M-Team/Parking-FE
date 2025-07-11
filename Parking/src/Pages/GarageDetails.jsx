@@ -54,8 +54,8 @@ const GarageDetails = () => {
       estimated_arrival_time: arrivalTime.toISOString(),
     };
 
-const token =
-  JSON.parse(localStorage.getItem("authTokens") || sessionStorage.getItem("authTokens"))?.access;
+    const token =
+      JSON.parse(localStorage.getItem("authTokens") || sessionStorage.getItem("authTokens"))?.access;
 
     try {
       const res = await fetch("http://localhost:8000/api/bookings/initiate/", {
@@ -75,7 +75,17 @@ const token =
           navigate(`/booking/confirmation/${data.booking_id}`);
         }, 2000);
       } else {
-        alert("❌ Booking failed: " + (data.detail || JSON.stringify(data)));
+        let errorMessage = "❌ Booking failed.";
+        if (data.detail) {
+          errorMessage += " " + data.detail;
+        } else if (data.non_field_errors) {
+          errorMessage += " " + data.non_field_errors.join(", ");
+        } else if (data.error) {
+          errorMessage += " " + data.error;
+        } else {
+          errorMessage += " " + JSON.stringify(data);
+        }
+        alert(errorMessage);
       }
     } catch (err) {
       alert("🚨 Error during booking.");
