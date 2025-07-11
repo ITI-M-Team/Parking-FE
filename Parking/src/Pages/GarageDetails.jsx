@@ -16,7 +16,13 @@ const GarageDetails = () => {
   const [confirmationMessage, setConfirmationMessage] = useState("");
   const [filter, setFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
+  const [error, setError] = useState(null);
+
   const spotsPerPage = 20;
+
+  const isLoggedIn = !!(
+    localStorage.getItem("authTokens") || sessionStorage.getItem("authTokens")
+  );
 
   useEffect(() => {
     fetchGarageDetails(id);
@@ -26,10 +32,15 @@ const GarageDetails = () => {
   const fetchGarageDetails = async (garageId) => {
     try {
       const res = await fetch(`http://localhost:8000/api/garages/${garageId}/`);
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data?.error || "Garage not found.");
+        return;
+      }
       const data = await res.json();
       setGarage(data);
     } catch (error) {
-      alert("⚠️ Failed to load garage details.");
+      setError("❌ Failed to load garage details.");
     }
   };
 
@@ -39,7 +50,7 @@ const GarageDetails = () => {
       const data = await res.json();
       setSpots(data);
     } catch (error) {
-      alert("⚠️ Failed to load parking spots.");
+      console.error("❌ Failed to load parking spots.");
     }
   };
 
@@ -48,14 +59,23 @@ const GarageDetails = () => {
   const handleBooking = async () => {
     if (!selectedSpotId) return;
 
+    const storedToken =
+      localStorage.getItem("authTokens") || sessionStorage.getItem("authTokens");
+    const token = storedToken ? JSON.parse(storedToken).access : null;
+
+    if (!token) {
+      alert("❌ You're not logged in. Please log in to book a spot.");
+      navigate("/login");
+      return;
+    }
+
     const payload = {
       garage_id: parseInt(id),
-      parking_spot_id: selectedSpotId,
+      parking_spot_id: parseInt(selectedSpotId),
       estimated_arrival_time: arrivalTime.toISOString(),
     };
 
-    const token =
-      JSON.parse(localStorage.getItem("authTokens") || sessionStorage.getItem("authTokens"))?.access;
+    console.log("📦 Sending booking payload:", payload);
 
     try {
       const res = await fetch("http://localhost:8000/api/bookings/initiate/", {
@@ -95,36 +115,57 @@ const GarageDetails = () => {
 
   const getSpotColor = (status) => {
     switch (status.toLowerCase()) {
-      case "available": return "bg-green-500";
-      case "reserved": return "bg-yellow-500";
-      case "pending": return "bg-orange-400";
-      case "occupied": return "bg-red-500";
-      default: return "bg-gray-400";
+      case "available":
+        return "bg-green-500";
+      case "reserved":
+        return "bg-yellow-500";
+      case "pending":
+        return "bg-orange-400";
+      case "occupied":
+        return "bg-red-500";
+      default:
+        return "bg-gray-400";
     }
   };
 
-  const filteredSpots = filter === "all"
-    ? spots
-    : spots.filter((s) => s.status.toLowerCase() === filter);
+  const filteredSpots =
+    filter === "all" ? spots : spots.filter((s) => s.status.toLowerCase() === filter);
 
-  const availableCount = spots.filter(s => s.status.toLowerCase() === "available").length;
-  const reservedCount = spots.filter(s => s.status.toLowerCase() === "reserved").length;
-  const pendingCount = spots.filter(s => s.status.toLowerCase() === "pending").length;
-  const occupiedCount = spots.filter(s => s.status.toLowerCase() === "occupied").length;
+  const availableCount = spots.filter((s) => s.status.toLowerCase() === "available").length;
+  const reservedCount = spots.filter((s) => s.status.toLowerCase() === "reserved").length;
+  const pendingCount = spots.filter((s) => s.status.toLowerCase() === "pending").length;
+  const occupiedCount = spots.filter((s) => s.status.toLowerCase() === "occupied").length;
 
   const totalPages = Math.ceil(filteredSpots.length / spotsPerPage);
   const indexOfLast = currentPage * spotsPerPage;
   const indexOfFirst = indexOfLast - spotsPerPage;
   const currentSpots = filteredSpots.slice(indexOfFirst, indexOfLast);
 
+  if (error) {
+    return (
+      <div className="max-w-2xl mx-auto p-6 mt-10 bg-white border border-red-500 text-black rounded-lg shadow">
+        <h2 className="text-xl font-bold text-red-600">🚫 Error</h2>
+        <p className="mt-4">{error}</p>
+        <button
+          onClick={() => navigate("/")}
+          className="mt-6 px-4 py-2 bg-[#CF0018] text-white rounded hover:bg-red-700"
+        >
+          Back to Home
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div className="max-w-4xl mx-auto p-6 mt-10 bg-white border-2 border-[#CF0018] rounded-xl shadow-lg">
+    <div className="max-w-4xl mx-auto p-6 mt-10 bg-white text-black border-2 border-[#CF0018] rounded-xl shadow-lg">
+      <h1 className="text-3xl font-bold text-[#CF0018] mb-6">Garage Details</h1>
+
       {!garage ? (
         <div className="text-center">Loading garage...</div>
       ) : (
         <>
-          <h1 className="text-3xl font-bold text-[#CF0018] mb-2">{garage.name}</h1>
-          <p className="text-gray-700 font-semibold mb-4">{garage.price_per_hour} EGP/hour</p>
+          <h2 className="text-2xl font-bold mb-2">{garage.name}</h2>
+          <p className="text-lg font-semibold mb-4">{garage.price_per_hour} EGP/hour</p>
 
           {garage.image && (
             <img
@@ -134,10 +175,19 @@ const GarageDetails = () => {
             />
           )}
 
-          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-4">
-            <span className="flex items-center gap-1"><MapPin className="w-4 h-4" />{garage.address}</span>
-            <span className="flex items-center gap-1"><Star className="w-4 h-4 text-yellow-500" />{garage.average_rating?.toFixed(1) || "No ratings"}</span>
-            <span className="flex items-center gap-1"><Clock className="w-4 h-4" />{garage.opening_hour?.slice(0, 5)} - {garage.closing_hour?.slice(0, 5)}</span>
+          <div className="flex flex-wrap items-center gap-4 text-sm mb-4">
+            <span className="flex items-center gap-1">
+              <MapPin className="w-4 h-4" />
+              {garage.address}
+            </span>
+            <span className="flex items-center gap-1">
+              <Star className="w-4 h-4 text-yellow-500" />
+              {garage.average_rating?.toFixed(1) || "No ratings"}
+            </span>
+            <span className="flex items-center gap-1">
+              <Clock className="w-4 h-4" />
+              {garage.opening_hour?.slice(0, 5)} - {garage.closing_hour?.slice(0, 5)}
+            </span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
@@ -147,7 +197,7 @@ const GarageDetails = () => {
                 selected={bookingDate}
                 onChange={(date) => setBookingDate(date)}
                 minDate={new Date()}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                className="w-full px-4 py-2 border rounded-lg"
               />
             </div>
             <div>
@@ -158,7 +208,7 @@ const GarageDetails = () => {
                 showTimeSelect
                 timeIntervals={15}
                 dateFormat="Pp"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                className="w-full px-4 py-2 border rounded-lg"
               />
             </div>
           </div>
@@ -194,7 +244,9 @@ const GarageDetails = () => {
                 key={spot.id}
                 onClick={() => handleSpotSelect(spot.id)}
                 disabled={spot.status.toLowerCase() !== "available"}
-                className={`h-20 flex flex-col items-center justify-center font-semibold rounded-lg text-white ${getSpotColor(spot.status)} ${selectedSpotId === spot.id ? "ring-4 ring-blue-400" : ""}`}
+                className={`h-20 flex flex-col items-center justify-center font-semibold rounded-lg text-white ${getSpotColor(
+                  spot.status
+                )} ${selectedSpotId === spot.id ? "ring-4 ring-blue-400" : ""}`}
               >
                 <span>{spot.slot_number}</span>
                 <span className="text-xs">{spot.status.toUpperCase()}</span>
@@ -221,9 +273,11 @@ const GarageDetails = () => {
           <div className="flex justify-end">
             <button
               onClick={handleBooking}
-              disabled={!selectedSpotId}
+              disabled={!selectedSpotId || !isLoggedIn}
               className={`px-6 py-3 rounded-lg font-semibold text-white ${
-                selectedSpotId ? "bg-[#FF8C42] hover:bg-[#e57a32]" : "bg-gray-400 cursor-not-allowed"
+                selectedSpotId && isLoggedIn
+                  ? "bg-[#FF8C42] hover:bg-[#e57a32]"
+                  : "bg-gray-400 cursor-not-allowed"
               }`}
             >
               Confirm Booking

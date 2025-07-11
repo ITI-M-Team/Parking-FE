@@ -44,7 +44,7 @@ function RouteList() {
             <Route path='/profile' element={<Profile darkMode={darkMode} setDarkMode={setDarkMode} />} />
             <Route path='/settings' element={<Settings darkMode={darkMode} setDarkMode={setDarkMode} />} />
             <Route path="/nearby-garages" element={<NearbyGarages darkMode={darkMode} setDarkMode={setDarkMode} />} />
-            <Route path="/garages/:id" element={<GarageDetails />} />
+            <Route path="/garages/:id" element={<GarageDetails   />} />
             <Route path="/password-reset" element={<PasswordResetFlow darkMode={darkMode} setDarkMode={setDarkMode} />} />
             <Route path="/manual" element={<Manual />} />
             <Route path='/activation' element={<Activation darkMode={darkMode} setDarkMode={setDarkMode} />} />
@@ -54,7 +54,7 @@ function RouteList() {
             <Route path="/garage/register" element={<GarageRegister darkMode={darkMode} setDarkMode={setDarkMode} />} />
             <Route path="/garage/edit/:id" element={<GarageEdit darkMode={darkMode} setDarkMode={setDarkMode} />} />
             <Route path="/garage/occupancy/:id" element={<GarageOccupancy darkMode={darkMode} setDarkMode={setDarkMode} />} />
-            <Route path="/booking/confirmation/:bookingId" element={<BookingConfirmation />} />
+            <Route path="/booking/confirmation/:bookingId" element={<BookingConfirmation   />} />
 
         </Routes>
 

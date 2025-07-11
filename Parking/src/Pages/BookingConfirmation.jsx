@@ -1,23 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
-const BookingConfirmation = () => {
+const BookingConfirmation = ({ darkMode }) => {
   const { bookingId } = useParams();
   const [booking, setBooking] = useState(null);
   const [timeLeft, setTimeLeft] = useState(null);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchBooking = async () => {
       try {
-        const token = JSON.parse(localStorage.getItem("authTokens"))?.access;
+        const storedToken = localStorage.getItem("authTokens") || sessionStorage.getItem("authTokens");
+        const token = storedToken ? JSON.parse(storedToken).access : null;
+
         if (!token) {
-          setError("You are not authenticated.");
+          setError("❌ Authentication token not found. Please log in again.");
+          setLoading(false);
           return;
         }
 
         const res = await fetch(`http://localhost:8000/api/bookings/${bookingId}/`, {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         });
 
         const contentType = res.headers.get("content-type");
@@ -35,8 +41,10 @@ const BookingConfirmation = () => {
           setTimeLeft(Math.max(0, expiryTime - now));
         }
       } catch (err) {
-        console.error("Failed to fetch booking:", err);
-        setError("⚠️ Could not load booking details.");
+        console.error("Error fetching booking:", err);
+        setError("❌ An unexpected error occurred.");
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -62,9 +70,9 @@ const BookingConfirmation = () => {
 
   const formatTime = (ms) => {
     const totalSeconds = Math.floor(ms / 1000);
-    const mins = Math.floor(totalSeconds / 60);
-    const secs = totalSeconds % 60;
-    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    const mins = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+    const secs = (totalSeconds % 60).toString().padStart(2, '0');
+    return `${mins}:${secs}`;
   };
 
   const formatDateTime = (iso) => {
@@ -73,61 +81,65 @@ const BookingConfirmation = () => {
     return isNaN(date.getTime()) ? "Invalid Date" : date.toLocaleString();
   };
 
-  if (error) {
+  if (loading) {
     return (
-      <div className="max-w-xl mx-auto mt-10 p-6 bg-red-100 border border-red-300 text-red-700 rounded-lg">
-        <h2 className="text-xl font-semibold mb-2">Error</h2>
-        <p>{error}</p>
+      <div className={`min-h-screen flex justify-center items-center ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-800'}`}>
+        <p className="text-lg font-medium">Loading booking...</p>
       </div>
     );
   }
 
-  if (!booking) {
-    return <div className="text-center mt-10">Loading booking...</div>;
+  if (error) {
+    return (
+      <div className={`min-h-screen flex justify-center items-center ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-800'}`}>
+        <p className="text-red-500 font-medium">{error}</p>
+      </div>
+    );
   }
 
   return (
-    <div className="max-w-xl mx-auto mt-10 p-6 bg-white border border-gray-200 shadow rounded-lg">
-      <h1 className="text-2xl font-bold mb-4 text-[#CF0018]">Booking Confirmation</h1>
+    <div className={`min-h-screen px-4 py-10 flex justify-center ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
+      <div className={`w-full max-w-xl p-6 rounded-lg shadow-lg border transition-all duration-300 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+        <h1 className="text-2xl font-bold mb-4 text-[#CF0018]">Booking Confirmation</h1>
 
-      <p><strong>Garage:</strong> {booking.garage_name || "N/A"}</p>
-      <p><strong>Spot ID:</strong> {booking.spot_id || "N/A"}</p>
-      <p><strong>Status:</strong> {booking.status || "N/A"}</p>
-      <p><strong>Estimated Arrival:</strong> {formatDateTime(booking.estimated_arrival_time)}</p>
-      <p><strong>Reservation Expires:</strong> {formatDateTime(booking.reservation_expiry_time)}</p>
-
-      <p className="mt-2 text-green-700 font-medium">
-        💰 Wallet Balance After Booking: <strong>{booking.wallet_balance} EGP</strong>
-      </p>
-
-      {booking.qr_code_image && (
-        <div className="mt-6 text-center">
-          <p className="text-sm text-gray-600 mb-2">Scan this QR code at the entrance:</p>
-          <img
-            src={booking.qr_code_image}
-            alt="Booking QR Code"
-            className="mx-auto w-48 h-48 object-contain border rounded"
-          />
+        <div className="space-y-2 text-base">
+          <p><strong>Garage:</strong> {booking.garage_name || 'N/A'}</p>
+          <p><strong>Spot ID:</strong> {booking.spot_id || 'N/A'}</p>
+          <p><strong>Status:</strong> {booking.status || 'N/A'}</p>
+          <p><strong>Estimated Arrival:</strong> {formatDateTime(booking.estimated_arrival_time)}</p>
+          <p><strong>Reservation Expires:</strong> {formatDateTime(booking.reservation_expiry_time)}</p>
+          <p className="mt-2 text-green-700 font-medium">
+            💰 Wallet Balance After Booking: <strong>{booking.wallet_balance} EGP</strong>
+          </p>
         </div>
-      )}
 
-      {timeLeft !== null && (
-        <div className="mt-6 text-center">
-          <p className="text-lg font-semibold text-gray-700">⏳ Time left before expiry:</p>
-
-          <div className={`text-3xl font-bold mt-2 ${
-            timeLeft <= 5 * 60 * 1000 ? 'text-yellow-500 animate-pulse' : 'text-red-500'
-          }`}>
-            {formatTime(timeLeft)}
+        {booking.qr_code_image && (
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-600 mb-2">Scan this QR code at the entrance:</p>
+            <img
+              src={booking.qr_code_image}
+              alt="Booking QR Code"
+              className="mx-auto w-48 h-48 object-contain border rounded"
+            />
           </div>
+        )}
 
-          {timeLeft <= 5 * 60 * 1000 && (
-            <p className="text-sm text-yellow-600 mt-2">
-              ⚠️ Hurry up! Your reservation will expire soon.
-            </p>
-          )}
-        </div>
-      )}
+        {timeLeft !== null && (
+          <div className="mt-6 text-center">
+            <p className="text-lg font-semibold text-gray-700">⏳ Time left before expiry:</p>
+            <div className={`text-3xl font-bold mt-2 ${
+              timeLeft <= 5 * 60 * 1000 ? 'text-yellow-500 animate-pulse' : 'text-red-500'
+            }`}>
+              {formatTime(timeLeft)}
+            </div>
+            {timeLeft <= 5 * 60 * 1000 && (
+              <p className="text-sm text-yellow-600 mt-2">
+                ⚠️ Hurry up! Your reservation will expire soon.
+              </p>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
