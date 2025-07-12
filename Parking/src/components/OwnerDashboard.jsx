@@ -1,7 +1,6 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, AlertCircle, Loader } from 'lucide-react';
+import { ChevronLeft, AlertCircle, Loader, QrCode } from 'lucide-react';
 import ownerDashboardApi from '../apis/ownerDashboardApi';
 import DashboardStats from './OwnerDashboard/DashboardStats';
 import TodaysBookingsTable from './OwnerDashboard/TodaysBookingsTable';
@@ -46,6 +45,10 @@ function OwnerDashboard({ darkMode, setDarkMode }) {
 
   const handleUpdateSuccess = () => {
     fetchDashboardData();
+  };
+
+  const handleQRCodeScan = () => {
+    navigate('/scanner');
   };
 
   if (loading) {
@@ -102,9 +105,24 @@ function OwnerDashboard({ darkMode, setDarkMode }) {
       <div className="max-w-6xl mx-auto p-6">
         {dashboardData && (
           <>
-            <h2 className={`text-2xl font-bold mb-6 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-              {dashboardData.name} Dashboard
-            </h2>
+            {/* Garage name and QR Code Scanner button */}
+            <div className="flex items-center justify-between mb-6">
+              <h2 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                {dashboardData.name} Dashboard
+              </h2>
+              <button
+                onClick={handleQRCodeScan}
+                className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors font-medium ${
+                  darkMode 
+                    ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                    : 'bg-blue-600 hover:bg-blue-700 text-white'
+                }`}
+              >
+                <QrCode className="w-5 h-5" />
+                <span>Scan QR Code</span>
+              </button>
+            </div>
+
             <DashboardStats darkMode={darkMode} garageData={dashboardData} />
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
               <TodaysBookingsTable darkMode={darkMode} bookings={dashboardData.today_bookings} />

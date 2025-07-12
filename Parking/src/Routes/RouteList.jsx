@@ -17,14 +17,15 @@ import PasswordResetFlow from "../PasswordResetFlow/pages/PasswordResetFlow";
 import Activation from '../components/Activation';
 
 import OwnerDashboard from '../components/OwnerDashboard';
-    import BookingConfirmation from '../Pages/BookingConfirmation'
-
+import CurrentBooking from "../components/CurrentBooking"
 import AdminDashboard from '../Pages/AdminDashboard';
 import AdminProtectedRoute from '../components/AdminWrapper/AdminProtectedRoute';
 import NotAuthorizedPage from '../components/AdminWrapper/NotAuthorizedPage';
 import GarageRegister from '../components/GarageData/GarageRegister';
 import GarageEdit from '../components/GarageData/GarageEdit';
 import GarageOccupancy from '../components/GarageData/GarageOccupancy';
+import QRCodeScanner from '../components/QRCodeScanner';
+
 function RouteList() {
     const [darkMode, setDarkMode] = useState(() => {
         return localStorage.getItem("theme") === "dark";
@@ -44,7 +45,7 @@ function RouteList() {
             <Route path='/profile' element={<Profile darkMode={darkMode} setDarkMode={setDarkMode} />} />
             <Route path='/settings' element={<Settings darkMode={darkMode} setDarkMode={setDarkMode} />} />
             <Route path="/nearby-garages" element={<NearbyGarages darkMode={darkMode} setDarkMode={setDarkMode} />} />
-            <Route path="/garages/:id" element={<GarageDetails   />} />
+            <Route path="/garages/:id" element={<GarageDetails darkMode={darkMode} setDarkMode={setDarkMode} />} />
             <Route path="/password-reset" element={<PasswordResetFlow darkMode={darkMode} setDarkMode={setDarkMode} />} />
             <Route path="/manual" element={<Manual />} />
             <Route path='/activation' element={<Activation darkMode={darkMode} setDarkMode={setDarkMode} />} />
@@ -54,8 +55,8 @@ function RouteList() {
             <Route path="/garage/register" element={<GarageRegister darkMode={darkMode} setDarkMode={setDarkMode} />} />
             <Route path="/garage/edit/:id" element={<GarageEdit darkMode={darkMode} setDarkMode={setDarkMode} />} />
             <Route path="/garage/occupancy/:id" element={<GarageOccupancy darkMode={darkMode} setDarkMode={setDarkMode} />} />
-            <Route path="/booking/confirmation/:bookingId" element={<BookingConfirmation   />} />
-
+            <Route path="/currentbooking/" element={<CurrentBooking darkMode={darkMode} setDarkMode={setDarkMode} />} />
+            <Route path="/scanner" element={<QRCodeScanner darkMode={darkMode} setDarkMode={setDarkMode} />} />
         </Routes>
 
     )
