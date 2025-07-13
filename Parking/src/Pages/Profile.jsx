@@ -93,7 +93,7 @@ function Profile({ darkMode, setDarkMode }) {
   return (
      <div className={`min-h-screen transition-colors ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       {/* Header */}
-      <div className={`shadow-sm border-b px-4 sm:px-6 py-4 transition-colors ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'}`}>
+      {/* <div className={`shadow-sm border-b px-4 sm:px-6 py-4 transition-colors ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'}`}>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-y-4">
           <div className="flex items-center gap-3 flex-wrap">
             {userInfo?.role && (
@@ -110,9 +110,9 @@ function Profile({ darkMode, setDarkMode }) {
                 <ChevronLeft className={`w-5 h-5 ${darkMode ? 'text-white ' : 'text-gray-900'}`} />
               </Link>
             )}
-            {/* <button className="p-2 hover:bg-gray-100 rounded-lg">
+            <button className="p-2 hover:bg-gray-100 rounded-lg">
               <ChevronLeft className="w-5 h-5" />
-            </button> */}
+            </button>
             <h1 className={`text-lg sm:text-xl font-semibold transition-colors ${darkMode ? 'text-white' : 'text-gray-900'}`}>User Information</h1>
           </div>
           <div className="flex items-center gap-3 flex-wrap sm:flex-nowrap">
@@ -140,7 +140,7 @@ function Profile({ darkMode, setDarkMode }) {
 
           </div>
         </div>
-      </div>
+      </div> */}
 
       <div className="max-w-7xl mx-auto p-6">
         <div className={`rounded-lg shadow-sm transition-colors ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>

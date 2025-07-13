@@ -9,13 +9,12 @@ import {
 import { useNavigate } from "react-router-dom";
 import "leaflet/dist/leaflet.css";
 
-export default function NearbyGaragesMap() {
+export default function NearbyGaragesMap({ darkMode, setDarkMode }) {
   const [userLocation, setUserLocation] = useState(null);
   const [location, setLocation] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [garages, setGarages] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
-  const [darkMode, setDarkMode] = useState(false);
   const mapRef = useRef();
   const markerRefs = useRef({});
   const userMarkerRef = useRef();
@@ -124,9 +123,9 @@ export default function NearbyGaragesMap() {
 
   return (
     <div style={styles.wrapper}>
-      <button onClick={() => setDarkMode(!darkMode)} style={styles.darkModeToggle}>
+      {/* <button onClick={() => setDarkMode(!darkMode)} style={styles.darkModeToggle}>
         {darkMode ? "☀️ Light" : "🌙 Dark"}
-      </button>
+      </button> */}
 
       <div style={styles.controls}>
         <input
@@ -295,19 +294,6 @@ const baseStyles = {
     padding: "20px",
     position: "relative",
   },
-  darkModeToggle: {
-    position: "absolute",
-    top: "15px",
-    right: "20px",
-    padding: "8px 14px",
-    fontSize: "16px",
-    borderRadius: "8px",
-    border: "none",
-    backgroundColor: "#555",
-    color: "white",
-    cursor: "pointer",
-    zIndex: 1000,
-  },
   controls: {
     marginBottom: "15px",
     display: "flex",
@@ -362,7 +348,7 @@ const lightStyles = {
   ...baseStyles,
   wrapper: {
     ...baseStyles.wrapper,
-    backgroundColor: "#f9f9f9",
+   
     color: "#000",
   },
 };
@@ -371,7 +357,7 @@ const darkStyles = {
   ...baseStyles,
   wrapper: {
     ...baseStyles.wrapper,
-    backgroundColor: "#1e1e1e",
+    backgroundColor: "rgb(31,41,55)",
     color: "#fff",
   },
   input: {

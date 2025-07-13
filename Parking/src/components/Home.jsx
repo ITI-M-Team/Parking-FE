@@ -20,7 +20,7 @@ const Home = () => {
       <div className="absolute inset-0 bg-black/60 z-0" />
 
       <div className="relative z-10 flex flex-col min-h-screen">
-        <Header />
+
 
         <main className="flex-grow px-4 sm:px-8 md:px-12 py-12 flex flex-col items-center justify-center text-center">
           {/* About Section */}
@@ -55,7 +55,7 @@ const Home = () => {
           </section>
         </main>
 
-        <Footer />
+
       </div>
     </div>
   );

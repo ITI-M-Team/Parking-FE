@@ -130,7 +130,7 @@ const Manual = () => {
 
   return (
     <>
-      <Header />
+     
       <div className="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-white min-h-screen px-6 py-12">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-4xl font-bold text-center mb-12"> User Guide: Smart Parking App</h1>
@@ -149,7 +149,7 @@ const Manual = () => {
           </div>
         </div>
       </div>
-      <Footer />
+   
     </>
   );
 };
