@@ -100,7 +100,7 @@ const GarageDetails = () => {
       if (res.ok) {
         setConfirmationMessage("✅ Booking successful! Redirecting...");
         setTimeout(() => {
-          navigate(`/booking/confirmation/${data.booking_id}`);
+          navigate(`/currentbooking/`);
         }, 2000);
       } else {
         let errorMessage = "❌ Booking failed.";
