@@ -24,7 +24,11 @@ import GarageRegister from '../components/GarageData/GarageRegister';
 import GarageEdit from '../components/GarageData/GarageEdit';
 import GarageOccupancy from '../components/GarageData/GarageOccupancy';
 import QRCodeScanner from '../components/QRCodeScanner';
-
+// for basic authentication
+import AuthProtectedRoute from '../components/Verification/AuthProtectedRoute';
+// route to protect verification status
+import VerificationProtectedRoute from '../components/Verification/VerificationProtectedRoute';
+import { Navigate } from 'react-router-dom';
 function RouteList() {
     const [darkMode, setDarkMode] = useState(() => {
         return localStorage.getItem("theme") === "dark";
@@ -37,27 +41,38 @@ function RouteList() {
         <Routes>
             <Route element={<MainLayout darkMode={darkMode} setDarkMode={setDarkMode} />}>
                 <Route path="/" element={<ProtectedRedirect darkMode={darkMode} setDarkMode={setDarkMode} />} />   
-                <Route path='/home' element={<Home darkMode={darkMode} setDarkMode={setDarkMode} />} />
-                <Route path="/dashboard/driver" element={<DriverDashboard darkMode={darkMode} setDarkMode={setDarkMode} />} />
+                 {/* Pages accessible to authenticated users (even if pending verification) */}
+                <Route path='/home' element={<AuthProtectedRoute><Home darkMode={darkMode} setDarkMode={setDarkMode} /></AuthProtectedRoute>} />
+                <Route path="/manual" element={<AuthProtectedRoute><Manual /></AuthProtectedRoute>} />
+                <Route path='/profile' element={<AuthProtectedRoute><Profile darkMode={darkMode} setDarkMode={setDarkMode} /></AuthProtectedRoute>} />  
+                <Route path="/password-reset" element={<AuthProtectedRoute><PasswordResetFlow darkMode={darkMode} setDarkMode={setDarkMode} /></AuthProtectedRoute>} />           
+                {/* Routes that require verification */}
+                <Route path="/dashboard/driver" element={<VerificationProtectedRoute><DriverDashboard darkMode={darkMode} setDarkMode={setDarkMode} /></VerificationProtectedRoute>} />
+                <Route path="/nearby-garages" element={<VerificationProtectedRoute> <NearbyGarages darkMode={darkMode} setDarkMode={setDarkMode}/> </VerificationProtectedRoute>} />
+                <Route path="/garages/:id" element={<VerificationProtectedRoute> <GarageDetails darkMode={darkMode} setDarkMode={setDarkMode} /></VerificationProtectedRoute>} />
+                <Route path="/currentbooking/" element={<VerificationProtectedRoute><CurrentBooking darkMode={darkMode} setDarkMode={setDarkMode} /></VerificationProtectedRoute>}/>
+                {/* ------------- */}
                 <Route path="/dashboard/garage" element={<GarageDashboard darkMode={darkMode} setDarkMode={setDarkMode} />} />
-                <Route path='/profile' element={<Profile darkMode={darkMode} setDarkMode={setDarkMode} />} />
-                <Route path="/nearby-garages" element={<NearbyGarages darkMode={darkMode} setDarkMode={setDarkMode} />} />
-                <Route path="/garages/:id" element={<GarageDetails darkMode={darkMode} setDarkMode={setDarkMode} />} />
-                <Route path="/password-reset" element={<PasswordResetFlow darkMode={darkMode} setDarkMode={setDarkMode} />} />
-                <Route path="/manual" element={<Manual />} />
+
                 <Route path="/dashboard/owner" element={<OwnerDashboard darkMode={darkMode} setDarkMode={setDarkMode} />} /> {/* <--- أضف هذا المسار */}
                 <Route path="/garage/register" element={<GarageRegister darkMode={darkMode} setDarkMode={setDarkMode} />} />
                 <Route path="/garage/edit/:id" element={<GarageEdit darkMode={darkMode} setDarkMode={setDarkMode} />} />
                 <Route path="/garage/occupancy/:id" element={<GarageOccupancy darkMode={darkMode} setDarkMode={setDarkMode} />} />
-                <Route path="/currentbooking/" element={<CurrentBooking darkMode={darkMode} setDarkMode={setDarkMode} />} />
+                
                 <Route path="/scanner" element={<QRCodeScanner darkMode={darkMode} setDarkMode={setDarkMode} />} />
+                
+                <Route path="*" element={<Navigate to="/not-authorized" replace />} />
             </Route>
+            <Route path='/settings' element={<AuthProtectedRoute><Settings darkMode={darkMode} setDarkMode={setDarkMode} /></AuthProtectedRoute>} />
+            
+            {/* Public Routes */}
             <Route path='/register' element={<RegisterUser darkMode={darkMode} setDarkMode={setDarkMode} />} />
             <Route path="/login" element={<LoginForm darkMode={darkMode} setDarkMode={setDarkMode} />} />
-            <Route path='/settings' element={<Settings darkMode={darkMode} setDarkMode={setDarkMode} />} />
-            <Route path='/admin' element={<AdminProtectedRoute> <AdminDashboard darkMode={darkMode} setDarkMode={setDarkMode} /> </AdminProtectedRoute>} />
-            <Route path='/not-authorized' element={<NotAuthorizedPage />} />
             <Route path='/activation' element={<Activation darkMode={darkMode} setDarkMode={setDarkMode} />} />
+            {/* Admin route - super user only */}
+            <Route path='/admin' element={<AdminProtectedRoute> <AdminDashboard darkMode={darkMode} setDarkMode={setDarkMode} /> </AdminProtectedRoute>} />
+            {/* Error pages */}
+            <Route path='/not-authorized' element={<NotAuthorizedPage />} />
         </Routes>
 
     )
