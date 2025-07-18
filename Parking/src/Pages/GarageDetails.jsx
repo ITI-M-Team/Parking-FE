@@ -11,7 +11,7 @@ const GarageDetails = () => {
   const [garage, setGarage] = useState(null);
   const [spots, setSpots] = useState([]);
   const [selectedSpotId, setSelectedSpotId] = useState(null);
-  const [arrivalTime, setArrivalTime] = useState(new Date());
+  // const [arrivalTime, setArrivalTime] = useState(new Date());
   const [bookingDate, setBookingDate] = useState(new Date());
   const [confirmationMessage, setConfirmationMessage] = useState("");
   const [filter, setFilter] = useState("all");
@@ -72,7 +72,7 @@ const GarageDetails = () => {
     const payload = {
       garage_id: parseInt(id),
       parking_spot_id: parseInt(selectedSpotId),
-      estimated_arrival_time: arrivalTime.toISOString(),
+      estimated_arrival_time: new Date().toISOString(),
     };
 
     console.log("📦 Sending booking payload:", payload);
@@ -208,7 +208,7 @@ const GarageDetails = () => {
                 className="w-full px-4 py-2 border rounded-lg"
               />
             </div>
-            <div>
+            {/* <div>
               <label className="block text-sm font-semibold mb-1">Arrival Time</label>
               <DatePicker
                 selected={arrivalTime}
@@ -218,7 +218,7 @@ const GarageDetails = () => {
                 dateFormat="Pp"
                 className="w-full px-4 py-2 border rounded-lg"
               />
-            </div>
+            </div> */}
           </div>
 
           <div className="flex flex-wrap gap-2 mb-4">
