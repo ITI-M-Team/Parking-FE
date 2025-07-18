@@ -97,7 +97,7 @@ const LoginForm = ({ onLoginSuccess }) => {
     } else if (loginData?.role === "garage_owner") {
       navigate("/dashboard/owner");
     } else {
-      navigate("/dashboard");
+      navigate("/home");
     }
   };
 
