@@ -28,6 +28,8 @@ import QRCodeScanner from '../components/QRCodeScanner';
 import AuthProtectedRoute from '../components/Verification/AuthProtectedRoute';
 // route to protect verification status
 import VerificationProtectedRoute from '../components/Verification/VerificationProtectedRoute';
+// route to protect owner/garage specific routes
+import OwnerProtectedRoute from '../components/Verification/OwnerProtectedRoute';
 import { Navigate } from 'react-router-dom';
 function RouteList() {
     const [darkMode, setDarkMode] = useState(() => {
@@ -52,15 +54,14 @@ function RouteList() {
                 <Route path="/garages/:id" element={<VerificationProtectedRoute> <GarageDetails darkMode={darkMode} setDarkMode={setDarkMode} /></VerificationProtectedRoute>} />
                 <Route path="/currentbooking/" element={<VerificationProtectedRoute><CurrentBooking darkMode={darkMode} setDarkMode={setDarkMode} /></VerificationProtectedRoute>}/>
                 {/* ------------- */}
-                <Route path="/dashboard/garage" element={<GarageDashboard darkMode={darkMode} setDarkMode={setDarkMode} />} />
-
-                <Route path="/dashboard/owner" element={<OwnerDashboard darkMode={darkMode} setDarkMode={setDarkMode} />} /> {/* <--- أضف هذا المسار */}
-                <Route path="/garage/register" element={<GarageRegister darkMode={darkMode} setDarkMode={setDarkMode} />} />
-                <Route path="/garage/edit/:id" element={<GarageEdit darkMode={darkMode} setDarkMode={setDarkMode} />} />
-                <Route path="/garage/occupancy/:id" element={<GarageOccupancy darkMode={darkMode} setDarkMode={setDarkMode} />} />
-                
-                <Route path="/scanner" element={<QRCodeScanner darkMode={darkMode} setDarkMode={setDarkMode} />} />
-                
+                {/* Routes that require owner/garage role - Protected for owners and superusers only */}
+                <Route path="/dashboard/garage" element={<OwnerProtectedRoute><GarageDashboard darkMode={darkMode} setDarkMode={setDarkMode} /></OwnerProtectedRoute>} />
+                <Route path="/dashboard/owner" element={<OwnerProtectedRoute><OwnerDashboard darkMode={darkMode} setDarkMode={setDarkMode} /></OwnerProtectedRoute>}/> {/* <--- أضف هذا المسار */}
+                <Route path="/garage/register" element={<OwnerProtectedRoute><GarageRegister darkMode={darkMode} setDarkMode={setDarkMode} /></OwnerProtectedRoute>} />
+                <Route path="/garage/edit/:id" element={<OwnerProtectedRoute><GarageEdit darkMode={darkMode} setDarkMode={setDarkMode} /></OwnerProtectedRoute> } />
+                <Route path="/garage/occupancy/:id" element={<OwnerProtectedRoute><GarageOccupancy darkMode={darkMode} setDarkMode={setDarkMode} /></OwnerProtectedRoute>} />
+                <Route path="/scanner" element={<OwnerProtectedRoute><QRCodeScanner darkMode={darkMode} setDarkMode={setDarkMode} /></OwnerProtectedRoute>} />
+                {/* ------------ */}
                 <Route path="*" element={<Navigate to="/not-authorized" replace />} />
             </Route>
             <Route path='/settings' element={<AuthProtectedRoute><Settings darkMode={darkMode} setDarkMode={setDarkMode} /></AuthProtectedRoute>} />

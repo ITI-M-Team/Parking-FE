@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, LogOut, Moon, Sun, Menu, X } from 'lucide-react';
+import { User, LogOut, Moon, Sun, Menu, X, PlusCircle, QrCode } from 'lucide-react';
 import instance from "../apis/config.js"
 const Header = ({ darkMode, setDarkMode }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -140,11 +140,16 @@ const fetchUserInfo = async () => {
     return 'U';
   };
 
+  // Check if user is garage owner or superuser
+    const isGarageOwner = () => {
+      return userProfile?.role === 'garage_owner' || userProfile?.role === 'owner' || userProfile?.is_superuser;
+    };
 
   return (
     <header className={`shadow-sm border-b px-4 sm:px-6 py-4 transition-colors sticky top-0 z-50 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
       <div className="max-w-full mx-auto">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-y-4">{/* Logo */}
+          {/* Logo */}
           <div className="flex items-center gap-3 flex-wrap">
             <Link to="/nearby-garages" className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
@@ -176,6 +181,25 @@ const fetchUserInfo = async () => {
                 >
                   My Bookings
                 </Link>
+              )}
+              {/* Garage Owner specific links */}
+                 {isLoggedIn && isGarageOwner() && (
+                <>
+                  <Link 
+                    to="/garage/register" 
+                    className={`flex items-center space-x-1 transition-colors ${darkMode ? 'text-gray-300 hover:text-blue-400' : 'text-gray-700 hover:text-blue-600'}`}
+                  >
+                    <PlusCircle className="w-4 h-4" />
+                    <span>Add Garage</span>
+                  </Link>
+                  <Link 
+                    to="/scanner" 
+                    className={`flex items-center space-x-1 transition-colors ${darkMode ? 'text-gray-300 hover:text-blue-400' : 'text-gray-700 hover:text-blue-600'}`}
+                  >
+                    <QrCode className="w-4 h-4" />
+                    <span>Scanner</span>
+                  </Link>
+                </>
               )}
             </nav>
           </div>
@@ -238,6 +262,28 @@ const fetchUserInfo = async () => {
                         <User className="w-4 h-4 mr-3" />
                         Settings
                       </Link>
+                      {/* Garage Owner Dashboard Links in Dropdown */}
+                      {isGarageOwner() && (
+                        <>
+                          <hr className={`border-gray-200 dark:border-gray-700 my-1 ${darkMode ? 'border-gray-700' : 'border-gray-200'}`} />
+                          <Link
+                            to="/dashboard/owner"
+                            className={`flex items-center px-4 py-2 transition-colors ${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`}
+                            onClick={() => setShowDropdown(false)}
+                          >
+                            <User className="w-4 h-4 mr-3" />
+                            Dashboard
+                          </Link>
+                          {/* <Link
+                            to="/dashboard/garage"
+                            className={`flex items-center px-4 py-2 transition-colors ${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`}
+                            onClick={() => setShowDropdown(false)}
+                          >
+                            <User className="w-4 h-4 mr-3" />
+                            Garage Dashboard
+                          </Link> */}
+                        </>
+                      )}
                       <hr className={`border-gray-200 dark:border-gray-700 my-1 ${darkMode ? 'border-gray-700' : 'border-gray-200'}`} />
                       <button
                         onClick={handleLogout}
@@ -310,6 +356,43 @@ const fetchUserInfo = async () => {
                   >
                     My Bookings
                   </Link>
+
+                   {/* Garage Owner Mobile Links */}
+                  {isGarageOwner() && (
+                    <>
+                      <Link
+                        to="/garage/register"
+                        className={`flex items-center px-4 py-2 rounded-lg transition-colors ${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`}
+                        onClick={() => setShowMobileMenu(false)}
+                      >
+                        <PlusCircle className="w-4 h-4 mr-3" />
+                        Add Garage
+                      </Link>
+                      <Link
+                        to="/scanner"
+                        className={`flex items-center px-4 py-2 rounded-lg transition-colors ${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`}
+                        onClick={() => setShowMobileMenu(false)}
+                      >
+                        <QrCode className="w-4 h-4 mr-3" />
+                        Scanner
+                      </Link>
+                      <Link
+                        to="/dashboard/owner"
+                        className={`px-4 py-2 rounded-lg transition-colors ${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`}
+                        onClick={() => setShowMobileMenu(false)}
+                      >
+                        Dashboard
+                      </Link>
+                      {/* <Link
+                        to="/dashboard/garage"
+                        className={`px-4 py-2 rounded-lg transition-colors ${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`}
+                        onClick={() => setShowMobileMenu(false)}
+                      >
+                        Garage Dashboard
+                      </Link> */}
+                    </>
+                  )}
+
                   <Link
                     to="/profile"
                     className={`px-4 py-2 rounded-lg transition-colors ${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`}
