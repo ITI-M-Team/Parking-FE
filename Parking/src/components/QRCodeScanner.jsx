@@ -201,17 +201,83 @@ const QRCodeScanner = () => {
             <h3 className="text-lg font-bold mb-4 text-center">🚗 Visit Summary</h3>
 
             <div className="space-y-3">
-              <div className="flex justify-between"><span className="font-semibold">Garage:</span><span>{exitData.garage_name}</span></div>
-              <div className="flex justify-between"><span className="font-semibold">Spot:</span><span>#{exitData.spot_id}</span></div>
-              <div className="flex justify-between"><span className="font-semibold">Entry Time:</span><span>{formatTime(exitData.start_time)}</span></div>
-              <div className="flex justify-between"><span className="font-semibold">Exit Time:</span><span>{formatTime(exitData.end_time)}</span></div>
-              <div className="flex justify-between"><span className="font-semibold">Total Duration:</span><span>{formatDuration(exitData.total_duration_minutes)}</span></div>
-              <div className="flex justify-between font-bold text-lg border-t pt-2"><span>Total Cost:</span><span className="text-green-600">{exitData.actual_cost} EGP</span></div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Garage:</span>
+                <span>{exitData.garage_name}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Spot:</span>
+                <span>#{exitData.spot_id}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Entry Time:</span>
+                <span>{formatTime(exitData.start_time)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Exit Time:</span>
+                <span>{formatTime(exitData.end_time)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Total Duration:</span>
+                <span>{formatDuration(exitData.total_duration_minutes)}</span>
+              </div>
+
+              {exitData.wallet_balance !== undefined && exitData.actual_cost !== undefined && (
+            <>
+              <div className="flex justify-between text-sm">
+                <span className="font-semibold">Wallet Before:</span>
+                <span>{(exitData.wallet_balance + exitData.actual_cost).toFixed(2)} EGP</span>
+              </div>
+          
+              <div className="flex justify-between text-sm text-red-600">
+                <span className="font-semibold">Deducted:</span>
+                <span>- {exitData.actual_cost.toFixed(2)} EGP</span>
+              </div>
+          
+              <div className="flex justify-between text-sm border-t pt-2">
+                <span className="font-semibold">Wallet After:</span>
+                <span className="text-blue-600 font-semibold">{exitData.wallet_balance.toFixed(2)} EGP</span>
+              </div>
+            </>
+          )}
+
+              <div className="flex justify-between font-bold text-lg border-t pt-2">
+                <span>Total Cost:</span>
+                <span className="text-green-600">{exitData.actual_cost?.toFixed(2)} EGP</span>
+              </div>
             </div>
+            <div className="mt-4 border-t pt-4">
+              <p className="font-semibold mb-2">Rate your experience:</p>
+              <div className="flex gap-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    onClick={() => handleRating(star)}
+                    className={`cursor-pointer text-2xl ${
+                      star <= rating ? "text-yellow-400" : "text-gray-400"
+                    }`}
+                  >
+                          ★
+                  </button>
+                ))}
+              </div>
+           </div>
+
+
 
             <div className="mt-6 flex gap-2">
-              <button onClick={closeExitPopup} className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md">Close</button>
-              <button onClick={handleRescan} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">Rescan</button>
+              <button
+                onClick={closeExitPopup}
+                className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md"
+              >
+                Close
+              </button>
+              <button
+                onClick={handleRescan}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
+              >
+                Rescan
+              </button>
             </div>
           </div>
         </div>
