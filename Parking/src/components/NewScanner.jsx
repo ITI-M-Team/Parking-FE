@@ -2,13 +2,15 @@ import React, { useEffect, useState } from "react";
 import { Html5QrcodeScanner } from "html5-qrcode";
 import axios from "axios";
 
-const QRCodeScanner1 = () => {
+const QRCodeScanner = () => {
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState(""); 
   const [scanned, setScanned] = useState(false);
   const [showExitPopup, setShowExitPopup] = useState(false);
   const [exitData, setExitData] = useState(null);
   const [debugInfo, setDebugInfo] = useState("");
+  const [userBookings, setUserBookings] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const getAuthTokens = () => {
     return sessionStorage.getItem("authTokens") || localStorage.getItem("authTokens");
@@ -29,10 +31,27 @@ const QRCodeScanner1 = () => {
     if (!tokens) return null;
     try {
       const parsed = JSON.parse(tokens);
-      console.log("Parsed tokens:", parsed); // Debug log
-      return parsed.refresh; // Changed from parsed.access to parsed.refresh
+      return parsed.refresh;
     } catch (error) {
       console.error("Error parsing tokens:", error);
+      return null;
+    }
+  };
+
+  const getCurrentUserId = () => {
+    const tokens = getAuthTokens();
+    if (!tokens) return null;
+    try {
+      const parsed = JSON.parse(tokens);
+      const accessToken = parsed.access;
+      if (!accessToken) return null;
+      
+      // Decode JWT payload (base64 decode the middle part)
+      const payload = accessToken.split('.')[1];
+      const decoded = JSON.parse(atob(payload));
+      return decoded.user_id;
+    } catch (error) {
+      console.error("Error getting user ID:", error);
       return null;
     }
   };
@@ -83,66 +102,87 @@ const QRCodeScanner1 = () => {
     const mins = minutes % 60;
     return `${hours} hr ${mins} min`;
   };
-// //////////////////////////
-// Debug function to test the endpoint
-  const testEndpoint = async () => {
-    console.log("🔍 Starting comprehensive endpoint test...");
-    
-    const tokens = getAuthTokens();
+
+  // Fetch user's bookings for debugging
+  const fetchUserBookings = async () => {
+    setLoading(true);
     const accessToken = getAccessToken();
-    const refreshToken = getRefreshToken();
-    
-    console.log("🔐 Token Analysis:");
-    console.log("Raw tokens string:", tokens ? "Present" : "Missing");
-    console.log("Access token:", accessToken ? `${accessToken.substring(0, 50)}...` : "Missing");
-    console.log("Refresh token:", refreshToken ? `${refreshToken.substring(0, 50)}...` : "Missing");
-    
+    if (!accessToken) {
+      setDebugInfo("❌ No access token found. Please login first.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      // Try to get active booking first
+      const activeResponse = await axios.get("http://localhost:8000/api/bookings/active/", {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+      
+      if (activeResponse.data && !activeResponse.data.exit_summary) {
+        setUserBookings([activeResponse.data]);
+        setDebugInfo(`✅ Found active booking: ID ${activeResponse.data.id}, Status: ${activeResponse.data.status}`);
+      } else {
+        setUserBookings([]);
+        setDebugInfo("ℹ️ No active bookings found");
+      }
+    } catch (err) {
+      if (err.response?.status === 404) {
+        setUserBookings([]);
+        setDebugInfo("ℹ️ No active bookings found");
+      } else if (err.response?.status === 401) {
+        // Try to refresh token
+        const newToken = await refreshAccessToken();
+        if (newToken) {
+          // Retry with new token
+          try {
+            const retryResponse = await axios.get("http://localhost:8000/api/bookings/active/", {
+              headers: { Authorization: `Bearer ${newToken}` }
+            });
+            if (retryResponse.data && !retryResponse.data.exit_summary) {
+              setUserBookings([retryResponse.data]);
+              setDebugInfo(`✅ Found active booking: ID ${retryResponse.data.id}, Status: ${retryResponse.data.status}`);
+            }
+          } catch (retryErr) {
+            setDebugInfo("❌ Failed to fetch bookings after token refresh");
+          }
+        } else {
+          setDebugInfo("❌ Authentication failed and token refresh failed");
+        }
+      } else {
+        setDebugInfo(`❌ Error fetching bookings: ${err.response?.status || err.message}`);
+      }
+    }
+    setLoading(false);
+  };
+
+  // Test specific booking ID
+  const testSpecificBooking = async (bookingId) => {
+    const accessToken = getAccessToken();
     if (!accessToken) {
       setDebugInfo("❌ No access token found. Please login first.");
       return;
     }
 
-    // Test 1: Basic endpoint connectivity
-    setDebugInfo("🔄 Testing endpoint connectivity...");
-    
     try {
-      const testResponse = await axios.post("http://localhost:8000/api/bookings/scanner/", 
-        { booking_id: 999999 },
-        {
-          headers: { 
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json'
-          },
-        }
-      );
-      setDebugInfo("✅ Endpoint is working perfectly!");
-    } catch (err) {
-      let status = err.response?.status;
-      let errorData = err.response?.data;
-      
-      console.log("Error details:", {
-        status,
-        statusText: err.response?.statusText,
-        data: errorData,
-        headers: err.response?.headers
+      const response = await axios.get(`http://localhost:8000/api/bookings/${bookingId}/`, {
+        headers: { Authorization: `Bearer ${accessToken}` }
       });
       
-      if (status === 404 && errorData?.error === "Invalid QR.") {
-        setDebugInfo("✅ Endpoint is working! (404 expected for test booking ID)");
-      } else if (status === 401) {
-        setDebugInfo("⚠️ Authentication failed. Token might be expired.");
-      } else if (status === 400) {
-        setDebugInfo(`✅ Endpoint working! Server says: ${errorData?.error || "Bad request"}`);
-      } else if (status === 500) {
-        setDebugInfo("❌ Server error (500). Check Django logs.");
+      setDebugInfo(`✅ Booking ${bookingId} exists: ${JSON.stringify(response.data, null, 2)}`);
+      return response.data;
+    } catch (err) {
+      if (err.response?.status === 404) {
+        setDebugInfo(`❌ Booking ${bookingId} not found or doesn't belong to current user`);
+      } else if (err.response?.status === 401) {
+        setDebugInfo(`❌ Authentication failed for booking ${bookingId}`);
       } else {
-        setDebugInfo(`⚠️ Unexpected response: ${status} - ${errorData?.error || err.message}`);
+        setDebugInfo(`❌ Error checking booking ${bookingId}: ${err.response?.status || err.message}`);
       }
+      return null;
     }
   };
-// /////////////////////////////
 
-// Start of New handle QR ////////////
   const handleQRScan = async (data) => {
     if (scanned) return;
 
@@ -169,12 +209,12 @@ const QRCodeScanner1 = () => {
       console.log("✅ QR validation passed. Booking ID:", parsed.id);
       setScanned(true);
 
-      // Step 3: Get tokens
+      // Step 3: Get tokens and user info
       let accessToken = getAccessToken();
-      let refreshToken = getRefreshToken();
-      console.log("🔑 Token status:");
+      const userId = getCurrentUserId();
+      console.log("🔑 Authentication info:");
       console.log("- Access token:", accessToken ? "Present" : "Missing");
-      console.log("- Refresh token:", refreshToken ? "Present" : "Missing");
+      console.log("- User ID:", userId);
       
       if (!accessToken) {
         throw new Error("No access token found. Please login again");
@@ -191,7 +231,6 @@ const QRCodeScanner1 = () => {
       console.log("🚀 Request details:");
       console.log("- URL:", requestUrl);
       console.log("- Data:", requestData);
-      console.log("- Headers:", requestHeaders);
 
       // Step 5: Make request
       let response;
@@ -202,9 +241,7 @@ const QRCodeScanner1 = () => {
       } catch (err) {
         console.error("❌ API request failed:");
         console.error("- Status:", err.response?.status);
-        console.error("- Status Text:", err.response?.statusText);
         console.error("- Error Data:", err.response?.data);
-        console.error("- Full Error:", err);
         
         // Handle 401 with token refresh
         if (err.response?.status === 401) {
@@ -220,7 +257,6 @@ const QRCodeScanner1 = () => {
             });
             console.log("✅ Retry after refresh successful:", response.data);
           } else {
-            console.error("❌ Token refresh failed");
             throw new Error("Session expired and refresh failed. Please login again");
           }
         } else {
@@ -268,6 +304,8 @@ const QRCodeScanner1 = () => {
         errorMessage = "Booking not found - QR code may be invalid or expired";
       } else if (err.response?.status === 400) {
         errorMessage = err.response?.data?.error || "Invalid booking state for this action";
+      } else if (err.response?.status === 403) {
+        errorMessage = "You are not authorized to scan this QR code";
       }
 
       setMessage(errorMessage);
@@ -275,84 +313,6 @@ const QRCodeScanner1 = () => {
       setScanned(true);
     }
   };
-// END of New handle QR ////////////
-  // const handleQRScan = async (data) => {
-  //   if (scanned) return;
-
-  //   try {
-  //     console.log("QR Data:", data);   // Debug log
-  //     const parsed = JSON.parse(data);
-  //     if (!parsed.id) throw new Error("QR code does not contain a valid booking ID.");
-  //     console.log("Parsed booking ID:", parsed.id);  
-  //     setScanned(true);
-
-  //     let accessToken = getAccessToken();
-  //     console.log("Access token:", accessToken ? "Found" : "Not found");  // Debug log
-
-  //     if (!accessToken) throw new Error("No token found. Please login again.");
-
-  //     const requestConfig = {
-  //       headers: { 
-  //         Authorization: `Bearer ${accessToken}`,
-  //         'Content-Type': 'application/json'
-  //       },
-  //     };
-
-  //     console.log("Making request with config:", requestConfig); // Debug log
-
-  //     let response;
-  //     try {
-  //       response = await axios.post(
-  //         "http://localhost:8000/api/bookings/scanner/",
-  //         { booking_id: parsed.id },
-  //         {
-  //           headers: { Authorization: `Bearer ${accessToken}` },
-  //         }
-  //       );
-  //     } catch (err) {
-  //       if (err.response?.status === 401) {
-  //         const newAccessToken = await refreshAccessToken();
-  //         if (newAccessToken) {
-  //           response = await axios.post(
-  //             "http://localhost:8000/api/bookings/scanner/",
-  //             { booking_id: parsed.id },
-  //             {
-  //               headers: { Authorization: `Bearer ${newAccessToken}` },
-  //               'Content-Type': 'application/json'
-  //             }
-  //           );
-  //           console.log("✅ Retry successful:", response.data);
-  //         } else {
-  //           throw new Error("Failed to refresh token. Please login again.");
-  //         }
-  //       } else {
-  //         throw err;
-  //       }
-  //     }
-
-  //     if (response.data.action === "exit") {
-  //       setExitData(response.data);
-  //       setShowExitPopup(true);
-  //     } else {
-  //       setMessage(response.data.message);
-  //       setMessageType("success");
-  //     }
-  //   } catch (err) {
-  //     console.error('QR Scan Error:', err);
-  //     let errorMessage = "Failed to scan or invalid QR code.";
-
-  //      if (err.message.includes('refresh') || err.message.includes('login')) {
-  //       errorMessage = "Session expired. Please login again.";
-  //     } else if (err.response?.data?.error) {
-  //       errorMessage = `${err.response.data.error}`;
-  //     } else if (err.response?.status === 404) {
-  //       errorMessage = "Scanner endpoint not found. Please check server configuration.";
-  //     }
-
-  //     setMessage(errorMessage);
-  //     setMessageType("error");
-  //   }
-  // };
 
   const startScanner = () => {
     const scanner = new Html5QrcodeScanner("reader", {
@@ -377,6 +337,10 @@ const QRCodeScanner1 = () => {
     if (!scanned) startScanner();
   }, [scanned]);
 
+  useEffect(() => {
+    fetchUserBookings();
+  }, []);
+
   const handleRescan = () => {
     console.log("🔄 Resetting scanner...");
     setMessage("");
@@ -384,8 +348,8 @@ const QRCodeScanner1 = () => {
     setScanned(false);
     setShowExitPopup(false);
     setExitData(null);
-    setDebugInfo("");
     document.getElementById("reader").innerHTML = "";
+    fetchUserBookings(); // Refresh bookings on rescan
   };
 
   const closeExitPopup = () => {
@@ -393,24 +357,47 @@ const QRCodeScanner1 = () => {
     setExitData(null);
   };
 
-  // Function to manually test with a booking ID
-  const testWithBookingId = async () => {
+  // Function to test with a booking ID from your active bookings
+  const testWithValidBookingId = async () => {
+    if (userBookings.length === 0) {
+      alert("No active bookings found. Please create a booking first.");
+      return;
+    }
+    
+    const booking = userBookings[0];
+    const fakeQRData = JSON.stringify({
+      id: booking.id,
+      garage_name: booking.garage?.name || "Test Garage",
+      spot_id: booking.parking_spot?.id || 1,
+      status: booking.status
+    });
+    console.log("🧪 Testing with valid booking QR:", fakeQRData);
+    await handleQRScan(fakeQRData);
+  };
+
+  // Function to manually test with any booking ID
+  const testWithManualBookingId = async () => {
     const bookingIdInput = prompt("Enter a booking ID to test:");
     if (bookingIdInput) {
-      // Validate that the input is a number
       const bookingId = parseInt(bookingIdInput);
       if (isNaN(bookingId)) {
         alert("Please enter a valid number for booking ID");
         return;
       }
       
+      // First check if booking exists
+      const bookingData = await testSpecificBooking(bookingId);
+      if (!bookingData) {
+        return; // Error already shown in testSpecificBooking
+      }
+      
       const fakeQRData = JSON.stringify({
-        id: bookingId, // Make sure this is an integer
+        id: bookingId,
         garage_name: "Test Garage",
         spot_id: 1,
         status: "pending"
       });
-      console.log("🧪 Testing with fake QR:", fakeQRData);
+      console.log("🧪 Testing with manual QR:", fakeQRData);
       await handleQRScan(fakeQRData);
     }
   };
@@ -418,25 +405,55 @@ const QRCodeScanner1 = () => {
   return (
     <div className="p-4 max-w-md mx-auto">
       <h2 className="text-xl font-bold mb-4">Scan QR Code for Entry or Exit</h2>
-       {/* Debug section */}
+       
+      {/* User Info & Debug section */}
       <div className="mb-4 p-3 bg-gray-100 rounded">
+        <div className="text-sm mb-2">
+          <strong>Current User ID:</strong> {getCurrentUserId() || "Unknown"}
+        </div>
+        
         <div className="grid grid-cols-1 gap-2">
           <button
-            onClick={testEndpoint}
-            className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-sm"
+            onClick={fetchUserBookings}
+            disabled={loading}
+            className="bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 text-white px-3 py-1 rounded text-sm"
           >
-            🧪 Test Endpoint
+            {loading ? "Loading..." : "🔄 Refresh My Bookings"}
           </button>
+          
+          {userBookings.length > 0 && (
+            <button
+              onClick={testWithValidBookingId}
+              className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm"
+            >
+              🎯 Test with My Active Booking
+            </button>
+          )}
+          
           <button
-            onClick={testWithBookingId}
+            onClick={testWithManualBookingId}
             className="bg-purple-500 hover:bg-purple-600 text-white px-3 py-1 rounded text-sm"
           >
-            🎯 Test with Booking ID
+            🧪 Test with Manual Booking ID
           </button>
         </div>
         
+        {/* Active bookings display */}
+        {userBookings.length > 0 && (
+          <div className="mt-3 p-2 bg-green-50 rounded">
+            <div className="text-sm font-semibold text-green-800">Your Active Booking:</div>
+            {userBookings.map(booking => (
+              <div key={booking.id} className="text-xs text-green-700">
+                ID: {booking.id} | Status: {booking.status} | 
+                Garage: {booking.garage?.name || 'N/A'} | 
+                Spot: {booking.parking_spot?.spot_number || 'N/A'}
+              </div>
+            ))}
+          </div>
+        )}
+        
         {debugInfo && (
-          <div className="text-sm font-mono bg-white p-2 rounded border mt-2">
+          <div className="text-sm font-mono bg-white p-2 rounded border mt-2 whitespace-pre-wrap">
             {debugInfo}
           </div>
         )}
@@ -447,6 +464,7 @@ const QRCodeScanner1 = () => {
           <div><strong>Refresh Token:</strong> {getRefreshToken() ? "✅ Present" : "❌ Missing"}</div>
         </div>
       </div>
+
       <div id="reader" className="mb-4"></div>
 
       {message && (
@@ -472,83 +490,17 @@ const QRCodeScanner1 = () => {
             <h3 className="text-lg font-bold mb-4 text-center">🚗 Visit Summary</h3>
 
             <div className="space-y-3">
-              <div className="flex justify-between">
-                <span className="font-semibold">Garage:</span>
-                <span>{exitData.garage_name}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">Spot:</span>
-                <span>#{exitData.spot_id}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">Entry Time:</span>
-                <span>{formatTime(exitData.start_time)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">Exit Time:</span>
-                <span>{formatTime(exitData.end_time)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">Total Duration:</span>
-                <span>{formatDuration(exitData.total_duration_minutes)}</span>
-              </div>
-
-              {exitData.wallet_balance !== undefined && exitData.actual_cost !== undefined && (
-            <>
-              <div className="flex justify-between text-sm">
-                <span className="font-semibold">Wallet Before:</span>
-                <span>{(exitData.wallet_balance + exitData.actual_cost).toFixed(2)} EGP</span>
-              </div>
-          
-              <div className="flex justify-between text-sm text-red-600">
-                <span className="font-semibold">Deducted:</span>
-                <span>- {exitData.actual_cost.toFixed(2)} EGP</span>
-              </div>
-          
-              <div className="flex justify-between text-sm border-t pt-2">
-                <span className="font-semibold">Wallet After:</span>
-                <span className="text-blue-600 font-semibold">{exitData.wallet_balance.toFixed(2)} EGP</span>
-              </div>
-            </>
-          )}
-
-              <div className="flex justify-between font-bold text-lg border-t pt-2">
-                <span>Total Cost:</span>
-                <span className="text-green-600">{exitData.actual_cost?.toFixed(2)} EGP</span>
-              </div>
+              <div className="flex justify-between"><span className="font-semibold">Garage:</span><span>{exitData.garage_name}</span></div>
+              <div className="flex justify-between"><span className="font-semibold">Spot:</span><span>#{exitData.spot_id}</span></div>
+              <div className="flex justify-between"><span className="font-semibold">Entry Time:</span><span>{formatTime(exitData.start_time)}</span></div>
+              <div className="flex justify-between"><span className="font-semibold">Exit Time:</span><span>{formatTime(exitData.end_time)}</span></div>
+              <div className="flex justify-between"><span className="font-semibold">Total Duration:</span><span>{formatDuration(exitData.total_duration_minutes)}</span></div>
+              <div className="flex justify-between font-bold text-lg border-t pt-2"><span>Total Cost:</span><span className="text-green-600">{exitData.actual_cost} EGP</span></div>
             </div>
-            <div className="mt-4 border-t pt-4">
-              <p className="font-semibold mb-2">Rate your experience:</p>
-              <div className="flex gap-1">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <button
-                    key={star}
-                    onClick={() => handleRating(star)}
-                    className={`cursor-pointer text-2xl ${
-                      star <= rating ? "text-yellow-400" : "text-gray-400"
-                    }`}
-                  >
-                          ★
-                  </button>
-                ))}
-              </div>
-           </div>
-
-
 
             <div className="mt-6 flex gap-2">
-              <button
-                onClick={closeExitPopup}
-                className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md"
-              >
-                Close
-              </button>
-              <button
-                onClick={handleRescan}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
-              >
-                Rescan
-              </button>
+              <button onClick={closeExitPopup} className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md">Close</button>
+              <button onClick={handleRescan} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">Rescan</button>
             </div>
           </div>
         </div>
@@ -557,4 +509,4 @@ const QRCodeScanner1 = () => {
   );
 };
 
-export default QRCodeScanner1;
+export default QRCodeScanner;

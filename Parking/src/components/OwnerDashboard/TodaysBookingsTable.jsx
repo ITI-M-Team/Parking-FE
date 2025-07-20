@@ -55,7 +55,7 @@ function TodaysBookingsTable({ darkMode, bookings }) {
                   {format(new Date(booking.estimated_arrival_time), 'MMM dd, yyyy HH:mm')}
                 </td>
                 <td className={`px-6 py-4 whitespace-nowrap text-sm ${darkMode ? 'text-gray-300' : 'text-gray-900'}`}>
-                  ${booking.estimated_cost.toFixed(2)}
+                  {/* ${booking.estimated_cost.toFixed(2)} */}
                 </td>
                 <td className={`px-6 py-4 whitespace-nowrap text-sm ${darkMode ? 'text-gray-300' : 'text-gray-900'}`}>
                   <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${

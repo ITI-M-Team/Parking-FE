@@ -83,7 +83,7 @@ function OwnerDashboard({ darkMode, setDarkMode }) {
   return (
     <div className={`min-h-screen transition-colors ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       {/* Header */}
-      <div className={`shadow-sm border-b px-6 py-4 transition-colors ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'}`}>
+      {/* <div className={`shadow-sm border-b px-6 py-4 transition-colors ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'}`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <button onClick={() => navigate(-1)} className="p-2 hover:bg-gray-100 rounded-lg">
@@ -100,7 +100,7 @@ function OwnerDashboard({ darkMode, setDarkMode }) {
             {darkMode ? "☀ Light Mode" : "🌙 Dark Mode"}
           </button>
         </div>
-      </div>
+      </div> */}
 
       <div className="max-w-6xl mx-auto p-6">
         {dashboardData && (

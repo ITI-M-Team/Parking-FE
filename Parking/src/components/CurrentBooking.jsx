@@ -98,7 +98,8 @@ const CurrentBooking = () => {
       setBooking(null);
       fetchActiveBooking();
     } catch (err) {
-      toast.error("Failed: " + err.message);
+      toast.error("Failed: " + (err.response?.data?.error || err.message));
+      console.error("Error response:", err.response?.data);
     } finally {
       setCancelLoading(false);
     }
