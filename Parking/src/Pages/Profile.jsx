@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import hossam from '../assets/images/hossam.jpg'
-import { ChevronLeft, User, Mail, Phone, CreditCard, FileText, Car, AlertCircle, Loader } from 'lucide-react';
+import { ChevronLeft, User, Mail, Phone, CreditCard, FileText, Car, AlertCircle, Loader, Wallet } from 'lucide-react';
 import { Link,useNavigate } from "react-router-dom";
 import instance from "../apis/config.js"
 // import instance from '../apis/config';
@@ -240,6 +240,19 @@ function Profile({ darkMode, setDarkMode }) {
                     <p className={`text-xs sm:text-sm font-medium transition-colors ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Role</p>
                     <p className={`text-sm sm:text-base md:text-lg transition-colors ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                       {userInfo?.role || 'Not provided'}
+                    </p>
+                  </div>
+                </div>
+
+                 {/* New Wallet Balance Field */}
+                <div className="flex items-center space-x-4 p-4 rounded-lg bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border border-emerald-200 dark:border-emerald-700">
+                  <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-900 rounded-full flex items-center justify-center">
+                    <Wallet className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                  </div>
+                  <div>
+                    <p className={`text-xs sm:text-sm font-medium transition-colors ${darkMode ? 'text-emerald-300' : 'text-emerald-700'}`}>Wallet Balance</p>
+                    <p className={`text-lg sm:text-xl md:text-2xl font-bold transition-colors ${darkMode ? 'text-emerald-400' : 'text-emerald-600'}`}>
+                      EGP{userInfo?.wallet_balance ? userInfo.wallet_balance.toFixed(2) : '0.00'}
                     </p>
                   </div>
                 </div>
