@@ -50,6 +50,13 @@ function OwnerDashboard({ darkMode, setDarkMode }) {
   const handleQRCodeScan = () => {
     navigate('/scanner');
   };
+    const handleAddGarage = () => {
+    navigate('/garage/register');
+  };
+
+  const handleEditGarage = () => {
+    navigate(`/garage/edit/${dashboardData.id}`);
+  };
 
   if (loading) {
     return (
