@@ -249,9 +249,15 @@ const Settings = ({ darkMode, setDarkMode }) => {
   };
 
   const needsDocuments = () => {
-    const missingDocs = !documents.driver_license || !documents.car_license || !documents.national_id_img;
-    // return !documents.driver_license || !documents.car_license || !documents.national_id_img;
-    return verificationStatus === 'Rejected' || missingDocs;
+    if (userRole === 'garage_owner') {
+      // For owners, only check if National ID image is missing
+      const missingNationalId = !documents.national_id_img;
+      return verificationStatus === 'Rejected' || missingNationalId;
+    } else {
+      // For drivers, check all required documents
+      const missingDocs = !documents.driver_license || !documents.car_license || !documents.national_id_img;
+      return verificationStatus === 'Rejected' || missingDocs;
+    }
   };
 
    // Helper function to check if document can be uploaded
@@ -468,98 +474,133 @@ const Settings = ({ darkMode, setDarkMode }) => {
             </div>
             {/* Documentation Section */}
             {/* -------------------------------------------------------------------- */}
-               {needsDocuments() && (
+              {needsDocuments() && (
               <div className={`border-t pt-8 transition-colors ${darkMode ? 'border-gray-700' : ''}`}>
                 <h3 className={`text-lg font-semibold mb-2 transition-colors ${darkMode ? 'text-white' : 'text-gray-900'}`}>Required Documents</h3>
                 <p className={` text-xs sm:text-sm mb-6 transition-colors ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                   Please upload the following documents for verification. They will be reviewed by admin.
                 </p>
                 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {/* Driver License */}
-                <div className={`p-4 border rounded-lg ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>
-                    <div className="flex items-center space-x-2 mb-3">
-                      <FileText className={`w-5 h-5 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`} />
-                      <h4 className={`font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>Driver License</h4>
-                    </div>
-                    {canUploadDocument('driver_license') ? (
-                      <>
-                        <input
-                          type="file"
-                          id="driver_licenseUpload"
-                          accept="image/*,.pdf"
-                          onChange={(e) => handleDocumentUpload(e, 'driver_license')}
-                          className="hidden"
-                        />
-                        <button
-                          onClick={() => triggerDocumentInput('driver_license')}
-                          className={`w-full px-4 py-2 border-2 border-dashed rounded-lg transition-colors ${darkMode ? 'border-gray-600 text-gray-400 hover:border-gray-500' : 'border-gray-300 text-gray-600 hover:border-gray-400'}`}
-                        >
-                          {documentFiles.driver_license ? documentFiles.driver_license.name : 
-                            (verificationStatus === 'Rejected' ? 'Upload New Driver License' : 'Upload Driver License')}
-                        </button>
-                      </>
+                {/* Conditional rendering based on user role */}
+                {userRole === 'garage_owner' ? (
+                  // Show only National ID Image for owners
+                  <div className="grid grid-cols-1 md:grid-cols-1 gap-6 max-w-md">
+                    {/* National ID Image */}
+                    <div className={`p-4 border rounded-lg ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>
+                      <div className="flex items-center space-x-2 mb-3">
+                        <FileText className={`w-5 h-5 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`} />
+                        <h4 className={`font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>National ID Image</h4>
+                      </div>
+                      {canUploadDocument('national_id_img') ? (
+                        <>
+                          <input
+                            type="file"
+                            id="national_id_imgUpload"
+                            accept="image/*,.pdf"
+                            onChange={(e) => handleDocumentUpload(e, 'national_id_img')}
+                            className="hidden"
+                          />
+                          <button
+                            onClick={() => triggerDocumentInput('national_id_img')}
+                            className={`w-full px-4 py-2 border-2 border-dashed rounded-lg transition-colors ${darkMode ? 'border-gray-600 text-gray-400 hover:border-gray-500' : 'border-gray-300 text-gray-600 hover:border-gray-400'}`}
+                          >
+                            {documentFiles.national_id_img ? documentFiles.national_id_img.name : 
+                              (verificationStatus === 'Rejected' ? 'Upload New National ID' : 'Upload National ID')}
+                          </button>
+                        </>
                       ) : (
                         <div className="text-green-500 text-xs sm:text-sm">✓ Already uploaded</div>
                       )}
-                  </div>
-
-                  {/* Car License */}
-                  <div className={`p-4 border rounded-lg ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>
-                    <div className="flex items-center space-x-2 mb-3">
-                      <FileText className={`w-5 h-5 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`} />
-                      <h4 className={`font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>Car License</h4>
                     </div>
-                    {canUploadDocument('car_license') ? (
-                      <>
-                        <input
-                          type="file"
-                          id="car_licenseUpload"
-                          accept="image/*,.pdf"
-                          onChange={(e) => handleDocumentUpload(e, 'car_license')}
-                          className="hidden"
-                        />
-                        <button
-                          onClick={() => triggerDocumentInput('car_license')}
-                          className={`w-full px-4 py-2 border-2 border-dashed rounded-lg transition-colors ${darkMode ? 'border-gray-600 text-gray-400 hover:border-gray-500' : 'border-gray-300 text-gray-600 hover:border-gray-400'}`}
-                        >
-                          {documentFiles.car_license ? documentFiles.car_license.name : 
-                            (verificationStatus === 'Rejected' ? 'Upload New Car License' : 'Upload Car License')}
-                        </button>
-                      </>
-                    ) : (
-                      <div className="text-green-500 text-xs sm:text-sm">✓ Already uploaded</div>
-                    )}
                   </div>
-
-                  {/* National ID Image */}
-                  <div className={`p-4 border rounded-lg ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>
-                    <div className="flex items-center space-x-2 mb-3">
-                      <FileText className={`w-5 h-5 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`} />
-                      <h4 className={`font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>National ID Image</h4>
+                  ) : (
+                  // Show all documents for non-owner users (drivers)
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* Driver License */}
+                    <div className={`p-4 border rounded-lg ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>
+                      <div className="flex items-center space-x-2 mb-3">
+                        <FileText className={`w-5 h-5 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`} />
+                        <h4 className={`font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>Driver License</h4>
+                      </div>
+                      {canUploadDocument('driver_license') ? (
+                        <>
+                          <input
+                            type="file"
+                            id="driver_licenseUpload"
+                            accept="image/*,.pdf"
+                            onChange={(e) => handleDocumentUpload(e, 'driver_license')}
+                            className="hidden"
+                          />
+                          <button
+                            onClick={() => triggerDocumentInput('driver_license')}
+                            className={`w-full px-4 py-2 border-2 border-dashed rounded-lg transition-colors ${darkMode ? 'border-gray-600 text-gray-400 hover:border-gray-500' : 'border-gray-300 text-gray-600 hover:border-gray-400'}`}
+                          >
+                            {documentFiles.driver_license ? documentFiles.driver_license.name : 
+                              (verificationStatus === 'Rejected' ? 'Upload New Driver License' : 'Upload Driver License')}
+                          </button>
+                        </>
+                      ) : (
+                        <div className="text-green-500 text-xs sm:text-sm">✓ Already uploaded</div>
+                      )}
                     </div>
-                    {canUploadDocument('national_id_img') ? (
-                      <>
-                        <input
-                          type="file"
-                          id="national_id_imgUpload"
-                          accept="image/*,.pdf"
-                          onChange={(e) => handleDocumentUpload(e, 'national_id_img')}
-                          className="hidden"
-                        />
-                        <button
-                          onClick={() => triggerDocumentInput('national_id_img')}
-                          className={`w-full px-4 py-2 border-2 border-dashed rounded-lg transition-colors ${darkMode ? 'border-gray-600 text-gray-400 hover:border-gray-500' : 'border-gray-300 text-gray-600 hover:border-gray-400'}`}
-                        >
-                          {documentFiles.national_id_img ? documentFiles.national_id_img.name : 
-                            (verificationStatus === 'Rejected' ? 'Upload New National ID' : 'Upload National ID')}
-                        </button>
-                      </>
-                    ) : (
-                      <div className="text-green-500 text-xs sm:text-sm">✓ Already uploaded</div>
-                    )}
+
+                    {/* Car License */}
+                    <div className={`p-4 border rounded-lg ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>
+                      <div className="flex items-center space-x-2 mb-3">
+                        <FileText className={`w-5 h-5 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`} />
+                        <h4 className={`font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>Car License</h4>
+                      </div>
+                      {canUploadDocument('car_license') ? (
+                        <>
+                          <input
+                            type="file"
+                            id="car_licenseUpload"
+                            accept="image/*,.pdf"
+                            onChange={(e) => handleDocumentUpload(e, 'car_license')}
+                            className="hidden"
+                          />
+                          <button
+                            onClick={() => triggerDocumentInput('car_license')}
+                            className={`w-full px-4 py-2 border-2 border-dashed rounded-lg transition-colors ${darkMode ? 'border-gray-600 text-gray-400 hover:border-gray-500' : 'border-gray-300 text-gray-600 hover:border-gray-400'}`}
+                          >
+                            {documentFiles.car_license ? documentFiles.car_license.name : 
+                              (verificationStatus === 'Rejected' ? 'Upload New Car License' : 'Upload Car License')}
+                          </button>
+                        </>
+                      ) : (
+                        <div className="text-green-500 text-xs sm:text-sm">✓ Already uploaded</div>
+                      )}
+                    </div>
+
+                    {/* National ID Image */}
+                    <div className={`p-4 border rounded-lg ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>
+                      <div className="flex items-center space-x-2 mb-3">
+                        <FileText className={`w-5 h-5 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`} />
+                        <h4 className={`font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>National ID Image</h4>
+                      </div>
+                      {canUploadDocument('national_id_img') ? (
+                        <>
+                          <input
+                            type="file"
+                            id="national_id_imgUpload"
+                            accept="image/*,.pdf"
+                            onChange={(e) => handleDocumentUpload(e, 'national_id_img')}
+                            className="hidden"
+                          />
+                          <button
+                            onClick={() => triggerDocumentInput('national_id_img')}
+                            className={`w-full px-4 py-2 border-2 border-dashed rounded-lg transition-colors ${darkMode ? 'border-gray-600 text-gray-400 hover:border-gray-500' : 'border-gray-300 text-gray-600 hover:border-gray-400'}`}
+                          >
+                            {documentFiles.national_id_img ? documentFiles.national_id_img.name : 
+                              (verificationStatus === 'Rejected' ? 'Upload New National ID' : 'Upload National ID')}
+                          </button>
+                        </>
+                      ) : (
+                        <div className="text-green-500 text-xs sm:text-sm">✓ Already uploaded</div>
+                      )}
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* Submit Documents Button */}
                  {(documentFiles.driver_license || documentFiles.car_license || documentFiles.national_id_img) && (

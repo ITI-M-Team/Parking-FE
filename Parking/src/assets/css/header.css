@@ -1,0 +1,14 @@
+.goog-te-banner-frame, 
+.goog-te-gadget-icon, 
+.goog-te-combo, 
+.goog-te-menu-value, 
+.goog-te-menu-value span, 
+.goog-te-menu-value * {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  width: 0 !important;
+  overflow: hidden !important;
+  position: absolute !important;
+  clip: rect(0 0 0 0) !important;
+}

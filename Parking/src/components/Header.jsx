@@ -1,28 +1,206 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, LogOut, Moon, Sun, Menu, X, PlusCircle, QrCode } from 'lucide-react';
+import { User, LogOut, Moon, Sun, Menu, X, PlusCircle, QrCode, Globe } from 'lucide-react';
 import instance from "../apis/config.js"
 const Header = ({ darkMode, setDarkMode }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userProfile, setUserProfile] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isTranslateReady, setIsTranslateReady] = useState(false);
+  const [currentLang, setCurrentLang] = useState('en');
   const dropdownRef = useRef(null);
+  const languageDropdownRef = useRef(null);
+  const translateElementRef = useRef(null);
   const navigate = useNavigate();
-// ////////////////////
-// Check authentication status on component mount
+
+  // Language options
+  const languages = [
+    { code: 'en', name: 'English', flag: '🇺🇸' },
+    { code: 'ar', name: 'العربية', flag: '🇸🇦' },
+    { code: 'es', name: 'Español', flag: '🇪🇸' },
+    { code: 'fr', name: 'Français', flag: '🇫🇷' },
+    { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
+    { code: 'it', name: 'Italiano', flag: '🇮🇹' },
+    { code: 'pt', name: 'Português', flag: '🇵🇹' },
+    { code: 'ru', name: 'Русский', flag: '🇷🇺' },
+    { code: 'zh-CN', name: '中文', flag: '🇨🇳' },
+    { code: 'ja', name: '日本語', flag: '🇯🇵' }
+  ];
+
   useEffect(() => {
     checkAuthStatus();
+    initializeGoogleTranslate();
+    hideGoogleTranslateElements();
   }, []);
+
+  //////////Start Language Section//////////
+  // Hide Google Translate elements with CSS
+  const hideGoogleTranslateElements = () => {
+    const style = document.createElement('style');
+    style.innerHTML = `
+      /* Hide Google Translate banner and elements */
+      .goog-te-banner-frame,
+      .goog-te-menu-frame,
+      .skiptranslate,
+      #google_translate_element,
+      .goog-logo-link,
+      .goog-te-gadget,
+      .goog-te-combo {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        position: absolute !important;
+        left: -9999px !important;
+        top: -9999px !important;
+        width: 0 !important;
+        height: 0 !important;
+      }
+      
+      /* Remove the Google Translate top banner */
+      body {
+        top: 0 !important;
+        position: static !important;
+      }
+      
+      /* Hide iframe created by Google Translate */
+      iframe.goog-te-banner-frame {
+        display: none !important;
+      }
+      
+      /* Ensure body doesn't get pushed down */
+      body.translated-ltr,
+      body.translated-rtl {
+        margin-top: 0 !important;
+      }
+      
+      /* Hide any notification bars */
+      .goog-te-banner-frame.skiptranslate {
+        display: none !important;
+      }
+    `;
+    document.head.appendChild(style);
+  };
+
+   const initializeGoogleTranslate = () => {
+    // If already initialized, skip
+    if (window.google && window.google.translate && isTranslateReady) {
+      return;
+    }
+
+    // Clean up any previous initialization
+    delete window.googleTranslateElementInit;
+    
+    // Create new initialization function
+    window.googleTranslateElementInit = () => {
+      try {
+        // Remove any existing translate elements
+        const existingElement = document.getElementById('google_translate_element');
+        if (existingElement) {
+          existingElement.innerHTML = '';
+        }
+
+        // Initialize the translate element (hidden)
+        new window.google.translate.TranslateElement(
+          {
+            pageLanguage: 'en',
+            includedLanguages: languages.map(lang => lang.code).join(','),
+            layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE,
+            autoDisplay: false,
+            multilanguagePage: true
+          },
+          'google_translate_element'
+        );
+        
+        setIsTranslateReady(true);
+        
+        // Hide the translate elements after initialization
+        setTimeout(() => {
+          hideGoogleTranslateElements();
+        }, 100);
+        
+      } catch (error) {
+        console.error('Google Translate initialization error:', error);
+        setIsTranslateReady(false);
+      }
+    };
+
+    // Load the script if not already loaded
+    if (!document.querySelector('script[src*="translate.google.com"]')) {
+      const script = document.createElement('script');
+      script.src = `//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit`;
+      script.async = true;
+      script.onerror = () => {
+        console.error('Failed to load Google Translate script');
+        setIsTranslateReady(false);
+      };
+      document.body.appendChild(script);
+    } else if (window.googleTranslateElementInit) {
+      // If script already loaded, just initialize
+      window.googleTranslateElementInit();
+    }
+  };
+
+  // Simplified language change function
+   const handleLanguageChange = (langCode) => {
+    if (!isTranslateReady) return;
+
+    try {
+      // Method 1: Try to use the hidden select element
+      const select = document.querySelector('.goog-te-combo');
+      if (select) {
+        select.value = langCode;
+        const event = new Event('change', { bubbles: true });
+        select.dispatchEvent(event);
+        setCurrentLang(langCode);
+        setShowLanguageDropdown(false);
+        return;
+      }
+
+      // Method 2: Use Google Translate API directly
+      if (window.google && window.google.translate) {
+        const translateInstance = new window.google.translate.TranslateElement({
+          pageLanguage: 'en',
+          includedLanguages: languages.map(lang => lang.code).join(','),
+        });
+        
+        // Trigger translation
+        if (langCode !== 'en') {
+          // Use cookie method for translation
+          document.cookie = `googtrans=/en/${langCode}; path=/`;
+          window.location.reload();
+        } else {
+          // Reset to original language
+          document.cookie = 'googtrans=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+          window.location.reload();
+        }
+      }
+
+      setCurrentLang(langCode);
+      setShowLanguageDropdown(false);
+    } catch (error) {
+      console.error('Error changing language:', error);
+    }
+  };
+
+  // Get current language info
+  const getCurrentLanguage = () => {
+    return languages.find(lang => lang.code === currentLang) || languages[0];
+  };
+//////////End Language Section//////////
 
   // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+     if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setShowDropdown(false);
+      }
+      if (languageDropdownRef.current && !languageDropdownRef.current.contains(event.target)) {
+        setShowLanguageDropdown(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
@@ -131,6 +309,9 @@ const fetchUserInfo = async () => {
     setShowMobileMenu(!showMobileMenu);
   };
 
+  const toggleLanguageDropdown = () => {
+    setShowLanguageDropdown(!showLanguageDropdown);
+  };
 
   // Get user initials for avatar
   const getUserInitials = () => {
@@ -144,8 +325,23 @@ const fetchUserInfo = async () => {
     const isGarageOwner = () => {
       return userProfile?.role === 'garage_owner' || userProfile?.role === 'owner' || userProfile?.is_superuser;
     };
-
+  const currentLanguage = getCurrentLanguage();
   return (
+    <>
+   {/* Completely Hidden Google Translate Element */}
+    <div 
+      id="google_translate_element" 
+      style={{ 
+        position: 'absolute',
+        left: '-9999px',
+        top: '-9999px',
+        width: '0',
+        height: '0',
+        overflow: 'hidden',
+        visibility: 'hidden',
+        display: 'none'
+      }}
+    ></div>
     <header className={`shadow-sm border-b px-4 sm:px-6 py-4 transition-colors sticky top-0 z-50 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
       <div className="max-w-full mx-auto">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-y-4">{/* Logo */}
@@ -206,6 +402,45 @@ const fetchUserInfo = async () => {
 
           {/* Right side actions */}
           <div className="flex items-center gap-3 flex-wrap sm:flex-nowrap">
+              {/* Test translation */}
+               <div className="relative" ref={languageDropdownRef}>
+                <button
+                  onClick={toggleLanguageDropdown}
+                  className={`flex items-center space-x-2 px-3 py-2 text-sm rounded-md transition hover:scale-105 ${
+                    darkMode ? 'bg-gray-700 text-white hover:bg-gray-600' : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+                  } ${!isTranslateReady ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  disabled={!isTranslateReady}
+                  title={!isTranslateReady ? "Translation loading..." : "Select language"}
+                >
+                  <Globe className="w-4 h-4" />
+                  <span className="hidden sm:inline">{currentLanguage.flag} {currentLanguage.name}</span>
+                  <span className="sm:hidden">{currentLanguage.flag}</span>
+                  {!isTranslateReady && <span className="animate-pulse">●</span>}
+                </button>
+
+                {/* Language Dropdown */}
+                {showLanguageDropdown && isTranslateReady && (
+                  <div className={`absolute right-0 mt-2 w-48 rounded-lg shadow-lg border py-1 max-h-60 overflow-y-auto z-50 ${
+                    darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+                  }`}>
+                    {languages.map((language) => (
+                      <button
+                        key={language.code}
+                        onClick={() => handleLanguageChange(language.code)}
+                        className={`w-full flex items-center px-4 py-2 text-left transition-colors ${
+                          currentLang === language.code 
+                            ? (darkMode ? 'bg-gray-600 text-blue-400' : 'bg-gray-100 text-blue-600')
+                            : (darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100')
+                        }`}
+                      >
+                        <span className="mr-3">{language.flag}</span>
+                        <span>{language.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            {/* Test translation */}
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
@@ -213,7 +448,7 @@ const fetchUserInfo = async () => {
             >
               {darkMode ? "☀ Light Mode" : "🌙 Dark Mode"}
             </button>
-
+          
             {/* Authentication-based rendering */}
             {isLoggedIn ? (
               <>
@@ -333,6 +568,35 @@ const fetchUserInfo = async () => {
         {showMobileMenu && (
           <div className={`md:hidden border-t py-4 ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
             <nav className="flex flex-col space-y-2">
+               {/* Mobile Language Selector */}
+            <div className="px-4 py-2">
+                  <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Language / اللغة
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {languages.slice(0, 6).map((language) => (
+                      <button
+                        key={language.code}
+                        onClick={() => {
+                          handleLanguageChange(language.code);
+                          setShowMobileMenu(false);
+                        }}
+                        className={`flex items-center px-3 py-2 text-sm rounded-md transition-colors ${
+                          currentLang === language.code 
+                            ? (darkMode ? 'bg-gray-600 text-blue-400' : 'bg-gray-200 text-blue-600')
+                            : (darkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-100 text-gray-700 hover:bg-gray-200')
+                        }`}
+                        disabled={!isTranslateReady}
+                      >
+                        <span className="mr-2">{language.flag}</span>
+                        <span className="truncate">{language.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                
+                <hr className={`border-gray-200 dark:border-gray-700 my-2 ${darkMode ? 'border-gray-700' : 'border-gray-200'}`} />
+              
               <Link
                 to="/home"
                 className={`px-4 py-2 rounded-lg transition-colors ${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`}
@@ -437,6 +701,7 @@ const fetchUserInfo = async () => {
         )}
       </div>
     </header>
+    </>
   );
 };
 

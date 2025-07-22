@@ -265,101 +265,138 @@ function Profile({ darkMode, setDarkMode }) {
                 Documents
               </h3>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className={`p-6 rounded-lg border-2 border-dashed transition-colors ${
-                  userInfo?.driver_license 
-                    ? (darkMode ? 'border-green-600 bg-green-900/20' : 'border-green-300 bg-green-50') 
-                    : (darkMode ? 'border-gray-600 bg-gray-700' : 'border-gray-300 bg-gray-50')
-                }`}>
-                  <div className="text-center">
-                    <Car className={`w-12 h-12 mx-auto mb-3 ${
-                      userInfo?.driver_license 
-                        ? (darkMode ? 'text-green-400' : 'text-green-600') 
-                        : (darkMode ? 'text-gray-500' : 'text-gray-400')
-                    }`} />
-                    <h4 className={`font-medium mb-2 transition-colors ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                      Driver License
-                    </h4>
-                    {userInfo?.driver_license ? (
-                      <a 
-                        href={userInfo.driver_license} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-700 text-sm underline"
-                      >
-                        View Document
-                      </a>
-                    ) : (
-                      <p className={`text-sm transition-colors ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                        Not uploaded
-                      </p>
-                    )}
+             {userInfo?.role === 'garage_owner' ? (
+                // Show only National ID Image for garage owners
+                <div className="grid grid-cols-1 md:grid-cols-1 gap-6 max-w-md mx-auto">
+                  <div className={`p-6 rounded-lg border-2 border-dashed transition-colors ${
+                    userInfo?.national_id_img 
+                      ? (darkMode ? 'border-green-600 bg-green-900/20' : 'border-green-300 bg-green-50') 
+                      : (darkMode ? 'border-gray-600 bg-gray-700' : 'border-gray-300 bg-gray-50')
+                  }`}>
+                    <div className="text-center">
+                      <CreditCard className={`w-12 h-12 mx-auto mb-3 ${
+                        userInfo?.national_id_img 
+                          ? (darkMode ? 'text-green-400' : 'text-green-600') 
+                          : (darkMode ? 'text-gray-500' : 'text-gray-400')
+                      }`} />
+                      <h4 className={`font-medium mb-2 transition-colors ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                        National ID Image
+                      </h4>
+                      {userInfo?.national_id_img ? (
+                        <a 
+                          href={userInfo.national_id_img} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-700 text-sm underline"
+                        >
+                          View Document
+                        </a>
+                      ) : (
+                        <p className={`text-sm transition-colors ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                          Not uploaded
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className={`p-6 rounded-lg border-2 border-dashed transition-colors ${
+                    userInfo?.driver_license 
+                      ? (darkMode ? 'border-green-600 bg-green-900/20' : 'border-green-300 bg-green-50') 
+                      : (darkMode ? 'border-gray-600 bg-gray-700' : 'border-gray-300 bg-gray-50')
+                  }`}>
+                    <div className="text-center">
+                      <Car className={`w-12 h-12 mx-auto mb-3 ${
+                        userInfo?.driver_license 
+                          ? (darkMode ? 'text-green-400' : 'text-green-600') 
+                          : (darkMode ? 'text-gray-500' : 'text-gray-400')
+                      }`} />
+                      <h4 className={`font-medium mb-2 transition-colors ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                        Driver License
+                      </h4>
+                      {userInfo?.driver_license ? (
+                        <a 
+                          href={userInfo.driver_license} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-700 text-sm underline"
+                        >
+                          View Document
+                        </a>
+                      ) : (
+                        <p className={`text-sm transition-colors ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                          Not uploaded
+                        </p>
+                      )}
+                    </div>
+                  </div>
 
-                <div className={`p-6 rounded-lg border-2 border-dashed transition-colors ${
-                  userInfo?.car_license 
-                    ? (darkMode ? 'border-green-600 bg-green-900/20' : 'border-green-300 bg-green-50') 
-                    : (darkMode ? 'border-gray-600 bg-gray-700' : 'border-gray-300 bg-gray-50')
-                }`}>
-                  <div className="text-center">
-                    <FileText className={`w-12 h-12 mx-auto mb-3 ${
-                      userInfo?.car_license 
-                        ? (darkMode ? 'text-green-400' : 'text-green-600') 
-                        : (darkMode ? 'text-gray-500' : 'text-gray-400')
-                    }`} />
-                    <h4 className={`font-medium mb-2 transition-colors ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                      Car License
-                    </h4>
-                    {userInfo?.car_license ? (
-                      <a 
-                        href={userInfo.car_license} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-700 text-sm underline"
-                      >
-                        View Document
-                      </a>
-                    ) : (
-                      <p className={`text-sm transition-colors ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                        Not uploaded
-                      </p>
-                    )}
+                  <div className={`p-6 rounded-lg border-2 border-dashed transition-colors ${
+                    userInfo?.car_license 
+                      ? (darkMode ? 'border-green-600 bg-green-900/20' : 'border-green-300 bg-green-50') 
+                      : (darkMode ? 'border-gray-600 bg-gray-700' : 'border-gray-300 bg-gray-50')
+                  }`}>
+                    <div className="text-center">
+                      <FileText className={`w-12 h-12 mx-auto mb-3 ${
+                        userInfo?.car_license 
+                          ? (darkMode ? 'text-green-400' : 'text-green-600') 
+                          : (darkMode ? 'text-gray-500' : 'text-gray-400')
+                      }`} />
+                      <h4 className={`font-medium mb-2 transition-colors ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                        Car License
+                      </h4>
+                      {userInfo?.car_license ? (
+                        <a 
+                          href={userInfo.car_license} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-700 text-sm underline"
+                        >
+                          View Document
+                        </a>
+                      ) : (
+                        <p className={`text-sm transition-colors ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                          Not uploaded
+                        </p>
+                      )}
+                    </div>
                   </div>
-                </div>
 
-                <div className={`p-6 rounded-lg border-2 border-dashed transition-colors ${
-                  userInfo?.national_id_img 
-                    ? (darkMode ? 'border-green-600 bg-green-900/20' : 'border-green-300 bg-green-50') 
-                    : (darkMode ? 'border-gray-600 bg-gray-700' : 'border-gray-300 bg-gray-50')
-                }`}>
-                  <div className="text-center">
-                    <CreditCard className={`w-12 h-12 mx-auto mb-3 ${
-                      userInfo?.national_id_img 
-                        ? (darkMode ? 'text-green-400' : 'text-green-600') 
-                        : (darkMode ? 'text-gray-500' : 'text-gray-400')
-                    }`} />
-                    <h4 className={`font-medium mb-2 transition-colors ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                      National ID Image
-                    </h4>
-                    {userInfo?.national_id_img ? (
-                      <a 
-                        href={userInfo.national_id_img} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-700 text-sm underline"
-                      >
-                        View Document
-                      </a>
-                    ) : (
-                      <p className={`text-sm transition-colors ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                        Not uploaded
-                      </p>
-                    )}
+                  <div className={`p-6 rounded-lg border-2 border-dashed transition-colors ${
+                    userInfo?.national_id_img 
+                      ? (darkMode ? 'border-green-600 bg-green-900/20' : 'border-green-300 bg-green-50') 
+                      : (darkMode ? 'border-gray-600 bg-gray-700' : 'border-gray-300 bg-gray-50')
+                  }`}>
+                    <div className="text-center">
+                      <CreditCard className={`w-12 h-12 mx-auto mb-3 ${
+                        userInfo?.national_id_img 
+                          ? (darkMode ? 'text-green-400' : 'text-green-600') 
+                          : (darkMode ? 'text-gray-500' : 'text-gray-400')
+                      }`} />
+                      <h4 className={`font-medium mb-2 transition-colors ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                        National ID Image
+                      </h4>
+                      {userInfo?.national_id_img ? (
+                        <a 
+                          href={userInfo.national_id_img} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-700 text-sm underline"
+                        >
+                          View Document
+                        </a>
+                      ) : (
+                        <p className={`text-sm transition-colors ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                          Not uploaded
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
+
 
             {/* Actions */}
             <div className="flex flex-col sm:flex-row justify-center pt-6 gap-4">
