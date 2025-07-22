@@ -1,5 +1,6 @@
 import React from "react";
 import axios from "../../apis/config";
+import { useLanguage } from '../../context/LanguageContext'; 
 
 const Step3_ConfirmPassword = ({
   method,
@@ -15,6 +16,26 @@ const Step3_ConfirmPassword = ({
   setError,
   resetMessages,
 }) => {
+  const { language } = useLanguage(); 
+
+
+  const t = {
+    en: {
+      placeholderNew: "New Password",
+      placeholderConfirm: "Confirm New Password",
+      resetButton: "Reset Password",
+      successMessage: "✅ Password has been reset successfully.",
+      errorUnexpected: "❌ Unexpected response from server."
+    },
+    ar: {
+      placeholderNew: "كلمة المرور الجديدة",
+      placeholderConfirm: "تأكيد كلمة المرور الجديدة",
+      resetButton: "إعادة تعيين كلمة المرور",
+      successMessage: "✅ تم إعادة تعيين كلمة المرور بنجاح.",
+      errorUnexpected: "❌ استجابة غير متوقعة من الخادم."
+    }
+  };
+
   const handleConfirmReset = async () => {
     resetMessages();
 
@@ -26,16 +47,15 @@ const Step3_ConfirmPassword = ({
       ...(method === "email" ? { email } : { phone }),
     };
 
-    console.log("🔐 Password Reset Payload:", payload); // Debug: Check what’s being sent
-
+    console.log("🔐 Password Reset Payload:", payload); 
     try {
       const res = await axios.post("/password-reset/confirm/", payload);
 
       if (res.status === 200) {
         setStep(4);
-        setMessage("✅ Password has been reset successfully.");
+        setMessage(t[language].successMessage);
       } else {
-        setError("❌ Unexpected response from server.");
+        setError(t[language].errorUnexpected);
       }
     } catch (err) {
       console.error("🚨 Error during password reset:", err.response?.data || err.message);
@@ -53,20 +73,20 @@ const Step3_ConfirmPassword = ({
     <div>
       <input
         type="password"
-        placeholder="New Password"
+        placeholder={t[language].placeholderNew}
         value={newPassword}
         onChange={(e) => setNewPassword(e.target.value)}
         className="input"
       />
       <input
         type="password"
-        placeholder="Confirm New Password"
+        placeholder={t[language].placeholderConfirm}
         value={confirmPassword}
         onChange={(e) => setConfirmPassword(e.target.value)}
         className="input"
       />
       <button className="button" onClick={handleConfirmReset}>
-        Reset Password
+        {t[language].resetButton}
       </button>
     </div>
   );

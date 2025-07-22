@@ -1,323 +1,258 @@
-import React from 'react'
-import { useState,useEffect } from "react";
-import { Link } from "react-router-dom";
-import { ChevronLeft, Upload, Eye, EyeOff, Plus, FileText, CheckCircle, XCircle, Clock, AlertCircle, Camera   } from 'lucide-react';
-import instance from "../apis/config.js"
-const Settings = ({ darkMode, setDarkMode }) => {
+import React, { useEffect, useState } from 'react';
+import {
+  ChevronLeft,User,Mail,Phone,CreditCard,FileText,Car,AlertCircle,Loader,Eye,EyeOff,Plus,Camera
+} from 'lucide-react';
+import { Link, useNavigate } from "react-router-dom";
+import instance from "../apis/config.js";
+import { useLanguage } from '../context/LanguageContext'; 
+
+function Settings({ darkMode, setDarkMode }) {
+  const { language } = useLanguage(); 
+
+  const [userInfo, setUserInfo] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+
+  
+  const t = {
+    en: {
+      title: "User Information",
+      username: "Username",
+      email: "Email",
+      phone: "Phone number",
+      nationalId: "National ID",
+      role: "Role",
+      documents: "Documents",
+      driverLicense: "Driver License",
+      carLicense: "Car License",
+      nationalIdImage: "National ID Image",
+      viewDocument: "View Document",
+      notUploaded: "Not uploaded",
+      refresh: "Refresh Information",
+      update: "Update Information",
+      error: "Error",
+      tryAgain: "Try Again",
+      loading: "Loading user information...",
+      noData: "Not provided",
+      changePassword: "Change your password",
+      newPassword: "New password",
+      confirmPassword: "Confirm new password",
+      changeBtn: "Change Password",
+      saveChanges: "Save Changes",
+      uploadImage: "Upload new image",
+      vehicleSection: "Vehicles",
+      addVehicle: "Add your vehicle's registration plate",
+      vehicleType: "Vehicle Type",
+      car: "Car",
+      motorcycle: "Motorcycle",
+      truck: "Truck",
+      van: "Van",
+      add: "Add",
+      requiredDocs: "Required Documents",
+      docsForVerification: "Please upload the following documents for verification. They will be reviewed by admin.",
+      submitDocuments: "Submit Documents for Review",
+      resubmitDocuments: "Resubmit Documents"
+    },
+    ar: {
+      title: "معلومات المستخدم",
+      username: "اسم المستخدم",
+      email: "البريد الإلكتروني",
+      phone: "رقم الهاتف",
+      nationalId: "الرقم القومي",
+      role: "الدور",
+      documents: "الوثائق",
+      driverLicense: "رخصة القيادة",
+      carLicense: "رخصة السيارة",
+      nationalIdImage: "صورة الهوية الوطنية",
+      viewDocument: "عرض الوثيقة",
+      notUploaded: "لم تُرفع",
+      refresh: "تحديث المعلومات",
+      update: "تحديث البيانات",
+      error: "حدث خطأ",
+      tryAgain: "حاول مجددًا",
+      loading: "جاري تحميل معلومات المستخدم...",
+      noData: "غير متوفر",
+      changePassword: "تغيير كلمة المرور",
+      newPassword: "كلمة المرور الجديدة",
+      confirmPassword: "تأكيد كلمة المرور",
+      changeBtn: "تغيير كلمة المرور",
+      saveChanges: "حفظ التغييرات",
+      uploadImage: "تحميل صورة جديدة",
+      vehicleSection: "المركبات",
+      addVehicle: "أضف لوحة ترخيص المركبة",
+      vehicleType: "نوع المركبة",
+      car: "سيارة",
+      motorcycle: "دراجة",
+      truck: "شاحنة",
+      van: "ميني فان",
+      add: "إضافة",
+      requiredDocs: "الوثائق المطلوبة",
+      docsForVerification: "يرجى رفع الوثائق التالية للمراجعة. سيتم مراجعتها بواسطة المسؤول.",
+      submitDocuments: "تقديم الوثائق للمراجعة",
+      resubmitDocuments: "إعادة تقديم الوثائق"
+    }
+  };
+
+  const [formData, setFormData] = useState({
+    username: "",
+    email: "",
+    phone: "",
+    national_id: ""
+  });
+
+  const [passwordForm, setPasswordForm] = useState({
+    newPassword: "",
+    confirmPassword: ""
+  });
+
+  const [documentFiles, setDocumentFiles] = useState({
+    driver_license: null,
+    car_license: null,
+    national_id_img: null
+  });
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [profileImage, setProfileImage] = useState(null);
-  const [profileImagePreview, setProfileImagePreview] = useState(null);
-  const [userRole, setUserRole] = useState('driver');
-  const [verificationStatus, setVerificationStatus] = useState('Pending');
-  const [documents, setDocuments] = useState({
-    driver_license: null,
-    car_license: null,
-    national_id_img: null
-  });
-   const [documentFiles, setDocumentFiles] = useState({
-    driver_license: null,
-    car_license: null,
-    national_id_img: null
-  });
-  const [formData, setFormData] = useState({
-    username: '',
-    email: '',
-    phone: '',
-    national_id: '',
-    newPassword: '',
-    confirmPassword: '',
-    vehiclePlate: '',
-    vehicleType: 'Car'
-  });
-  // ??First load Current user Data
-    useEffect(() => {
-      loadUserData();
-    }, []);
-    const loadUserData = async () => {
-    const storedToken = localStorage.getItem("authTokens") || sessionStorage.getItem("authTokens");
-    const token = storedToken ? JSON.parse(storedToken).access : null;
-    try {
-      const res = await instance.get('/user-info/', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      setFormData(prev => ({
-        ...prev,
-        username: res.data.username || '',
-        email: res.data.email || '',
-        phone: res.data.phone || '',
-        national_id: res.data.national_id || ''
-      }));
-      setUserRole(res.data.role || '');
-      setVerificationStatus(res.data.verification_status || 'Pending');
-      setDocuments({
-        driver_license: res.data.driver_license || null,
-        car_license: res.data.car_license || null,
-        national_id_img: res.data.national_id_img || null
-      });
-      // Set profile image if exists
-      if (res.data.profile_image) {
-        setProfileImagePreview(res.data.profile_image);
-      }
 
-    } catch (err) {
-      console.error('Failed to load user data:', err);
-    }
-  };
-  /// End Loaded user data 
-  /// handle new fields Updates
-  const handleInputChange = (e) => {
-      setFormData({
-        ...formData,
-        [e.target.name]: e.target.value
-      });
-    };
-  ///End of handle save updates
-  
-  const handleSaveChanges = async() => {
-    const storedToken = localStorage.getItem("authTokens") || sessionStorage.getItem("authTokens");
-    const token = storedToken ? JSON.parse(storedToken).access : null;
-    const formDataToSend = new FormData();
-    const fieldsToUpdate = ['username', 'email', 'phone', 'national_id'];
-    fieldsToUpdate.forEach(field => {
-      if (formData[field]) {
-        formDataToSend.append(field, formData[field]);
-      }
-    });
+  const [verificationStatus, setVerificationStatus] = useState("Pending"); // يمكن أن يكون: Pending, Approved, Rejected
 
-    // Add profile image if selected
-    if (profileImage && typeof profileImage !== 'string') {
-      formDataToSend.append('profile_image', profileImage);
-    }
-     try {
-      const res = await instance.put('/user-info/', formDataToSend, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'multipart/form-data'
-      }
-    });
-      alert("Profile updated successfully!");
-      await loadUserData();
-      console.log('Saving changes:', formDataToSend);
-    } catch (err) {
-    console.error(err);
-    alert("Update failed!"+(err.response?.data?.message || err.message));
-  }
-  };
-  // Password aheck then change then appand at form data 
-  const handleChangePassword = async () => {
-    if (!formData.newPassword || !formData.confirmPassword) {
-      alert('Please fill in both password fields');
-      return;
-    }
-    if (formData.newPassword !== formData.confirmPassword) {
-      alert('Passwords do not match');
-      return;
-    }
-    const storedToken = localStorage.getItem("authTokens") || sessionStorage.getItem("authTokens");
-    const token = storedToken ? JSON.parse(storedToken).access : null;
-    const passwordData = new FormData();
-    passwordData.append('new_password', formData.newPassword);
-    passwordData.append('confirm_password', formData.confirmPassword);
+  useEffect(() => {
+    fetchUserInfo();
+  }, []);
+
+  const fetchUserInfo = async () => {
     try {
-      const res = await instance.put('/user-info/', passwordData, {
+      setLoading(true);
+      setError('');
+      const storedToken = localStorage.getItem("authTokens") || sessionStorage.getItem("authTokens");
+      const token = storedToken ? JSON.parse(storedToken).access : null;
+      if (!token) {
+        setError('Authentication token not found. Please login again.');
+        setLoading(false);
+        return;
+      }
+      const response = await instance.get('/user-info/', {
         headers: {
           'Authorization': `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data'
         }
       });
-      alert("Password updated successfully!");
-      setFormData({ ...formData, newPassword: '', confirmPassword: '' });
+      const data = response.data;
+      setUserInfo(data);
+      setFormData({
+        username: data.username || "",
+        email: data.email || "",
+        phone: data.phone || "",
+        national_id: data.national_id || ""
+      });
+      setVerificationStatus(data.verification_status || "Pending");
     } catch (err) {
-      console.error(err);
-      alert("Password update failed: " + (err.response?.data?.message || err.message));
+      console.error('Error fetching user info:', err);
+      if (err.response?.status === 401) {
+        setError('فشل التحقق. يرجى تسجيل الدخول مجددًا.');
+      } else {
+        setError('فشل تحميل معلومات المستخدم. يرجى المحاولة مجددًا.');
+      }
+    } finally {
+      setLoading(false);
     }
-  }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handlePasswordChange = (e) => {
+    const { name, value } = e.target;
+    setPasswordForm(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleDocumentUpload = (e, docType) => {
+    const file = e.target.files[0];
+    if (file) {
+      setDocumentFiles(prev => ({ ...prev, [docType]: file }));
+    }
+  };
+
+  const triggerDocumentInput = (docType) => {
+    document.getElementById(`${docType}Upload`).click();
+  };
+
+  const canUploadDocument = (docType) => {
+    if (verificationStatus === "Approved") return false;
+    if (verificationStatus === "Rejected") return true;
+    return !documentFiles[docType];
+  };
+
+  const handleSaveChanges = () => {
+    alert(language === 'ar' ? 'تم حفظ التغييرات بنجاح!' : 'Changes saved successfully!');
+  };
+
+  const handleChangePassword = () => {
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      alert(language === 'ar' ? 'كلمات المرور غير متطابقة!' : 'Passwords do not match!');
+      return;
+    }
+    alert(language === 'ar' ? 'تم تغيير كلمة المرور!' : 'Password changed successfully!');
+  };
+
+  const handleSubmitDocuments = () => {
+    alert(language === 'ar' ? 'تم تقديم الوثائق للمراجعة!' : 'Documents submitted for review!');
+  };
 
   const handleAddVehicle = () => {
-    if (formData.vehiclePlate) {
-      console.log('Adding vehicle:', formData.vehiclePlate, formData.vehicleType);
-
-      setFormData({ ...formData, vehiclePlate: '' });
-    }
-  };
-//   Upload Image
-    const handleImageUpload = (event) => {
-        const file = event.target.files[0];
-        if (file) {
-          setProfileImage(file);
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            setProfileImagePreview(e.target.result);
-        };
-        reader.readAsDataURL(file);
-        console.log('Image uploaded:', file.name);
-        // 
-        }
-    };
-
-  
-
-/////////////////////////////////////////////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\
-    // Handle documents upload for review
-    const handleDocumentUpload = (event, documentType) => {
-    const file = event.target.files[0];
-    if (file) {
-      setDocumentFiles(prev => ({
-        ...prev,
-        [documentType]: file
-      }));
-      console.log(`${documentType} uploaded:`, file.name);
-    }
+    alert(language === 'ar' ? 'تمت إضافة المركبة!' : 'Vehicle added successfully!');
   };
 
-
-
-  // Submit documents for verification
-
-   const handleSubmitDocuments = async () => {
-    const storedToken = localStorage.getItem("authTokens") || sessionStorage.getItem("authTokens");
-    const token = storedToken ? JSON.parse(storedToken).access : null;
-    const formDataToSend = new FormData();
-    
-    // Add documents to form data
-    Object.keys(documentFiles).forEach(key => {
-      if (documentFiles[key]) {
-        formDataToSend.append(key, documentFiles[key]);
-      }
-    });
-    //this is a re-submission for rejected status
-    if (verificationStatus === 'Rejected') {
-      formDataToSend.append('resubmission', 'true');
-    }
-
-    try {
-      const res = await instance.put('/user-info/', formDataToSend, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-      //Different success messages based on status
-      if (verificationStatus === 'Rejected') {
-        alert("Documents resubmitted successfully! Your verification status has been reset to Pending.");
-      } else {
-        alert("Documents submitted successfully! Please wait for admin review.");
-      }
-       setDocumentFiles({
-        driver_license: null,
-        car_license: null,
-        national_id_img: null
-      });
-      await loadUserData();
-    } catch (err) {
-      console.error(err);
-      alert("Document submission failed: " + (err.response?.data?.message || err.message));
-    }
-  };
-
-  const triggerFileInput = () => {
-    document.getElementById('imageUpload').click();
-  };
-  const triggerDocumentInput = (documentType) => {
-    document.getElementById(`${documentType}Upload`).click();
-  };
-
-  // Get verification status icon and color
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case 'Verified':
-        return <CheckCircle className="w-5 h-5 text-green-500" />;
-      case 'Rejected':
-        return <AlertCircle className="w-5 h-5 text-red-500" />;
-      default:
-        return <Clock className="w-5 h-5 text-yellow-500" />;
-    }
-  };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'Verified':
-        return 'text-green-500';
-      case 'Rejected':
-        return 'text-red-500';
-      default:
-        return 'text-yellow-500';
-    }
-  };
-
-  const needsDocuments = () => {
-    const missingDocs = !documents.driver_license || !documents.car_license || !documents.national_id_img;
-    // return !documents.driver_license || !documents.car_license || !documents.national_id_img;
-    return verificationStatus === 'Rejected' || missingDocs;
-  };
-
-   // Helper function to check if document can be uploaded
-  const canUploadDocument = (documentType) => {
-    // If status is rejected, allow re-upload even if document exists
-    if (verificationStatus === 'Rejected') {
-      return true;
-    }
-    // Otherwise, only allow upload if document doesn't exist
-    return !documents[documentType];
-  };
-  return (
-    <div className={`min-h-screen transition-colors ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
-      {/* Header */}
-      <div className={`shadow-sm border-b px-6 py-4 transition-colors ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'}`}>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center space-x-4">
-            <Link className="p-2 hover:bg-gray-100 rounded-lg" to={"/profile"}>   
-              <ChevronLeft className={`w-5 h-5 ${darkMode ? 'text-white ' : 'text-gray-900'}`} />
-           </Link>
-            <h1 className={`text-xl font-semibold transition-colors ${darkMode ? 'text-white' : 'text-gray-900'}`}>Update Profile</h1>
-          </div>
-          <div className="flex flex-col sm:flex-row items-center sm:space-x-3 space-y-3 sm:space-y-0 text-center sm:text-left">
-            <div className="flex items-center space-x-2">
-              {getStatusIcon(verificationStatus)}
-              <span className={` text-xs sm:text-sm font-medium ${getStatusColor(verificationStatus)}`}>
-                {verificationStatus}
-              </span>
-            </div>
-            <button
-              onClick={() => setDarkMode(!darkMode)}
-              className={`px-4 py-2  text-xs sm:text-sm rounded-md transition hover:scale-105 ${darkMode ? 'bg-gray-700 text-white' : 'bg-gray-300 text-gray-900'}`}
-            >
-              {darkMode ? "☀ Light Mode" : "🌙 Dark Mode"}
-            </button>
-            <span className={` text-xs sm:text-sm transition-colors ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>{formData?.username || 'User'}</span>
-            <Link to="/profile">
-              {profileImagePreview ? (
-                <img
-                  src={profileImagePreview}
-                  alt="Profile"
-                  className="w-8 h-8 rounded-full object-cover border border-white shadow"
-                />
-                ) : (
-                <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
-                  <span className="text-white  text-xs sm:text-sm font-medium">
-                    {formData?.username ? formData.username.charAt(0).toUpperCase() : 'U'}
-                  </span>
-                </div>
-              )}
-            </Link>
+  // Handle loading state
+  if (loading) {
+    return (
+      <div className={`min-h-screen transition-colors ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <Loader className={`w-12 h-12 animate-spin mx-auto mb-4 ${darkMode ? 'text-white' : 'text-gray-600'}`} />
+            <p className={`text-lg ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>{t[language].loading}</p>
           </div>
         </div>
       </div>
+    );
+  }
 
+  // Handle error state
+  if (error) {
+    return (
+      <div className={`min-h-screen transition-colors ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center max-w-md mx-auto p-6">
+            <AlertCircle className={`w-16 h-16 mx-auto mb-4 ${darkMode ? 'text-red-400' : 'text-red-500'}`} />
+            <h2 className={`text-xl font-semibold mb-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>{t[language].error}</h2>
+            <p className={`mb-6 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>{error}</p>
+            <button
+              onClick={fetchUserInfo}
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            >
+              {t[language].tryAgain}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={`min-h-screen transition-colors ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       <div className="max-w-7xl mx-auto p-6">
         <div className={`rounded-lg shadow-sm transition-colors ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
           {/* Profile Section */}
           <div className={`p-8 border-b transition-colors ${darkMode ? 'border-gray-700' : ''}`}>
             <div className="flex flex-col items-center space-y-4">
-              {/* Image Change */}
-             <div className="relative">
-                {profileImagePreview ? (
-                  <img 
-                    src={profileImagePreview} 
-                    alt="Profile" 
+              {/* Avatar */}
+              <div className="relative">
+                {userInfo?.profile_image ? (
+                  <img
+                    src={userInfo?.profile_image}
+                    alt="Profile"
                     className="w-32 h-32 rounded-full object-cover"
                   />
                 ) : (
@@ -328,102 +263,103 @@ const Settings = ({ darkMode, setDarkMode }) => {
                   </div>
                 )}
               </div>
-              
-              <input
-                type="file"
-                id="imageUpload"
-                accept="image/*"
-                onChange={handleImageUpload}
-                className="hidden"
-              />
-              
-              <button 
-                onClick={triggerFileInput}
-                className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                <Upload className="w-4 h-4" />
-                <span>Upload new image</span>
-              </button>
+              <div className="text-center">
+                <h2 className={`text-2xl font-bold transition-colors ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                  {userInfo?.username || t[language].noData}
+                </h2>
+                <p className={`text-sm transition-colors ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  {userInfo?.role || t[language].noData}
+                </p>
+              </div>
             </div>
           </div>
 
-          {/* Form Section */}
+          {/* Personal Info Form */}
           <div className="p-8 space-y-8">
-            {/* Personal Information */}
+            <h3 className={`text-lg font-semibold mb-6 transition-colors ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+              {t[language].title}
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className={`block  text-xs sm:text-sm font-medium mb-2 transition-colors ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Name</label>
+                <label className={`block text-xs sm:text-sm font-medium mb-2 transition-colors ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  {t[language].username}
+                </label>
                 <input
                   type="text"
                   name="username"
                   value={formData.username}
                   onChange={handleInputChange}
                   className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all ${darkMode ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' : 'border-gray-300 bg-white text-gray-900'}`}
-                  placeholder="Enter your name"
+                  placeholder={t[language].username}
                 />
               </div>
-
               <div>
-                <label className={`block  text-xs sm:text-sm font-medium mb-2 transition-colors ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Email</label>
+                <label className={`block text-xs sm:text-sm font-medium mb-2 transition-colors ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  {t[language].email}
+                </label>
                 <input
                   type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
                   className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all ${darkMode ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' : 'border-gray-300 bg-white text-gray-900'}`}
-                  placeholder="Enter your email"
+                  placeholder={t[language].email}
                 />
               </div>
-
-               <div>
-                <label className={`block  text-xs sm:text-sm font-medium mb-2 transition-colors ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>National ID</label>
-                <input
-                  type="text"
-                  name="national_id"
-                  value={formData.national_id}
-                  onChange={handleInputChange}
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all ${darkMode ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' : 'border-gray-300 bg-white text-gray-900'}`}
-                  placeholder="Enter your National ID"
-                />
-              </div>
-
               <div>
-                <label className={`block  text-xs sm:text-sm font-medium mb-2 transition-colors ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Phone number</label>
+                <label className={`block text-xs sm:text-sm font-medium mb-2 transition-colors ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  {t[language].phone}
+                </label>
                 <input
                   type="tel"
                   name="phone"
                   value={formData.phone}
                   onChange={handleInputChange}
                   className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all ${darkMode ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' : 'border-gray-300 bg-white text-gray-900'}`}
-                  placeholder="Enter your phone number"
+                  placeholder={t[language].phone}
+                />
+              </div>
+              <div>
+                <label className={`block text-xs sm:text-sm font-medium mb-2 transition-colors ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  {t[language].nationalId}
+                </label>
+                <input
+                  type="text"
+                  name="national_id"
+                  value={formData.national_id}
+                  onChange={handleInputChange}
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all ${darkMode ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' : 'border-gray-300 bg-white text-gray-900'}`}
+                  placeholder={t[language].nationalId}
                 />
               </div>
             </div>
-
             <div className="flex justify-end">
               <button
                 onClick={handleSaveChanges}
                 className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
               >
-                Save Changes
+                {t[language].saveChanges}
               </button>
             </div>
 
             {/* Password Section */}
             <div className={`border-t pt-8 transition-colors ${darkMode ? 'border-gray-700' : ''}`}>
-              <h3 className={`text-lg font-semibold mb-6 transition-colors ${darkMode ? 'text-white' : 'text-gray-900'}`}>Change your password</h3>
-              
+              <h3 className={`text-lg font-semibold mb-6 transition-colors ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                {t[language].changePassword}
+              </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className={`block  text-xs sm:text-sm font-medium mb-2 transition-colors ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>New password</label>
+                  <label className={`block text-xs sm:text-sm font-medium mb-2 transition-colors ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    {t[language].newPassword}
+                  </label>
                   <div className="relative">
                     <input
                       type={showPassword ? "text" : "password"}
                       name="newPassword"
-                      value={formData.newPassword}
-                      onChange={handleInputChange}
+                      value={passwordForm.newPassword}
+                      onChange={handlePasswordChange}
                       className={`w-full px-4 py-3 pr-12 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all ${darkMode ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' : 'border-gray-300 bg-white text-gray-900'}`}
-                      placeholder="Enter new password"
+                      placeholder={t[language].newPassword}
                     />
                     <button
                       type="button"
@@ -434,17 +370,18 @@ const Settings = ({ darkMode, setDarkMode }) => {
                     </button>
                   </div>
                 </div>
-                
                 <div>
-                  <label className={`block  text-xs sm:text-sm font-medium mb-2 transition-colors ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Confirm new password</label>
+                  <label className={`block text-xs sm:text-sm font-medium mb-2 transition-colors ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    {t[language].confirmPassword}
+                  </label>
                   <div className="relative">
                     <input
                       type={showConfirmPassword ? "text" : "password"}
                       name="confirmPassword"
-                      value={formData.confirmPassword}
-                      onChange={handleInputChange}
+                      value={passwordForm.confirmPassword}
+                      onChange={handlePasswordChange}
                       className={`w-full px-4 py-3 pr-12 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all ${darkMode ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' : 'border-gray-300 bg-white text-gray-900'}`}
-                      placeholder="Confirm new password"
+                      placeholder={t[language].confirmPassword}
                     />
                     <button
                       type="button"
@@ -456,179 +393,159 @@ const Settings = ({ darkMode, setDarkMode }) => {
                   </div>
                 </div>
               </div>
-
-              <div className="flex justify-end mt-6">
+              <div className="mt-4">
                 <button
                   onClick={handleChangePassword}
                   className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
                 >
-                  Change Password
+                  {t[language].changeBtn}
                 </button>
               </div>
             </div>
-            {/* Documentation Section */}
-            {/* -------------------------------------------------------------------- */}
-               {needsDocuments() && (
-              <div className={`border-t pt-8 transition-colors ${darkMode ? 'border-gray-700' : ''}`}>
-                <h3 className={`text-lg font-semibold mb-2 transition-colors ${darkMode ? 'text-white' : 'text-gray-900'}`}>Required Documents</h3>
-                <p className={` text-xs sm:text-sm mb-6 transition-colors ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                  Please upload the following documents for verification. They will be reviewed by admin.
-                </p>
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {/* Driver License */}
-                <div className={`p-4 border rounded-lg ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>
-                    <div className="flex items-center space-x-2 mb-3">
-                      <FileText className={`w-5 h-5 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`} />
-                      <h4 className={`font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>Driver License</h4>
-                    </div>
-                    {canUploadDocument('driver_license') ? (
-                      <>
-                        <input
-                          type="file"
-                          id="driver_licenseUpload"
-                          accept="image/*,.pdf"
-                          onChange={(e) => handleDocumentUpload(e, 'driver_license')}
-                          className="hidden"
-                        />
-                        <button
-                          onClick={() => triggerDocumentInput('driver_license')}
-                          className={`w-full px-4 py-2 border-2 border-dashed rounded-lg transition-colors ${darkMode ? 'border-gray-600 text-gray-400 hover:border-gray-500' : 'border-gray-300 text-gray-600 hover:border-gray-400'}`}
-                        >
-                          {documentFiles.driver_license ? documentFiles.driver_license.name : 
-                            (verificationStatus === 'Rejected' ? 'Upload New Driver License' : 'Upload Driver License')}
-                        </button>
-                      </>
-                      ) : (
-                        <div className="text-green-500 text-xs sm:text-sm">✓ Already uploaded</div>
-                      )}
+
+            {/* Documents Section */}
+            <div className={`border-t pt-8 transition-colors ${darkMode ? 'border-gray-700' : ''}`}>
+              <h3 className={`text-lg font-semibold mb-6 transition-colors ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                {t[language].requiredDocs}
+              </h3>
+              <p className={`text-sm mb-4 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                {t[language].docsForVerification}
+              </p>
+              <div className="space-y-6">
+                <div>
+                  <div className="flex items-center space-x-2 mb-3">
+                    <FileText className={`w-5 h-5 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`} />
+                    <h4 className={`font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                      {t[language].driverLicense}
+                    </h4>
                   </div>
-
-                  {/* Car License */}
-                  <div className={`p-4 border rounded-lg ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>
-                    <div className="flex items-center space-x-2 mb-3">
-                      <FileText className={`w-5 h-5 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`} />
-                      <h4 className={`font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>Car License</h4>
-                    </div>
-                    {canUploadDocument('car_license') ? (
-                      <>
-                        <input
-                          type="file"
-                          id="car_licenseUpload"
-                          accept="image/*,.pdf"
-                          onChange={(e) => handleDocumentUpload(e, 'car_license')}
-                          className="hidden"
-                        />
-                        <button
-                          onClick={() => triggerDocumentInput('car_license')}
-                          className={`w-full px-4 py-2 border-2 border-dashed rounded-lg transition-colors ${darkMode ? 'border-gray-600 text-gray-400 hover:border-gray-500' : 'border-gray-300 text-gray-600 hover:border-gray-400'}`}
-                        >
-                          {documentFiles.car_license ? documentFiles.car_license.name : 
-                            (verificationStatus === 'Rejected' ? 'Upload New Car License' : 'Upload Car License')}
-                        </button>
-                      </>
-                    ) : (
-                      <div className="text-green-500 text-xs sm:text-sm">✓ Already uploaded</div>
-                    )}
-                  </div>
-
-                  {/* National ID Image */}
-                  <div className={`p-4 border rounded-lg ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>
-                    <div className="flex items-center space-x-2 mb-3">
-                      <FileText className={`w-5 h-5 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`} />
-                      <h4 className={`font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>National ID Image</h4>
-                    </div>
-                    {canUploadDocument('national_id_img') ? (
-                      <>
-                        <input
-                          type="file"
-                          id="national_id_imgUpload"
-                          accept="image/*,.pdf"
-                          onChange={(e) => handleDocumentUpload(e, 'national_id_img')}
-                          className="hidden"
-                        />
-                        <button
-                          onClick={() => triggerDocumentInput('national_id_img')}
-                          className={`w-full px-4 py-2 border-2 border-dashed rounded-lg transition-colors ${darkMode ? 'border-gray-600 text-gray-400 hover:border-gray-500' : 'border-gray-300 text-gray-600 hover:border-gray-400'}`}
-                        >
-                          {documentFiles.national_id_img ? documentFiles.national_id_img.name : 
-                            (verificationStatus === 'Rejected' ? 'Upload New National ID' : 'Upload National ID')}
-                        </button>
-                      </>
-                    ) : (
-                      <div className="text-green-500 text-xs sm:text-sm">✓ Already uploaded</div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Submit Documents Button */}
-                 {(documentFiles.driver_license || documentFiles.car_license || documentFiles.national_id_img) && (
-                  <div className="flex justify-end mt-6">
-                    <button
-                      onClick={handleSubmitDocuments}
-                      className={`px-6 py-3 text-white rounded-lg transition-colors font-medium ${
-                        verificationStatus === 'Rejected' 
-                          ? 'bg-orange-600 hover:bg-orange-700' 
-                          : 'bg-green-600 hover:bg-green-700'
-                      }`}
-                    >
-                      {verificationStatus === 'Rejected' ? 'Resubmit Documents' : 'Submit Documents for Review'}
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
-
-
-          
-            {/* ---------------------------------------------------------------------- */}
-            {/* Vehicles Section */}
-       {userRole === 'driver' && (
-              <div className={`border-t pt-8 transition-colors ${darkMode ? 'border-gray-700' : ''}`}>
-                <h3 className={`text-lg font-semibold mb-2 transition-colors ${darkMode ? 'text-white' : 'text-gray-900'}`}>Vehicles</h3>
-                <p className={` text-xs sm:text-sm mb-6 transition-colors ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Select your default vehicle registration plate</p>
-                
-                <div className="space-y-4">
-                  <div className="flex space-x-4">
-                    <div className="flex-1">
+                  {canUploadDocument('driver_license') ? (
+                    <>
                       <input
-                        type="text"
-                        name="vehiclePlate"
-                        value={formData.vehiclePlate}
-                        onChange={handleInputChange}
-                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all ${darkMode ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' : 'border-gray-300 bg-white text-gray-900'}`}
-                        placeholder="Add your vehicle's registration plate"
+                        type="file"
+                        id="driver_licenseUpload"
+                        accept="image/*,.pdf"
+                        onChange={(e) => handleDocumentUpload(e, 'driver_license')}
+                        className="hidden"
                       />
-                    </div>
-                    
-                    <div className="w-32">
-                      <select
-                        name="vehicleType"
-                        value={formData.vehicleType}
-                        onChange={handleInputChange}
-                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'border-gray-300 bg-white text-gray-900'}`}
+                      <button
+                        onClick={() => triggerDocumentInput('driver_license')}
+                        className={`w-full px-4 py-2 border-2 border-dashed rounded-lg transition-colors ${darkMode ? 'border-gray-600 text-gray-400 hover:border-gray-500' : 'border-gray-300 text-gray-600 hover:border-gray-400'}`}
                       >
-                        <option value="Car">Car</option>
-                        <option value="Motorcycle">Motorcycle</option>
-                        <option value="Truck">Truck</option>
-                        <option value="Van">Van</option>
-                      </select>
-                    </div>
-                    
-                    <button
-                      onClick={handleAddVehicle}
-                      className="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                    >
-                      <Plus className="w-5 h-5" />
-                    </button>
+                        {documentFiles.driver_license ? documentFiles.driver_license.name : t[language].uploadImage}
+                      </button>
+                    </>
+                  ) : (
+                    <div className="text-green-500 text-xs sm:text-sm">✓ {t[language].viewDocument}</div>
+                  )}
+                </div>
+                <div>
+                  <div className="flex items-center space-x-2 mb-3">
+                    <Car className={`w-5 h-5 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`} />
+                    <h4 className={`font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                      {t[language].carLicense}
+                    </h4>
                   </div>
+                  {canUploadDocument('car_license') ? (
+                    <>
+                      <input
+                        type="file"
+                        id="car_licenseUpload"
+                        accept="image/*,.pdf"
+                        onChange={(e) => handleDocumentUpload(e, 'car_license')}
+                        className="hidden"
+                      />
+                      <button
+                        onClick={() => triggerDocumentInput('car_license')}
+                        className={`w-full px-4 py-2 border-2 border-dashed rounded-lg transition-colors ${darkMode ? 'border-gray-600 text-gray-400 hover:border-gray-500' : 'border-gray-300 text-gray-600 hover:border-gray-400'}`}
+                      >
+                        {documentFiles.car_license ? documentFiles.car_license.name : t[language].uploadImage}
+                      </button>
+                    </>
+                  ) : (
+                    <div className="text-green-500 text-xs sm:text-sm">✓ {t[language].viewDocument}</div>
+                  )}
+                </div>
+                <div>
+                  <div className="flex items-center space-x-2 mb-3">
+                    <CreditCard className={`w-5 h-5 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`} />
+                    <h4 className={`font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                      {t[language].nationalIdImage}
+                    </h4>
+                  </div>
+                  {canUploadDocument('national_id_img') ? (
+                    <>
+                      <input
+                        type="file"
+                        id="national_id_imgUpload"
+                        accept="image/*,.pdf"
+                        onChange={(e) => handleDocumentUpload(e, 'national_id_img')}
+                        className="hidden"
+                      />
+                      <button
+                        onClick={() => triggerDocumentInput('national_id_img')}
+                        className={`w-full px-4 py-2 border-2 border-dashed rounded-lg transition-colors ${darkMode ? 'border-gray-600 text-gray-400 hover:border-gray-500' : 'border-gray-300 text-gray-600 hover:border-gray-400'}`}
+                      >
+                        {documentFiles.national_id_img ? documentFiles.national_id_img.name : (verificationStatus === 'Rejected' ? t[language].resubmitDocuments : t[language].uploadImage)}
+                      </button>
+                    </>
+                  ) : (
+                    <div className="text-green-500 text-xs sm:text-sm">✓ {t[language].viewDocument}</div>
+                  )}
                 </div>
               </div>
-            )}
+
+              {/* Submit Documents Button */}
+              {(documentFiles.driver_license || documentFiles.car_license || documentFiles.national_id_img) && (
+                <div className="mt-6">
+                  <button
+                    onClick={handleSubmitDocuments}
+                    className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                  >
+                    {verificationStatus === 'Rejected' ? t[language].resubmitDocuments : t[language].submitDocuments}
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Vehicles Section */}
+            <div className={`border-t pt-8 transition-colors ${darkMode ? 'border-gray-700' : ''}`}>
+              <h3 className={`text-lg font-semibold mb-6 transition-colors ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                {t[language].vehicleSection}
+              </h3>
+              <p className={`text-sm mb-4 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                {t[language].addVehicle}
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="flex-1">
+                  <label className={`block text-xs sm:text-sm font-medium mb-2 transition-colors ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    {t[language].vehicleType}
+                  </label>
+                  <select
+                    name="vehicle_type"
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'border-gray-300 bg-white text-gray-900'}`}
+                  >
+                    <option value="Car">{t[language].car}</option>
+                    <option value="Motorcycle">{t[language].motorcycle}</option>
+                    <option value="Truck">{t[language].truck}</option>
+                    <option value="Van">{t[language].van}</option>
+                  </select>
+                </div>
+                <div className="flex items-end">
+                  <button
+                    onClick={handleAddVehicle}
+                    className="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    <Plus className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
   );
 }
-export default Settings
+
+export default Settings;

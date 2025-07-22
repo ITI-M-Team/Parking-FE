@@ -61,7 +61,7 @@ function RouteList() {
                 <Route path="/garage/register" element={<OwnerProtectedRoute><GarageRegister darkMode={darkMode} setDarkMode={setDarkMode} /></OwnerProtectedRoute>} />
                 <Route path="/garage/edit/:id" element={<OwnerProtectedRoute><GarageEdit darkMode={darkMode} setDarkMode={setDarkMode} /></OwnerProtectedRoute> } />
                 <Route path="/garage/occupancy/:id" element={<OwnerProtectedRoute><GarageOccupancy darkMode={darkMode} setDarkMode={setDarkMode} /></OwnerProtectedRoute>} />
-                 <Route path="/scanner" element={<OwnerProtectedRoute><QrcodeScanner1 darkMode={darkMode} setDarkMode={setDarkMode} /></OwnerProtectedRoute>} />
+                <Route path="/scanner" element={<OwnerProtectedRoute><QrcodeScanner1 darkMode={darkMode} setDarkMode={setDarkMode} /></OwnerProtectedRoute>} />
                 {/* <Route path="/scanner" element={<OwnerProtectedRoute><QRCodeScanner darkMode={darkMode} setDarkMode={setDarkMode} /></OwnerProtectedRoute>} /> */}
                 {/* ------------ */}
                 <Route path="*" element={<Navigate to="/not-authorized" replace />} />

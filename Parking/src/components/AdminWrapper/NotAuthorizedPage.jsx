@@ -1,72 +1,115 @@
 import React, { useState, useEffect } from 'react';
 import { ShieldX, ArrowLeft, Home, Lock, AlertTriangle } from 'lucide-react';
-import "../../assets/Admin/notauthorized.css"
+import "../../assets/Admin/notauthorized.css";
+import { useLanguage } from '../../context/LanguageContext'; 
 
 function NotAuthorizedPage() {
+  const { language } = useLanguage();
   const [attemptCount, setAttemptCount] = useState(0);
 
+
+  const t = {
+    en: {
+      verificationRequired: "Verification Required",
+      verificationMessage: (
+        <>
+          Your account verification is pending.
+          <br />
+          <span className="text-yellow-400 font-semibold">Document verification required.</span>
+        </>
+      ),
+      insufficientPermissions: "Insufficient Permissions",
+      insufficientMessage: (
+        <>
+          You don't have the required permissions to access this resource.
+          <br />
+          <span className="text-red-400 font-semibold">Contact administrator for access.</span>
+        </>
+      ),
+      accessDenied: "Access Denied",
+      accessMessage: (
+        <>
+          You don't have permission to access this resource.
+          <br />
+          <span className="text-red-400 font-semibold">Please check your credentials.</span>
+        </>
+      ),
+      multipleAttempts: "Multiple unauthorized access attempts detected",
+      goBack: "Go Back",
+      home: "Home",
+      contactVerification: "Complete your document verification to access driver features",
+      contactAdmin: "Need access? Contact administrator for assistance"
+    },
+    ar: {
+      verificationRequired: "مطلوب التحقق",
+      verificationMessage: (
+        <>
+          طلب التحقق من حسابك قيد الانتظار.
+          <br />
+          <span className="text-yellow-400 font-semibold">مطلوب التحقق من الوثائق.</span>
+        </>
+      ),
+      insufficientPermissions: "صلاحيات غير كافية",
+      insufficientMessage: (
+        <>
+          ليس لديك الصلاحيات المطلوبة للوصول إلى هذا المورد.
+          <br />
+          <span className="text-red-400 font-semibold">تواصل مع المشرف للحصول على صلاحية.</span>
+        </>
+      ),
+      accessDenied: "تم رفض الوصول",
+      accessMessage: (
+        <>
+          ليس لديك إذن بالوصول إلى هذا المورد.
+          <br />
+          <span className="text-red-400 font-semibold">من فضلك تحقق من بيانات اعتمادك.</span>
+        </>
+      ),
+      multipleAttempts: "تم اكتشاف محاولات متعددة للوصول غير المصرّح بها",
+      goBack: "العودة",
+      home: "الصفحة الرئيسية",
+      contactVerification: "أكمل التحقق من وثائقك للوصول إلى ميزات السائق",
+      contactAdmin: "تحتاج صلاحية؟ تواصل مع المشرف للمساعدة"
+    }
+  };
+
   useEffect(() => {
-    // Get the reason from URL parameters
     const urlParams = new URLSearchParams(window.location.search);
     const reason = urlParams.get('reason');
     
-    // Only increment counter for actual unauthorized attempts
-    // NOT for verification-related redirects
     if (reason !== 'not_verified') {
       const attempts = parseInt(localStorage.getItem('unauthorizedAttempts') || '0') + 1;
       setAttemptCount(attempts);
       localStorage.setItem('unauthorizedAttempts', attempts.toString());
       
-      // Clear attempts after 24 hours
       setTimeout(() => {
         localStorage.removeItem('unauthorizedAttempts');
       }, 24 * 60 * 60 * 1000);
     } else {
-      // For verification issues, just get the current count without incrementing
       const currentAttempts = parseInt(localStorage.getItem('unauthorizedAttempts') || '0');
       setAttemptCount(currentAttempts);
     }
   }, []);
 
-  // Get the reason to customize the message
   const urlParams = new URLSearchParams(window.location.search);
   const reason = urlParams.get('reason');
-  
-  // Customize message based on reason
+
   const getErrorMessage = () => {
     switch (reason) {
       case 'not_verified':
         return {
-          title: "Verification Required",
-          message: (
-            <>
-              Your account verification is pending.
-              <br />
-              <span className="text-yellow-400 font-semibold">Document verification required.</span>
-            </>
-          )
+          title: t[language].verificationRequired,
+          message: t[language].verificationMessage
         };
       case 'insufficient_permissions':
         return {
-          title: "Insufficient Permissions",
-          message: (
-            <>
-              You don't have the required permissions to access this resource.
-              <br />
-              <span className="text-red-400 font-semibold">Contact administrator for access.</span>
-            </>
-          )
+          title: t[language].insufficientPermissions,
+          message: t[language].insufficientMessage
         };
       default:
         return {
-          title: "Access Denied",
-          message: (
-            <>
-              You don't have permission to access this resource.
-              <br />
-              <span className="text-red-400 font-semibold">Please check your credentials.</span>
-            </>
-          )
+          title: t[language].accessDenied,
+          message: t[language].accessMessage
         };
     }
   };
@@ -74,8 +117,8 @@ function NotAuthorizedPage() {
   const errorInfo = getErrorMessage();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Background elements remain the same */}
+    <div className={`min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4 relative overflow-hidden ${language === 'ar' ? 'font-cairo' : ''}`}>
+      {/* Background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-1000"></div>
@@ -100,12 +143,12 @@ function NotAuthorizedPage() {
 
       {/* Main content */}
       <div className="relative z-10 text-center max-w-lg mx-auto">
-        {/* Security warning for multiple attempts - only show for actual unauthorized attempts */}
+        {/* Security warning */}
         {attemptCount > 3 && reason !== 'not_verified' && (
           <div className="mb-4 p-4 bg-red-600/20 border border-red-500/30 rounded-lg">
             <div className="flex items-center justify-center gap-2 text-red-400">
               <AlertTriangle className="w-5 h-5" />
-              <span className="text-sm">Multiple unauthorized access attempts detected</span>
+              <span className="text-sm">{t[language].multipleAttempts}</span>
             </div>
           </div>
         )}
@@ -140,7 +183,7 @@ function NotAuthorizedPage() {
           </p>
         </div>
 
-        {/* Lock icon with animation */}
+        {/* Lock icon */}
         <div className="mb-8 transform animate-fade-in-up delay-400">
           <div className="relative inline-block">
             <Lock className="w-8 h-8 text-gray-400 animate-pulse" />
@@ -157,7 +200,7 @@ function NotAuthorizedPage() {
             <div className="absolute inset-0 bg-gradient-to-r from-gray-600 to-gray-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             <div className="relative flex items-center justify-center gap-2">
               <ArrowLeft className="w-5 h-5 group-hover:animate-pulse" />
-              Go Back
+              {t[language].goBack}
             </div>
           </button>
 
@@ -168,7 +211,7 @@ function NotAuthorizedPage() {
             <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             <div className="relative flex items-center justify-center gap-2">
               <Home className="w-5 h-5 group-hover:animate-pulse" />
-              Home
+              {t[language].home}
             </div>
           </button>
         </div>
@@ -177,14 +220,14 @@ function NotAuthorizedPage() {
         <div className="mt-8 transform animate-fade-in-up delay-600">
           <p className="text-gray-400 text-sm">
             {reason === 'not_verified' 
-              ? "Complete your document verification to access driver features"
-              : "Need access? Contact administrator for assistance"
+              ? t[language].contactVerification
+              : t[language].contactAdmin
             }
           </p>
         </div>
       </div>
     </div>
   );
-};
+}
 
 export default NotAuthorizedPage;

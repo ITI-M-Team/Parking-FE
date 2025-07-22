@@ -7,9 +7,12 @@ import {
   useMapEvents,
 } from "react-leaflet";
 import { useNavigate } from "react-router-dom";
+import { useLanguage } from '../context/LanguageContext'; 
 import "leaflet/dist/leaflet.css";
 
 export default function NearbyGaragesMap({ darkMode, setDarkMode }) {
+  const { language } = useLanguage(); 
+
   const [userLocation, setUserLocation] = useState(null);
   const [location, setLocation] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -19,6 +22,42 @@ export default function NearbyGaragesMap({ darkMode, setDarkMode }) {
   const markerRefs = useRef({});
   const userMarkerRef = useRef();
   const navigate = useNavigate();
+
+  
+  const t = {
+    en: {
+      title: "Find Nearby Garages",
+      searchPlaceholder: "Search for a place",
+      searchButton: "Search",
+      myLocationButton: "📍 Use My Location",
+      errorNoAccess: "Location access is required to show nearby garages.",
+      errorNoGarages: "No nearby garages found.",
+      errorLoadFailed: "Failed to load garages.",
+      errorSearchFailed: "No garages found for this place.",
+      popupYouAreHere: "📍 You are here",
+      cardDistance: "Distance",
+      viewOnMap: "View on Map",
+      details: "Details",
+      latitude: "Latitude",
+      longitude: "Longitude"
+    },
+    ar: {
+      title: "ابحث عن الجراجات القريبة",
+      searchPlaceholder: "ابحث عن مكان",
+      searchButton: "بحث",
+      myLocationButton: "📍 استخدام موقعي الحالي",
+      errorNoAccess: "يُطلب الوصول إلى الموقع لعرض الجراجات القريبة.",
+      errorNoGarages: "لم يتم العثور على جراجات قريبة.",
+      errorLoadFailed: "فشل تحميل الجراجات.",
+      errorSearchFailed: "لا توجد جراجات لهذا المكان.",
+      popupYouAreHere: "📍 أنت هنا",
+      cardDistance: "المسافة",
+      viewOnMap: "عرض على الخريطة",
+      details: "التفاصيل",
+      latitude: "خط العرض",
+      longitude: "خط الطول"
+    }
+  };
 
   useEffect(() => {
     getUserLocationOnLoad();
@@ -35,7 +74,7 @@ export default function NearbyGaragesMap({ darkMode, setDarkMode }) {
       },
       (err) => {
         console.error("Geolocation error:", err);
-        setErrorMessage("Location access is required to show nearby garages.");
+        setErrorMessage(t[language].errorNoAccess);
       }
     );
   };
@@ -49,18 +88,16 @@ export default function NearbyGaragesMap({ darkMode, setDarkMode }) {
       );
       const data = await res.json();
       setGarages(data);
-      setErrorMessage(data.length === 0 ? "No nearby garages found." : "");
+      setErrorMessage(data.length === 0 ? t[language].errorNoGarages : "");
     } catch (err) {
       console.error("Fetch error:", err);
-      setErrorMessage("Failed to load garages.");
+      setErrorMessage(t[language].errorLoadFailed);
     }
   };
 
   const handleSearch = async () => {
     if (!searchQuery || !userLocation) return;
-
     await fetchGarages(userLocation.lat, userLocation.lng, searchQuery);
-
     setTimeout(() => {
       if (garages.length > 0) {
         const first = garages[0];
@@ -69,7 +106,7 @@ export default function NearbyGaragesMap({ darkMode, setDarkMode }) {
         const marker = markerRefs.current[first.id];
         if (marker) marker.openPopup();
       } else {
-        setErrorMessage("No garages found for this place.");
+        setErrorMessage(t[language].errorSearchFailed);
       }
     }, 200);
   };
@@ -82,17 +119,14 @@ export default function NearbyGaragesMap({ darkMode, setDarkMode }) {
         setUserLocation(coords);
         setLocation(coords);
         fetchGarages(latitude, longitude);
-
         if (mapRef.current) {
           mapRef.current.flyTo([latitude, longitude], 14);
         }
-
         setTimeout(() => {
           if (userMarkerRef.current) {
             userMarkerRef.current.openPopup();
           }
         }, 500);
-
         document.querySelector("#map-section")?.scrollIntoView({
           behavior: "smooth",
           block: "center",
@@ -100,7 +134,7 @@ export default function NearbyGaragesMap({ darkMode, setDarkMode }) {
       },
       (err) => {
         console.error("Error getting location", err);
-        setErrorMessage("Location access is needed to find nearby garages.");
+        setErrorMessage(t[language].errorNoAccess);
       }
     );
   };
@@ -123,23 +157,20 @@ export default function NearbyGaragesMap({ darkMode, setDarkMode }) {
 
   return (
     <div style={styles.wrapper}>
-      {/* <button onClick={() => setDarkMode(!darkMode)} style={styles.darkModeToggle}>
-        {darkMode ? "☀️ Light" : "🌙 Dark"}
-      </button> */}
-
+      {/* Controls */}
       <div style={styles.controls}>
         <input
           type="text"
-          placeholder="Search for a place"
+          placeholder={t[language].searchPlaceholder}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           style={styles.input}
         />
         <button onClick={handleSearch} style={styles.button}>
-          Search
+          {t[language].searchButton}
         </button>
         <button onClick={handleUseMyLocation} style={styles.button}>
-          📍 Use My Location
+          {t[language].myLocationButton}
         </button>
       </div>
 
@@ -154,13 +185,11 @@ export default function NearbyGaragesMap({ darkMode, setDarkMode }) {
         >
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
           <MapClickHandler />
-
           {userLocation && (
             <Marker position={[userLocation.lat, userLocation.lng]} ref={userMarkerRef}>
-              <Popup>📍 You are here</Popup>
+              <Popup>{t[language].popupYouAreHere}</Popup>
             </Marker>
           )}
-
           {garages.map((garage) => (
             <Marker
               key={garage.id}
@@ -172,11 +201,11 @@ export default function NearbyGaragesMap({ darkMode, setDarkMode }) {
                 <br />
                 {garage.address}
                 <br />
-                Lat: {garage.latitude.toFixed(4)}
+                {t[language].latitude}: {garage.latitude.toFixed(4)}
                 <br />
-                Lng: {garage.longitude.toFixed(4)}
+                {t[language].longitude}: {garage.longitude.toFixed(4)}
                 <br />
-                Distance: {garage.distance?.toFixed(2)} km
+                {t[language].cardDistance}: {garage.distance?.toFixed(2)} km
               </Popup>
             </Marker>
           ))}
@@ -220,13 +249,13 @@ export default function NearbyGaragesMap({ darkMode, setDarkMode }) {
                 {garage.address}
               </p>
               <p style={{ fontSize: "14px", marginBottom: "4px", opacity: 0.8 }}>
-                <strong>Latitude:</strong> {garage.latitude.toFixed(4)}
+                <strong>{t[language].latitude}:</strong> {garage.latitude.toFixed(4)}
               </p>
               <p style={{ fontSize: "14px", marginBottom: "4px", opacity: 0.8 }}>
-                <strong>Longitude:</strong> {garage.longitude.toFixed(4)}
+                <strong>{t[language].longitude}:</strong> {garage.longitude.toFixed(4)}
               </p>
               <p style={{ fontSize: "14px", fontWeight: "bold", marginBottom: "50px" }}>
-                Distance: {garage.distance?.toFixed(2)} km
+                {t[language].cardDistance}: {garage.distance?.toFixed(2)} km
               </p>
               <div style={{ display: "flex", gap: "10px", position: "absolute", bottom: "20px", left: "20px", right: "20px" }}>
                 <button
@@ -257,7 +286,7 @@ export default function NearbyGaragesMap({ darkMode, setDarkMode }) {
                   onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#e57a32")}
                   onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#FF8C42")}
                 >
-                  View on Map
+                  {t[language].viewOnMap}
                 </button>
                 <button
                   style={{
@@ -275,7 +304,7 @@ export default function NearbyGaragesMap({ darkMode, setDarkMode }) {
                   onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#0056b3")}
                   onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#007bff")}
                 >
-                  Details
+                  {t[language].details}
                 </button>
               </div>
             </div>
@@ -285,6 +314,7 @@ export default function NearbyGaragesMap({ darkMode, setDarkMode }) {
   );
 }
 
+// أنماط التصميم
 const baseStyles = {
   wrapper: {
     display: "flex",
@@ -348,7 +378,6 @@ const lightStyles = {
   ...baseStyles,
   wrapper: {
     ...baseStyles.wrapper,
-   
     color: "#000",
   },
 };

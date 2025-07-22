@@ -1,15 +1,10 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import styles from "../assets/loginStyles";
 
 const LoginForm = ({ onLoginSuccess }) => {
-  const navigate = (path) => {
-    if (onLoginSuccess) {
-      onLoginSuccess(path);
-    } else {
-      window.location.href = path;
-    }
-  };
 
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -21,7 +16,89 @@ const LoginForm = ({ onLoginSuccess }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [focusedField, setFocusedField] = useState("");
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
-  const [darkMode, setDarkMode] = useState(false); 
+  const [darkMode, setDarkMode] = useState(() => {
+  
+    const savedDarkMode = localStorage.getItem('preferredDarkMode');
+    return savedDarkMode === 'true';
+  });
+ 
+
+  const [language, setLanguage] = useState(() => {
+    
+    const savedLanguage = localStorage.getItem('preferredLanguage');
+    return savedLanguage || 'en';
+  });
+  const translations = {
+    ar: {
+      login: 'تسجيل الدخول',
+      lightMode: '☀ الوضع النهاري',
+      darkMode: '🌙 الوضع الليلي',
+      loginToApp: 'تسجيل الدخول إلى التطبيق',
+      enterEmailPassword: 'أدخل بريدك الإلكتروني وكلمة المرور',
+      email: 'البريد الإلكتروني',
+      enterEmail: 'أدخل بريدك الإلكتروني',
+      password: 'كلمة المرور',
+      enterPassword: 'أدخل كلمة المرور',
+      rememberMe: 'تذكرني على هذا الجهاز',
+      forgotPassword: 'هل نسيت كلمة المرور؟',
+      forgotPasswordAlert: 'سيتم إضافة وظيفة استرداد كلمة المرور قريباً',
+      fillAllFields: 'الرجاء ملء جميع الحقول',
+      invalidCredentials: 'بيانات تسجيل الدخول غير صحيحة أو الحساب غير نشط',
+      loginFailed: 'فشل في تسجيل الدخول',
+      invalidResponse: 'استجابة غير صحيحة من الخادم',
+      loggingIn: 'جاري تسجيل الدخول...',
+      loginBtn: 'تسجيل الدخول',
+      dontHaveAccount: 'ليس لديك حساب؟',
+      signUp: 'إنشاء حساب',
+      loginSuccessful: 'تم تسجيل الدخول بنجاح!',
+      welcomeBack: 'أهلاً بعودتك! تم تسجيل دخولك بنجاح.',
+      role: 'الدور',
+      yes: 'نعم',
+      no: 'لا',
+      ok: 'موافق'
+    },
+    en: {
+      login: 'Login',
+      lightMode: '☀ Light Mode',
+      darkMode: '🌙 Dark Mode',
+      loginToApp: 'Login to our app',
+      enterEmailPassword: 'Enter your email and password',
+      email: 'E-mail',
+      enterEmail: 'Enter your email',
+      password: 'Password',
+      enterPassword: 'Enter your password',
+      rememberMe: 'Remember me this device',
+      forgotPassword: 'Forgot password?',
+      forgotPasswordAlert: 'Forgot password functionality will be added',
+      fillAllFields: 'Please fill in all fields',
+      invalidCredentials: 'Invalid credentials or inactive account',
+      loginFailed: 'Login failed',
+      invalidResponse: 'Invalid server response',
+      loggingIn: 'Logging in...',
+      loginBtn: 'Login',
+      dontHaveAccount: "Don't have an account?",
+      signUp: 'Sign up',
+      loginSuccessful: 'Login Successful!',
+      welcomeBack: 'Welcome back! You have been successfully logged in.',
+      role: 'Role',
+      yes: 'Yes',
+      no: 'No',
+      ok: 'OK'
+    }
+  };
+  const handleLanguageChange = () => {
+  const newLanguage = language === 'ar' ? 'en' : 'ar';
+  setLanguage(newLanguage);
+  localStorage.setItem('preferredLanguage', newLanguage);
+  };
+
+  const handleDarkModeToggle = () => {
+    const newDarkMode = !darkMode;
+    setDarkMode(newDarkMode);
+    localStorage.setItem('preferredDarkMode', newDarkMode.toString());
+  };
+
+  const t = translations[language];
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -40,7 +117,7 @@ const LoginForm = ({ onLoginSuccess }) => {
     setIsLoading(true);
 
     if (!formData.email || !formData.password) {
-      setError("Please fill in all fields");
+      setError(t.fillAllFields);
       setIsLoading(false);
       return;
     }
@@ -59,7 +136,7 @@ const LoginForm = ({ onLoginSuccess }) => {
 
       if (!response.ok) {
         console.error("Server error:", data);
-        setError(data?.detail || "Login failed");
+        setError(data?.detail || t.loginFailed);
         return;
       }
 
@@ -67,7 +144,7 @@ const LoginForm = ({ onLoginSuccess }) => {
       const { role, is_superuser, is_staff } = user;
 
       if (!access || !refresh) {
-        setError("Invalid server response");
+        setError(t.invalidResponse);
         return;
       }
 
@@ -79,7 +156,7 @@ const LoginForm = ({ onLoginSuccess }) => {
       setShowSuccessMessage(true);
     } catch (err) {
       console.error("Error during login:", err);
-      setError("Invalid credentials or inactive account");
+      setError(t.invalidCredentials);
     } finally {
       setIsLoading(false);
     }
@@ -101,63 +178,96 @@ const LoginForm = ({ onLoginSuccess }) => {
     }
   };
 
+  
+  const containerStyle = {
+    ...styles.container,
+    backgroundColor: darkMode ? "#1a202c" : "#f7fafc",
+    direction: language === 'ar' ? 'rtl' : 'ltr',
+    fontFamily: language === 'ar' ? '"Cairo", "Tajawal", sans-serif' : 'inherit'
+  };
+
   return (
-    <div className={darkMode ? "dark" : ""} style={{ ...styles.container, backgroundColor: darkMode ? "#1a202c" : "#f7fafc" }}>
+    <div className={darkMode ? "dark" : ""} style={containerStyle}>
       {showSuccessMessage && (
         <div style={styles.successOverlay}>
-          <div style={styles.successModal}>
+          <div style={{
+            ...styles.successModal,
+            direction: language === 'ar' ? 'rtl' : 'ltr',
+            textAlign: language === 'ar' ? 'right' : 'left'
+          }}>
             <div style={styles.successIcon}>✓</div>
-            <h3 style={styles.successTitle}>Login Successful!</h3>
+            <h3 style={styles.successTitle}>{t.loginSuccessful}</h3>
             <p style={styles.successMessage}>
-              Welcome back! You have been successfully logged in.
+              {t.welcomeBack}
             </p>
             <div style={styles.successDetails}>
-              <p><strong>Email:</strong> {formData.email}</p>
-              <p><strong>Role:</strong> {loginData?.role}</p>
-              <p><strong>Remember me:</strong> {formData.rememberMe ? "Yes" : "No"}</p>
+              <p><strong>{t.email}:</strong> {formData.email}</p>
+              <p><strong>{t.role}:</strong> {loginData?.role}</p>
+              <p><strong>{t.rememberMe}:</strong> {formData.rememberMe ? t.yes : t.no}</p>
             </div>
             <button style={styles.successButton} onClick={handleSuccessOk}>
-              OK
+              {t.ok}
             </button>
           </div>
         </div>
       )}
-     <header style={{
-  ...styles.header,
-  backgroundColor: darkMode ? "#2d3748" : "#edf2f7",
-  color: darkMode ? "#fff" : "#2d3748",
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  paddingInline: "20px"
-}}>
-  <span style={{ ...styles.headerText, color: darkMode ? "#fff" : "#2d3748", marginLeft: 0 }}>Login</span>
+      
+      <header style={{
+        ...styles.header,
+        backgroundColor: darkMode ? "#2d3748" : "#edf2f7",
+        color: darkMode ? "#fff" : "#2d3748",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        paddingInline: "20px"
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+          <span style={{ ...styles.headerText, color: darkMode ? "#fff" : "#2d3748", marginLeft: 0 }}>
+            {t.login}
+          </span>
+          
+          <button
+            onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')}
+            style={{
+              padding: "4px 8px",
+              backgroundColor: darkMode ? "#4a5568" : "#e2e8f0",
+              color: darkMode ? "#fff" : "#2d3748",
+              borderRadius: "4px",
+              fontSize: "12px",
+              cursor: "pointer",
+              border: "none"
+            }}
+          >
+            {language === 'ar' ? 'English (EN)' : 'العربية (AR)'}
+          </button>
+        </div>
 
-  <button
-    onClick={() => setDarkMode(!darkMode)}
-    style={{
-      padding: "6px 12px",
-      backgroundColor: darkMode ? "#4a5568" : "#e2e8f0",
-      color: darkMode ? "#fff" : "#2d3748",
-      borderRadius: "6px",
-      fontSize: "14px",
-      cursor: "pointer",
-      border: "none"
-    }}
-  >
-    {darkMode ? "☀ Light Mode" : "🌙 Dark Mode"}
-  </button>
-</header>
+        <button
+          onClick={() => setDarkMode(!darkMode)}
+          style={{
+            padding: "6px 12px",
+            backgroundColor: darkMode ? "#4a5568" : "#e2e8f0",
+            color: darkMode ? "#fff" : "#2d3748",
+            borderRadius: "6px",
+            fontSize: "14px",
+            cursor: "pointer",
+            border: "none"
+          }}
+        >
+          {darkMode ? t.lightMode : t.darkMode}
+        </button>
+      </header>
 
       <main style={styles.main}>
         <div style={{
           ...styles.loginCard,
           backgroundColor: darkMode ? "#2d3748" : "#fff",
-          color: darkMode ? "#e2e8f0" : "#2d3748"
+          color: darkMode ? "#e2e8f0" : "#2d3748",
+          textAlign: language === 'ar' ? 'right' : 'left'
         }}>
           <div style={styles.titleSection}>
-            <h2 style={styles.formTitle}>Login to our app</h2>
-            <p style={styles.formSubtitle}>Enter your email and password</p>
+            <h2 style={styles.formTitle}>{t.loginToApp}</h2>
+            <p style={styles.formSubtitle}>{t.enterEmailPassword}</p>
           </div>
 
           <div style={styles.form}>
@@ -168,12 +278,12 @@ const LoginForm = ({ onLoginSuccess }) => {
                   ? "#667eea"
                   : darkMode ? "#e2e8f0" : "#4a5568"
               }}>
-                E-mail
+                {t.email}
               </label>
               <input
                 type="email"
                 name="email"
-                placeholder="Enter your email"
+                placeholder={t.enterEmail}
                 value={formData.email}
                 onChange={handleChange}
                 onFocus={() => handleFocus("email")}
@@ -185,7 +295,8 @@ const LoginForm = ({ onLoginSuccess }) => {
                     ? "#667eea"
                     : darkMode ? "#4a5568" : "#e2e8f0",
                   backgroundColor: darkMode ? "#4a5568" : "#f7fafc",
-                  color: darkMode ? "#fff" : "#000"
+                  color: darkMode ? "#fff" : "#000",
+                  textAlign: language === 'ar' ? 'right' : 'left'
                 }}
                 disabled={isLoading}
               />
@@ -198,12 +309,12 @@ const LoginForm = ({ onLoginSuccess }) => {
                   ? "#667eea"
                   : darkMode ? "#e2e8f0" : "#4a5568"
               }}>
-                Password
+                {t.password}
               </label>
               <input
                 type="password"
                 name="password"
-                placeholder="Enter your password"
+                placeholder={t.enterPassword}
                 value={formData.password}
                 onChange={handleChange}
                 onFocus={() => handleFocus("password")}
@@ -215,39 +326,54 @@ const LoginForm = ({ onLoginSuccess }) => {
                     ? "#667eea"
                     : darkMode ? "#4a5568" : "#e2e8f0",
                   backgroundColor: darkMode ? "#4a5568" : "#f7fafc",
-                  color: darkMode ? "#fff" : "#000"
+                  color: darkMode ? "#fff" : "#000",
+                  textAlign: language === 'ar' ? 'right' : 'left'
                 }}
                 disabled={isLoading}
               />
             </div>
 
-            <div style={styles.optionsRow}>
-              <div style={styles.rememberMe}>
+            <div style={{
+              ...styles.optionsRow,
+              flexDirection: language === 'ar' ? 'row-reverse' : 'row'
+            }}>
+              <div style={{
+                ...styles.rememberMe,
+                flexDirection: language === 'ar' ? 'row-reverse' : 'row'
+              }}>
                 <input
                   type="checkbox"
                   name="rememberMe"
                   id="rememberMe"
                   checked={formData.rememberMe}
                   onChange={handleChange}
-                  style={styles.checkbox}
+                  style={{
+                    ...styles.checkbox,
+                    marginLeft: language === 'ar' ? '8px' : '0',
+                    marginRight: language === 'ar' ? '0' : '8px'
+                  }}
                   disabled={isLoading}
                 />
                 <label htmlFor="rememberMe" style={{
                   ...styles.checkboxLabel,
                   color: darkMode ? "#e2e8f0" : "#2d3748"
                 }}>
-                  Remember me this device
+                  {t.rememberMe}
                 </label>
               </div>
+
               <button
                 style={styles.forgotLink}
-                onClick={() => alert("Forgot password functionality will be added")}
+                onClick={() => navigate("/password-reset")}
               >
                 Forgot password?
               </button>
+              
             </div>
-
-            {error && <div style={styles.error}>{error}</div>}
+            {error && <div style={{
+              ...styles.error,
+              textAlign: language === 'ar' ? 'right' : 'left'
+            }}>{error}</div>}
 
             <button
               onClick={handleSubmit}
@@ -259,13 +385,17 @@ const LoginForm = ({ onLoginSuccess }) => {
               }}
               disabled={isLoading}
             >
-              {isLoading ? "Logging in..." : "Login"}
+              {isLoading ? t.loggingIn : t.loginBtn}
             </button>
 
-            <p className="text-center text-sm" style={{ color: darkMode ? "#cbd5e0" : "#4a5568" }}>
-              Don't have an account?{" "}
-              <a href="/register" className="text-red-500 underline">
-                Sign up
+            <p style={{ 
+              textAlign: 'center', 
+              fontSize: '14px',
+              color: darkMode ? "#cbd5e0" : "#4a5568" 
+            }}>
+              {t.dontHaveAccount}{" "}
+              <a href="/register" style={{ color: "#e53e3e", textDecoration: "underline" }}>
+                {t.signUp}
               </a>
             </p>
           </div>
