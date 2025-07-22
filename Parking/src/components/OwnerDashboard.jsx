@@ -1,4 +1,5 @@
 
+
 // import React, { useEffect, useState } from 'react';
 // import { useNavigate } from 'react-router-dom';
 // import { ChevronLeft, AlertCircle, Loader, QrCode, Plus, Edit } from 'lucide-react';
@@ -162,6 +163,7 @@
 
 
 
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, AlertCircle, Loader, QrCode, Plus, Edit } from 'lucide-react';
@@ -289,21 +291,25 @@ function OwnerDashboard({ darkMode, setDarkMode }) {
     <div className={`min-h-screen transition-colors ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       <div className="max-w-6xl mx-auto p-6">
         {dashboardData && (
-          <>
+
             {/* اسم الجراج وأزرار الإجراءات */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+
               <h2 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                 {dashboardData.name} {t[language].title}
               </h2>
+
 
               <div className="flex flex-wrap justify-center sm:justify-end gap-4 w-full sm:w-auto">
                 <button
                   onClick={handleAddGarage}
                   className={`flex items-center space-x-2 px-4 py-3 rounded-lg transition-colors font-medium ${
+
                     darkMode 
                       ? 'bg-green-600 hover:bg-green-700 text-white' 
                       : 'bg-green-600 hover:bg-green-700 text-white'
                   }`}
+
                   style={{ minWidth: '140px' }}
                 >
                   <Plus className="w-5 h-5" />
@@ -313,10 +319,12 @@ function OwnerDashboard({ darkMode, setDarkMode }) {
                 <button
                   onClick={handleEditGarage}
                   className={`flex items-center space-x-2 px-4 py-3 rounded-lg transition-colors font-medium ${
+
                     darkMode 
                       ? 'bg-orange-600 hover:bg-orange-700 text-white' 
                       : 'bg-orange-600 hover:bg-orange-700 text-white'
                   }`}
+
                   style={{ minWidth: '140px' }}
                 >
                   <Edit className="w-5 h-5" />
@@ -326,6 +334,7 @@ function OwnerDashboard({ darkMode, setDarkMode }) {
                 <button
                   onClick={handleQRCodeScan}
                   className={`flex items-center space-x-2 px-4 py-3 rounded-lg transition-colors font-medium ${
+
                     darkMode 
                       ? 'bg-blue-600 hover:bg-blue-700 text-white' 
                       : 'bg-blue-600 hover:bg-blue-700 text-white'
@@ -334,6 +343,7 @@ function OwnerDashboard({ darkMode, setDarkMode }) {
                 >
                   <QrCode className="w-5 h-5" />
                   <span>{t[language].scanQr}</span>
+
                 </button>
               </div>
             </div>

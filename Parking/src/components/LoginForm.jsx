@@ -362,13 +362,14 @@ const LoginForm = ({ onLoginSuccess }) => {
                 </label>
               </div>
 
+
               <button
                 style={styles.forgotLink}
                 onClick={() => navigate("/password-reset")}
               >
                 Forgot password?
               </button>
-              
+
             </div>
             {error && <div style={{
               ...styles.error,

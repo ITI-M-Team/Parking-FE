@@ -25,6 +25,8 @@ const GarageRegister = () => {
     image: null,
     price_per_hour: "",
     number_of_spots: "",
+    block_duration_hours: "",
+    
   });
 
   const [errors, setErrors] = useState({});
@@ -162,6 +164,10 @@ const GarageRegister = () => {
 
           <input type="number" name="number_of_spots" placeholder="Total Number of Spots" value={formData.number_of_spots} onChange={handleChange} className="input" />
           {errors.number_of_spots && <p className="error">{errors.number_of_spots}</p>}
+          <input type="number" name="block_duration_hours" placeholder="Hours of block" value={formData.block_duration_hours} onChange={handleChange} className="input" />
+          {errors.block_duration_hours && <p className="error">{errors.block_duration_hours}
+            
+            </p>}
 
           <input type="file" name="image" onChange={handleChange} className="input" />
           {errors.image && <p className="error">{errors.image}</p>}
