@@ -239,12 +239,9 @@ const LoginForm = ({ onLoginSuccess }) => {
                   Remember me this device
                 </label>
               </div>
-              <button
-                style={styles.forgotLink}
-                onClick={() => alert("Forgot password functionality will be added")}
-              >
+              <a href="/password-reset" className="text-red-500 underline">
                 Forgot password?
-              </button>
+              </a>
             </div>
 
             {error && <div style={styles.error}>{error}</div>}
