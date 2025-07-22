@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, AlertCircle, Loader, QrCode } from 'lucide-react';
+import { ChevronLeft, AlertCircle, Loader, QrCode, Plus, Edit } from 'lucide-react';
 import ownerDashboardApi from '../apis/ownerDashboardApi';
 import DashboardStats from './OwnerDashboard/DashboardStats';
 import TodaysBookingsTable from './OwnerDashboard/TodaysBookingsTable';
@@ -50,7 +50,8 @@ function OwnerDashboard({ darkMode, setDarkMode }) {
   const handleQRCodeScan = () => {
     navigate('/scanner');
   };
-    const handleAddGarage = () => {
+
+  const handleAddGarage = () => {
     navigate('/garage/register');
   };
 
@@ -90,7 +91,7 @@ function OwnerDashboard({ darkMode, setDarkMode }) {
   return (
     <div className={`min-h-screen transition-colors ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       {/* Header */}
-      {/* <div className={`shadow-sm border-b px-6 py-4 transition-colors ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'}`}>
+      <div className={`shadow-sm border-b px-6 py-4 transition-colors ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'}`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <button onClick={() => navigate(-1)} className="p-2 hover:bg-gray-100 rounded-lg">
@@ -107,27 +108,51 @@ function OwnerDashboard({ darkMode, setDarkMode }) {
             {darkMode ? "☀ Light Mode" : "🌙 Dark Mode"}
           </button>
         </div>
-      </div> */}
+      </div>
 
       <div className="max-w-6xl mx-auto p-6">
         {dashboardData && (
           <>
-            {/* Garage name and QR Code Scanner button */}
+            {/* Garage name and Action buttons */}
             <div className="flex items-center justify-between mb-6">
               <h2 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                 {dashboardData.name} Dashboard
               </h2>
-              <button
-                onClick={handleQRCodeScan}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors font-medium ${
-                  darkMode 
-                    ? 'bg-blue-600 hover:bg-blue-700 text-white' 
-                    : 'bg-blue-600 hover:bg-blue-700 text-white'
-                }`}
-              >
-                <QrCode className="w-5 h-5" />
-                <span>Scan QR Code</span>
-              </button>
+              <div className="flex items-center space-x-3">
+                <button
+                  onClick={handleAddGarage}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors font-medium ${
+                    darkMode 
+                      ? 'bg-green-600 hover:bg-green-700 text-white' 
+                      : 'bg-green-600 hover:bg-green-700 text-white'
+                  }`}
+                >
+                  <Plus className="w-5 h-5" />
+                  <span>Add Garage</span>
+                </button>
+                <button
+                  onClick={handleEditGarage}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors font-medium ${
+                    darkMode 
+                      ? 'bg-orange-600 hover:bg-orange-700 text-white' 
+                      : 'bg-orange-600 hover:bg-orange-700 text-white'
+                  }`}
+                >
+                  <Edit className="w-5 h-5" />
+                  <span>Edit Garage</span>
+                </button>
+                <button
+                  onClick={handleQRCodeScan}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors font-medium ${
+                    darkMode 
+                      ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                      : 'bg-blue-600 hover:bg-blue-700 text-white'
+                  }`}
+                >
+                  <QrCode className="w-5 h-5" />
+                  <span>Scan QR Code</span>
+                </button>
+              </div>
             </div>
 
             <DashboardStats darkMode={darkMode} garageData={dashboardData} />
