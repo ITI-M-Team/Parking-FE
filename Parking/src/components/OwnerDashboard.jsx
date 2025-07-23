@@ -11,6 +11,7 @@ function OwnerDashboard({ darkMode, setDarkMode }) {
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [reportEmail, setReportEmail] = useState(''); // new state
   const navigate = useNavigate();
 
   const fetchDashboardData = async () => {
@@ -60,7 +61,9 @@ function OwnerDashboard({ darkMode, setDarkMode }) {
   };
 
   const handleSendReport = async () => {
-    if (!dashboardData?.id || !dashboardData?.owner_email) {
+    const emailToSend = reportEmail.trim() || dashboardData?.owner_email;
+
+    if (!dashboardData?.id || !emailToSend) {
       alert('Garage ID or Email is missing.');
       return;
     }
@@ -68,7 +71,7 @@ function OwnerDashboard({ darkMode, setDarkMode }) {
     try {
       const result = await ownerDashboardApi.sendWeeklyReport(
         dashboardData.id,
-        dashboardData.owner_email
+        emailToSend
       );
       alert(result.message || 'Report sent successfully!');
     } catch (error) {
@@ -111,11 +114,11 @@ function OwnerDashboard({ darkMode, setDarkMode }) {
         {dashboardData && (
           <>
             {/* Garage name and Action buttons */}
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
               <h2 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                 {dashboardData.name} Dashboard
               </h2>
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center flex-wrap gap-3">
                 <button
                   onClick={handleAddGarage}
                   className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-medium"
@@ -137,12 +140,21 @@ function OwnerDashboard({ darkMode, setDarkMode }) {
                   <QrCode className="w-5 h-5" />
                   <span>Scan QR Code</span>
                 </button>
-                <button
-                  onClick={handleSendReport}
-                  className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-medium"
-                >
-                  <span>Send Weekly Report</span>
-                </button>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="email"
+                    value={reportEmail}
+                    onChange={(e) => setReportEmail(e.target.value)}
+                    placeholder="Report email"
+                    className="px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  />
+                  <button
+                    onClick={handleSendReport}
+                    className="px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-medium"
+                  >
+                    Send Weekly Report
+                  </button>
+                </div>
               </div>
             </div>
 
