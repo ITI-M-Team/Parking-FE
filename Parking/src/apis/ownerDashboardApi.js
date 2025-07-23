@@ -1,4 +1,3 @@
-
 import instance from './config';
 
 const getAuthHeaders = () => {
@@ -36,6 +35,20 @@ const ownerDashboardApi = {
       return response.data;
     } catch (error) {
       console.error(`Error updating spot availability for garage ${garageId}:`, error);
+      throw error;
+    }
+  },
+
+  sendWeeklyReport: async (garageId, email) => {
+    try {
+      const response = await instance.post(
+        '/api/reports/weekly/',
+        { garage_id: garageId, email },
+        getAuthHeaders()
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error sending weekly report:', error);
       throw error;
     }
   },
