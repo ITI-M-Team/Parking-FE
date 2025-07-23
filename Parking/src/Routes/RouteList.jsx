@@ -43,10 +43,10 @@ function RouteList() {
     return (
         <Routes>
             <Route element={<MainLayout darkMode={darkMode} setDarkMode={setDarkMode} />}>
-                <Route path="/" element={<ProtectedRedirect darkMode={darkMode} setDarkMode={setDarkMode} />} />   
+                <Route path="/" element={<Home darkMode={darkMode} setDarkMode={setDarkMode} />} />   
                  {/* Pages accessible to authenticated users (even if pending verification) */}
-                <Route path='/home' element={<AuthProtectedRoute><Home darkMode={darkMode} setDarkMode={setDarkMode} /></AuthProtectedRoute>} />
-                <Route path="/manual" element={<AuthProtectedRoute><Manual /></AuthProtectedRoute>} />
+                <Route path='/home' element={<Home darkMode={darkMode} setDarkMode={setDarkMode} />} />
+                <Route path="/manual" element={<Manual />} />
                 <Route path='/profile' element={<AuthProtectedRoute><Profile darkMode={darkMode} setDarkMode={setDarkMode} /></AuthProtectedRoute>} />  
                 {/* Routes that require verification */}
                 <Route path="/dashboard/driver" element={<VerificationProtectedRoute><DriverDashboard darkMode={darkMode} setDarkMode={setDarkMode} /></VerificationProtectedRoute>} />
