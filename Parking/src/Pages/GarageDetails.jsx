@@ -28,6 +28,7 @@ const GarageDetails = () => {
   const [filter, setFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [error, setError] = useState(null);
+  const [bookingLoading, setBookingLoading] = useState(false);
 
   const spotsPerPage = 20;
 
@@ -68,7 +69,8 @@ const GarageDetails = () => {
   const handleSpotSelect = (spotId) => setSelectedSpotId(spotId);
 
   const handleBooking = async () => {
-    if (!selectedSpotId) return;
+    if (!selectedSpotId || bookingLoading) return;
+    setBookingLoading(true);
 
     const storedToken =
       localStorage.getItem("authTokens") || sessionStorage.getItem("authTokens");
@@ -127,6 +129,8 @@ const GarageDetails = () => {
     } catch (err) {
       alert("🚨 Unexpected error during booking.");
       console.error("🚨 Booking error:", err);
+    } finally {
+      setBookingLoading(false);
     }
   };
 
@@ -174,8 +178,8 @@ const GarageDetails = () => {
   }
 
   return (
-    <div className={`min-h-screen py-10 ${themeClasses.background}`}>
-      <div className={`max-w-4xl mx-auto p-6 ${themeClasses.card} rounded-xl shadow-lg`}>
+    <div className="min-h-screen py-10 bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+      <div className="max-w-4xl mx-auto p-6 bg-white border border-gray-200 rounded-xl shadow-lg">
         <h1 className="text-3xl font-bold text-blue-700 mb-6">Garage Details</h1>
 
         {!garage ? (
@@ -193,7 +197,7 @@ const GarageDetails = () => {
                 />
               )}
               <div className="flex flex-wrap justify-center gap-6 mt-2">
-                <span className={`flex items-center gap-1 ${themeClasses.text.secondary}`}>
+                <span className="flex items-center gap-1 text-gray-600">
                   <MapPin className="w-4 h-4" />
                   {garage.address}
                 </span>
@@ -210,7 +214,7 @@ const GarageDetails = () => {
               </div>
             </div>
 
-            <div className="mb-6 bg-blue-100 rounded-xl p-4 shadow-inner">
+            <div className="mb-6 bg-blue-50 rounded-xl p-4 shadow-inner">
               <div className="flex flex-wrap gap-2 mb-4 justify-center">
                 {[
                   { label: "All", value: "all", count: spots.length },
@@ -237,21 +241,17 @@ const GarageDetails = () => {
 
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                 {currentSpots.map((spot) => (
-                  <div
+                  <button
                     key={spot.id}
-                    className="bg-white rounded-xl shadow border border-gray-200 flex items-center justify-center h-24"
+                    onClick={() => handleSpotSelect(spot.id)}
+                    disabled={spot.status.toLowerCase() !== "available"}
+                    className={`w-full h-24 flex flex-col items-center justify-center font-semibold rounded-lg text-white ${getSpotColor(
+                      spot.status
+                    )} ${selectedSpotId === spot.id ? "ring-4 ring-blue-400" : ""} ${spot.status.toLowerCase() !== "available" ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}
                   >
-                    <button
-                      onClick={() => handleSpotSelect(spot.id)}
-                      disabled={spot.status.toLowerCase() !== "available"}
-                      className={`w-full h-full flex flex-col items-center justify-center font-semibold rounded-lg text-white ${getSpotColor(
-                        spot.status
-                      )} ${selectedSpotId === spot.id ? "ring-4 ring-blue-400" : ""}`}
-                    >
-                      <span>{spot.slot_number}</span>
-                      <span className="text-xs">{spot.status.toUpperCase()}</span>
-                    </button>
-                  </div>
+                    <span>{spot.slot_number}</span>
+                    <span className="text-xs">{spot.status.toUpperCase()}</span>
+                  </button>
                 ))}
               </div>
             </div>
@@ -274,13 +274,14 @@ const GarageDetails = () => {
             <div className="flex justify-end">
               <button
                 onClick={handleBooking}
-                disabled={!selectedSpotId || !isLoggedIn}
+                disabled={!selectedSpotId || !isLoggedIn || bookingLoading}
                 className={`px-6 py-3 rounded-lg font-semibold text-white ${
-                  selectedSpotId && isLoggedIn
-                    ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-400 cursor-not-allowed'
+                  selectedSpotId && isLoggedIn && !bookingLoading
+                    ? 'bg-blue-600 hover:bg-blue-700'
+                    : 'bg-gray-400 cursor-not-allowed'
                 }`}
               >
-                Confirm Booking
+                {bookingLoading ? "Processing..." : "Confirm Booking"}
               </button>
             </div>
 
