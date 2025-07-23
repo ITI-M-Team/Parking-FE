@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { RotateCcw, Trash2 } from "lucide-react";
 import { ToastContainer, toast } from "react-toastify";
+import { useNavigate } from "react-router-dom"; // <-- Add this import
 import "react-toastify/dist/ReactToastify.css";
 
 const CurrentBooking = () => {
@@ -17,8 +18,8 @@ const CurrentBooking = () => {
   const [exitData, setExitData] = useState(null);
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState(""); // Optional لو حابة تعليق
+  const navigate = useNavigate(); // <-- Add this line
 
-  
   const getAuthTokens = () =>
     sessionStorage.getItem("authTokens") || localStorage.getItem("authTokens");
 
@@ -152,7 +153,6 @@ const CurrentBooking = () => {
       minute: "2-digit",
       hour12: false,
     });
-  
 
   const formatDuration = (minutes) => {
     const hrs = Math.floor(minutes / 60);
@@ -173,7 +173,6 @@ const CurrentBooking = () => {
       const mins = Math.floor(diff / 60);
       const secs = diff % 60;
       return setTimeText(`${label} ${mins}m ${secs}s`);
-    
     } else if (booking.start_time) {
       start = new Date(booking.start_time);
       label = "Garage time:";
@@ -182,62 +181,58 @@ const CurrentBooking = () => {
       const mins = Math.floor(diff / 60);
       const secs = diff % 60;
       return setTimeText(`${label} ${mins}m ${secs}s`);
-
     } else {
       const expiry = new Date(booking.reservation_expiry_time);
-     const diff = expiry - now;
-     if (diff <= 0) return setTimeText("Expired");
-     const mins = Math.floor(diff / 1000 / 60);
-     const secs = Math.floor((diff / 1000) % 60);
-     return setTimeText(`Time left: ${mins}m ${secs}s`);
+      const diff = expiry - now;
+      if (diff <= 0) return setTimeText("Expired");
+      const mins = Math.floor(diff / 1000 / 60);
+      const secs = Math.floor((diff / 1000) % 60);
+      return setTimeText(`Time left: ${mins}m ${secs}s`);
     }
-    
-
-    
-
-
-    // const diff = Math.floor((now - start) / 1000);
-    // const mins = Math.floor(diff / 60);
-    // const secs = diff % 60;
-    // setTimeText(`${label} ${mins}m ${secs}s`);
   };
 
   const handleRating = async (star) => {
-        setRating(star);
-    };
-    const handleRescan = async () => {
-        if (!exitData) return;
-        try {
-          await makeAuthenticatedRequest({
-            method: "POST",
-            url: `http://localhost:8000/api/garages/${exitData.garage_id}/review/${exitData.booking_id}/`,
-            data: {
-              rating,
-              comment, // لو بتستخدميه
-            },
-          });
-          toast.success("Thank you for your review!");
-          setShowExitPopup(false);
-          setRating(0);
-          setComment("");
-          
-        } catch (err) {
-          toast.error("Failed to submit review.");
-          console.error(err.response?.data || err.message);
-        }
-     };
-  useEffect(() => {
-    const token = getAccessToken();
-    token ? fetchActiveBooking() : (setError("Please login first"), setLoading(false));
-  }, []);
+    setRating(star);
+  };
+  const handleRescan = async () => {
+    if (!exitData) return;
+    try {
+      await makeAuthenticatedRequest({
+        method: "POST",
+        url: `http://localhost:8000/api/garages/${exitData.garage_id}/review/${exitData.booking_id}/`,
+        data: {
+          rating,
+          comment,
+        },
+      });
+      toast.success("Thank you for your review!");
+      setShowExitPopup(false);
+      setRating(0);
+      setComment("");
+      setTimeout(() => {
+        navigate("/nearby-garages");
+      }, 1000); // Redirect after short delay
+    } catch (err) {
+      toast.error("Failed to submit review.");
+      console.error(err.response?.data || err.message);
+    }
+  };
 
   const closeExitPopup = () => {
     setShowExitPopup(false);
     setRating(0);
     setComment("");
     setExitData(null);
-    
+    setTimeout(() => {
+      navigate("/nearby-garages");
+    }, 300); // Redirect after short delay
   };
+
+  useEffect(() => {
+    const token = getAccessToken();
+    token ? fetchActiveBooking() : (setError("Please login first"), setLoading(false));
+  }, []);
+
   useEffect(() => {
     if (
       booking?.status === "completed" &&
@@ -259,8 +254,6 @@ const CurrentBooking = () => {
       setShowExitPopup(true);
     }
   }, [booking]);
-
-
 
   useEffect(() => {
     if (!timerActive || (booking && booking.start_time)) return;
@@ -309,105 +302,125 @@ const CurrentBooking = () => {
     );
 
   return (
-    <div className="min-h-screen p-4">
-      <div className="bg-white shadow-sm px-4 py-4 flex justify-between items-center">
-        <h1 className="text-lg font-semibold">Booking Details</h1>
-        <ToastContainer position="top-right" autoClose={3000} />
-      </div>
-
-      <div className="max-w-4xl mx-auto mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white p-6 rounded-xl shadow-md">
-          <h2 className="text-lg font-bold mb-4">Booking Info</h2>
-          <p><strong>Garage:</strong> {booking.garage_name}</p>
-          <p><strong>Spot:</strong> #{booking.parking_spot}</p>
-          <p><strong>Estimated Cost:</strong> {booking.estimated_cost} EGP</p>
-          <p><strong>Status:</strong> {booking.status}</p>
-          <p><strong>Expiry:</strong> {formatTime(booking.reservation_expiry_time)}</p>
-          <p><strong>Timer:</strong> {timeText || "Calculating..."}</p>
+    <div className="min-h-screen bg-gradient-to-br from-blue-100 via-blue-50 to-white p-4 font-sans">
+      <div className="max-w-6xl mx-auto mt-10 grid grid-cols-1 md:grid-cols-2 gap-10">
+        <div
+          className="bg-blue-50 p-10 rounded-3xl shadow-xl flex flex-col gap-4"
+          style={{ fontFamily: "Poppins, Arial, sans-serif" }}
+        >
+          <h2 className="text-2xl font-bold mb-5 text-blue-900">Booking Info</h2>
+          <p className="text-blue-900 text-lg">
+            <span className="font-semibold">Garage:</span> {booking.garage_name}
+          </p>
+          <p className="text-blue-900 text-lg">
+            <span className="font-semibold">Spot:</span> #{booking.parking_spot}
+          </p>
+          <p className="text-blue-900 text-lg">
+            <span className="font-semibold">Estimated Cost:</span> {booking.estimated_cost} EGP
+          </p>
+          <p className="text-blue-900 text-lg">
+            <span className="font-semibold">Status:</span> {booking.status}
+          </p>
+          <p className="text-blue-900 text-lg">
+            <span className="font-semibold">Expiry:</span> {formatTime(booking.reservation_expiry_time)}
+          </p>
+          <p className="text-blue-900 text-lg">
+            <span className="font-semibold">Timer:</span> {timeText || "Calculating..."}
+          </p>
 
           {booking.status === "pending" && (
             <button
               onClick={cancelBooking}
               disabled={cancelLoading}
-              className="w-full mt-4 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg"
+              className="w-full mt-8 bg-red-600 hover:bg-red-700 text-white py-4 rounded-2xl flex items-center justify-center gap-3 text-xl font-semibold transition"
+              style={{ fontFamily: "Poppins, Arial, sans-serif" }}
             >
-              <Trash2 className="inline w-4 h-4 mr-2" />{" "}
+              <Trash2 className="w-6 h-6" />
               {cancelLoading ? "Cancelling..." : "Cancel"}
             </button>
           )}
         </div>
 
-        <div className="bg-white p-6 rounded-xl shadow-md text-center">
-          <h2 className="text-lg font-bold mb-4">QR Code</h2>
+        <div
+          className="bg-blue-50 p-10 rounded-3xl shadow-xl text-center flex flex-col items-center"
+          style={{ fontFamily: "Poppins, Arial, sans-serif" }}
+        >
+          <h2 className="text-2xl font-bold mb-5 text-blue-900">QR Code</h2>
           <img
             src={`http://localhost:8000${booking.qr_code_image}`}
             alt="QR"
-            className="w-48 h-48 mx-auto"
+            className="w-64 h-64 mx-auto rounded-xl border-4 border-blue-100 bg-white"
           />
-          <p className="mt-2 text-sm">Scan at the garage</p>
-
-          <div className="mt-4">
-            <button
-              onClick={fetchActiveBooking}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
-            >
-              <RotateCcw className="inline-block w-4 h-4 mr-2" /> Refresh
-            </button>
-          </div>
+          <p className="mt-4 text-blue-800 text-lg">Scan at the garage</p>
+          <button
+            onClick={fetchActiveBooking}
+            className="mt-8 bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-2xl flex items-center justify-center gap-3 text-xl font-semibold transition"
+            style={{ fontFamily: "Poppins, Arial, sans-serif" }}
+          >
+            <RotateCcw className="w-7 h-7" /> Refresh
+          </button>
         </div>
       </div>
 
       {booking.status === "awaiting_response" && booking.late_alert_sent && (
-        <div className="bg-yellow-100 p-4 rounded-lg shadow-md mt-6 max-w-xl mx-auto text-center">
-          <p>Reservation expired. Confirm or cancel now.</p>
-          <div className="flex gap-4 justify-center mt-3">
+        <div
+          className="bg-yellow-50 p-8 rounded-2xl shadow-xl mt-10 max-w-2xl mx-auto text-center"
+          style={{ fontFamily: "Poppins, Arial, sans-serif" }}
+        >
+          <p className="text-yellow-900 text-xl">Reservation expired. Confirm or cancel now.</p>
+          <div className="flex gap-6 justify-center mt-6">
             <button
               onClick={handleConfirmLate}
               disabled={confirmingLate}
-              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
+              className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-xl text-xl font-semibold transition"
             >
               {confirmingLate ? "Confirming..." : "✅ Confirm"}
             </button>
             <button
               onClick={handleCancelLate}
               disabled={cancellingLate}
-              className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg"
+              className="bg-red-500 hover:bg-red-600 text-white px-8 py-3 rounded-xl text-xl font-semibold transition"
             >
               {cancellingLate ? "Cancelling..." : "❌ Cancel"}
             </button>
           </div>
         </div>
       )}
+
       {showExitPopup && exitData && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg max-w-sm w-full mx-4">
-            <h3 className="text-lg font-bold mb-4 text-center">🚗 Visit Summary</h3>
-      
-            <div className="space-y-3">
+          <div
+            className="bg-white p-10 rounded-3xl max-w-md w-full mx-4 shadow-2xl"
+            style={{ fontFamily: "Poppins, Arial, sans-serif" }}
+          >
+            <h3 className="text-2xl font-bold mb-6 text-center text-blue-900">🚗 Visit Summary</h3>
+            <div className="space-y-4 text-blue-900 text-lg">
               <div className="flex justify-between"><span className="font-semibold">Garage:</span><span>{exitData.garage_name}</span></div>
               <div className="flex justify-between"><span className="font-semibold">Spot:</span><span>#{exitData.spot_id}</span></div>
               <div className="flex justify-between"><span className="font-semibold">Entry Time:</span><span>{formatTime(exitData.start_time)}</span></div>
               <div className="flex justify-between"><span className="font-semibold">Exit Time:</span><span>{formatTime(exitData.end_time)}</span></div>
               <div className="flex justify-between"><span className="font-semibold">Total Duration:</span><span>{formatDuration(exitData.total_duration_minutes)}</span></div>
-               <div className="flex justify-between text-sm">
+              <div className="flex justify-between text-base">
                 <span className="font-semibold">Wallet Before:</span>
                 <span>{(exitData.wallet_balance + exitData.actual_cost).toFixed(2)} EGP</span>
               </div>
-              <div className="flex justify-between font-bold text-lg border-t pt-2"><span>Total Cost:</span><span className="text-green-600">{exitData.actual_cost} EGP</span></div>
-              <div className="flex justify-between text-sm border-t pt-2">
+              <div className="flex justify-between font-bold text-xl border-t pt-3">
+                <span>Total Cost:</span>
+                <span className="text-green-600">{exitData.actual_cost} EGP</span>
+              </div>
+              <div className="flex justify-between text-base border-t pt-3">
                 <span className="font-semibold">Wallet After:</span>
                 <span className="text-blue-600 font-semibold">{exitData.wallet_balance.toFixed(2)} EGP</span>
               </div>
             </div>
-      
-            <div className="mt-4 border-t pt-4">
-              <p className="font-semibold mb-2">Rate your experience:</p>
-              <div className="flex gap-1 justify-center">
+            <div className="mt-6 border-t pt-5">
+              <p className="font-semibold mb-3 text-blue-900 text-lg">Rate your experience:</p>
+              <div className="flex gap-2 justify-center">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
                     key={star}
                     onClick={() => handleRating(star)}
-                    className={`cursor-pointer text-2xl ${
+                    className={`cursor-pointer text-3xl ${
                       star <= rating ? "text-yellow-400" : "text-gray-400"
                     }`}
                   >
@@ -415,25 +428,25 @@ const CurrentBooking = () => {
                   </button>
                 ))}
               </div>
-              <textarea
+              {/* <textarea
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 placeholder="Leave a comment (optional)"
-                className="w-full mt-3 p-2 border border-gray-300 rounded"
+                className="w-full mt-4 p-3 border border-gray-300 rounded text-lg"
                 rows={3}
-              />
+                style={{ fontFamily: "Poppins, Arial, sans-serif" }}
+              /> */}
             </div>
-      
-            <div className="mt-6 flex gap-2">
+            <div className="mt-8 flex gap-3">
               <button
                 onClick={closeExitPopup}
-                className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md"
+                className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-5 py-3 rounded-xl text-xl font-semibold transition"
               >
                 Close
               </button>
               <button
                 onClick={handleRescan}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-xl text-xl font-semibold transition"
               >
                 Submit
               </button>
@@ -441,9 +454,7 @@ const CurrentBooking = () => {
           </div>
         </div>
       )}
-
     </div>
-    
   );
 };
 
