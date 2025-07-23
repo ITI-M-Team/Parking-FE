@@ -48,7 +48,6 @@ function RouteList() {
                 <Route path='/home' element={<AuthProtectedRoute><Home darkMode={darkMode} setDarkMode={setDarkMode} /></AuthProtectedRoute>} />
                 <Route path="/manual" element={<AuthProtectedRoute><Manual /></AuthProtectedRoute>} />
                 <Route path='/profile' element={<AuthProtectedRoute><Profile darkMode={darkMode} setDarkMode={setDarkMode} /></AuthProtectedRoute>} />  
-                <Route path="/password-reset" element={<AuthProtectedRoute><PasswordResetFlow darkMode={darkMode} setDarkMode={setDarkMode} /></AuthProtectedRoute>} />           
                 {/* Routes that require verification */}
                 <Route path="/dashboard/driver" element={<VerificationProtectedRoute><DriverDashboard darkMode={darkMode} setDarkMode={setDarkMode} /></VerificationProtectedRoute>} />
                 <Route path="/nearby-garages" element={<VerificationProtectedRoute> <NearbyGarages darkMode={darkMode} setDarkMode={setDarkMode}/> </VerificationProtectedRoute>} />
@@ -72,6 +71,8 @@ function RouteList() {
             <Route path='/register' element={<RegisterUser darkMode={darkMode} setDarkMode={setDarkMode} />} />
             <Route path="/login" element={<LoginForm darkMode={darkMode} setDarkMode={setDarkMode} />} />
             <Route path='/activation' element={<Activation darkMode={darkMode} setDarkMode={setDarkMode} />} />
+            <Route path="/password-reset" element={<><PasswordResetFlow darkMode={darkMode} setDarkMode={setDarkMode} /></>} />           
+
             {/* Admin route - super user only */}
             <Route path='/admin' element={<AdminProtectedRoute> <AdminDashboard darkMode={darkMode} setDarkMode={setDarkMode} /> </AdminProtectedRoute>} />
             {/* Error pages */}

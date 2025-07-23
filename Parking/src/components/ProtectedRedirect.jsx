@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -23,12 +22,10 @@ const ProtectedRedirect = () => {
         }
       } catch (e) {
         console.error("Invalid local token format");
-        navigate("/login");
+        navigate("/password-reset"); // ⬅ redirect to password reset if token is invalid
       }
-    } else if (sessionToken) {
-      navigate("/login");
     } else {
-      navigate("/register");
+      navigate("/password-reset"); // ⬅ redirect if no token found at all
     }
   }, [navigate]);
 

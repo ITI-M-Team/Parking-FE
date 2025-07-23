@@ -15,6 +15,7 @@ const getAuthHeaders = () => {
 };
 
 const ownerDashboardApi = {
+  // Get data for the owner's dashboard
   getDashboardData: async () => {
     try {
       const response = await instance.get('/owner/dashboard/', getAuthHeaders());
@@ -25,6 +26,7 @@ const ownerDashboardApi = {
     }
   },
 
+  // Update the number of available spots in a garage
   updateSpotAvailability: async (garageId, newAvailableSpotsCount) => {
     try {
       const response = await instance.put(
@@ -39,10 +41,11 @@ const ownerDashboardApi = {
     }
   },
 
+  // Send the weekly report (PDF or email) to a specific address
   sendWeeklyReport: async (garageId, email) => {
     try {
       const response = await instance.post(
-        '/api/reports/weekly/',
+        '/reports/weekly/',
         { garage_id: garageId, email },
         getAuthHeaders()
       );
