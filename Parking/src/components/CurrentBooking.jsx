@@ -13,7 +13,12 @@ const CurrentBooking = () => {
   const [confirmingLate, setConfirmingLate] = useState(false);
   const [cancellingLate, setCancellingLate] = useState(false);
   const [timerActive, setTimerActive] = useState(true);
+  const [showExitPopup, setShowExitPopup] = useState(false);
+  const [exitData, setExitData] = useState(null);
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState(""); // Optional لو حابة تعليق
 
+  
   const getAuthTokens = () =>
     sessionStorage.getItem("authTokens") || localStorage.getItem("authTokens");
 
@@ -147,6 +152,13 @@ const CurrentBooking = () => {
       minute: "2-digit",
       hour12: false,
     });
+  
+
+  const formatDuration = (minutes) => {
+    const hrs = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${hrs}h ${mins}m`;
+  };
 
   const updateTimer = () => {
     if (!booking) return setTimeText("");
@@ -179,16 +191,76 @@ const CurrentBooking = () => {
      const secs = Math.floor((diff / 1000) % 60);
      return setTimeText(`Time left: ${mins}m ${secs}s`);
     }
+    
+
+    
+
 
     // const diff = Math.floor((now - start) / 1000);
     // const mins = Math.floor(diff / 60);
     // const secs = diff % 60;
     // setTimeText(`${label} ${mins}m ${secs}s`);
   };
+
+  const handleRating = async (star) => {
+        setRating(star);
+    };
+    const handleRescan = async () => {
+        if (!exitData) return;
+        try {
+          await makeAuthenticatedRequest({
+            method: "POST",
+            url: `http://localhost:8000/api/garages/${exitData.garage_id}/review/${exitData.booking_id}/`,
+            data: {
+              rating,
+              comment, // لو بتستخدميه
+            },
+          });
+          toast.success("Thank you for your review!");
+          setShowExitPopup(false);
+          setRating(0);
+          setComment("");
+          
+        } catch (err) {
+          toast.error("Failed to submit review.");
+          console.error(err.response?.data || err.message);
+        }
+     };
   useEffect(() => {
     const token = getAccessToken();
     token ? fetchActiveBooking() : (setError("Please login first"), setLoading(false));
   }, []);
+
+  const closeExitPopup = () => {
+    setShowExitPopup(false);
+    setRating(0);
+    setComment("");
+    setExitData(null);
+    
+  };
+  useEffect(() => {
+    if (
+      booking?.status === "completed" &&
+      !showExitPopup &&
+      booking.start_time &&
+      booking.end_time
+    ) {
+      setExitData({
+        booking_id: booking.id,
+        garage_id: booking.garage_id,
+        garage_name: booking.garage_name,
+        spot_id: booking.parking_spot,
+        start_time: booking.start_time,
+        end_time: booking.end_time,
+        total_duration_minutes: booking.total_duration_minutes,
+        actual_cost: booking.actual_cost,
+        wallet_balance: booking.wallet_balance,
+      });
+      setShowExitPopup(true);
+    }
+  }, [booking]);
+
+
 
   useEffect(() => {
     if (!timerActive || (booking && booking.start_time)) return;
@@ -306,7 +378,72 @@ const CurrentBooking = () => {
           </div>
         </div>
       )}
+      {showExitPopup && exitData && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg max-w-sm w-full mx-4">
+            <h3 className="text-lg font-bold mb-4 text-center">🚗 Visit Summary</h3>
+      
+            <div className="space-y-3">
+              <div className="flex justify-between"><span className="font-semibold">Garage:</span><span>{exitData.garage_name}</span></div>
+              <div className="flex justify-between"><span className="font-semibold">Spot:</span><span>#{exitData.spot_id}</span></div>
+              <div className="flex justify-between"><span className="font-semibold">Entry Time:</span><span>{formatTime(exitData.start_time)}</span></div>
+              <div className="flex justify-between"><span className="font-semibold">Exit Time:</span><span>{formatTime(exitData.end_time)}</span></div>
+              <div className="flex justify-between"><span className="font-semibold">Total Duration:</span><span>{formatDuration(exitData.total_duration_minutes)}</span></div>
+               <div className="flex justify-between text-sm">
+                <span className="font-semibold">Wallet Before:</span>
+                <span>{(exitData.wallet_balance + exitData.actual_cost).toFixed(2)} EGP</span>
+              </div>
+              <div className="flex justify-between font-bold text-lg border-t pt-2"><span>Total Cost:</span><span className="text-green-600">{exitData.actual_cost} EGP</span></div>
+              <div className="flex justify-between text-sm border-t pt-2">
+                <span className="font-semibold">Wallet After:</span>
+                <span className="text-blue-600 font-semibold">{exitData.wallet_balance.toFixed(2)} EGP</span>
+              </div>
+            </div>
+      
+            <div className="mt-4 border-t pt-4">
+              <p className="font-semibold mb-2">Rate your experience:</p>
+              <div className="flex gap-1 justify-center">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    onClick={() => handleRating(star)}
+                    className={`cursor-pointer text-2xl ${
+                      star <= rating ? "text-yellow-400" : "text-gray-400"
+                    }`}
+                  >
+                    ★
+                  </button>
+                ))}
+              </div>
+              <textarea
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                placeholder="Leave a comment (optional)"
+                className="w-full mt-3 p-2 border border-gray-300 rounded"
+                rows={3}
+              />
+            </div>
+      
+            <div className="mt-6 flex gap-2">
+              <button
+                onClick={closeExitPopup}
+                className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md"
+              >
+                Close
+              </button>
+              <button
+                onClick={handleRescan}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
+              >
+                Submit
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
+    
   );
 };
 
