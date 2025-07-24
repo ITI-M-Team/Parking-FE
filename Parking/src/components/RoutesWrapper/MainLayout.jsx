@@ -9,7 +9,7 @@ function MainLayout({ darkMode, setDarkMode }) {
             <main className="min-h-screen">
                 <Outlet />
             </main>
-        <Footer />
+        <Footer darkMode={darkMode} setDarkMode={setDarkMode} />
     </>
   )
 }

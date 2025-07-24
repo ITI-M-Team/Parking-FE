@@ -76,7 +76,7 @@ const Home = ({ darkMode, setDarkMode }) => {
     if (isSuperUser) {
       return {
         title: "Welcome Back, Administrator",
-        subtitle: "Manage the entire Smart Parking platform with full administrative access."
+        subtitle: "Manage the entire Parkly platform with full administrative access."
       };
     }
 
@@ -110,7 +110,7 @@ const Home = ({ darkMode, setDarkMode }) => {
 
     return {
       title: "Welcome Back!",
-      subtitle: "Continue your smart parking journey with us."
+      subtitle: "Continue your Parkly journey with us."
     };
   };
 
@@ -429,14 +429,7 @@ const Home = ({ darkMode, setDarkMode }) => {
           </section>
         </main>
 
-        {/* Footer */}
-        <footer className={`px-4 sm:px-8 md:px-12 py-6 text-center border-t ${
-          darkMode ? "border-white/10" : "border-white/20"
-        }`}>
-          <p className={`${darkMode ? "text-gray-400" : "text-gray-300"}`}>
-            © 2025 Smart Parking App. All rights reserved.
-          </p>
-        </footer>
+      
       </div>
 
       {/* Custom CSS for animations */}

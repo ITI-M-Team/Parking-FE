@@ -1,6 +1,4 @@
 import React from "react";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
 
 const Manual = () => {
   const sections = [
@@ -129,28 +127,28 @@ const Manual = () => {
   ];
 
   return (
-    <>
-     
-      <div className="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-white min-h-screen px-6 py-12">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl font-bold text-center mb-12"> User Guide: Smart Parking App</h1>
-          <div className="space-y-10">
-            {sections.map((section, index) => (
-              <div
-                key={index}
-                className="bg-white dark:bg-gray-800 shadow-md rounded-xl p-6 transition-all duration-300 border border-gray-200 dark:border-gray-700"
-              >
-                <h2 className="text-xl font-semibold text-teal-600 dark:text-teal-400 mb-3">
-                  {section.title}
-                </h2>
-                <div className="text-base leading-relaxed">{section.content}</div>
+    <div className="px-6 py-12">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-4xl font-bold text-center mb-12">
+          User Guide: Parkly App
+        </h1>
+        <div className="space-y-10">
+          {sections.map((section, index) => (
+            <div
+              key={index}
+              className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-md rounded-xl p-6 transition-all duration-300"
+            >
+              <h2 className="text-xl font-semibold text-teal-600 dark:text-teal-400 mb-3">
+                {section.title}
+              </h2>
+              <div className="text-base leading-relaxed">
+                {section.content}
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       </div>
-   
-    </>
+    </div>
   );
 };
 
