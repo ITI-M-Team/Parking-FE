@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { RotateCcw, Trash2 } from "lucide-react";
 import { ToastContainer, toast } from "react-toastify";
-import { useNavigate } from "react-router-dom"; // <-- Add this import
+import { useNavigate } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 
 const CurrentBooking = () => {
@@ -17,8 +17,8 @@ const CurrentBooking = () => {
   const [showExitPopup, setShowExitPopup] = useState(false);
   const [exitData, setExitData] = useState(null);
   const [rating, setRating] = useState(0);
-  const [comment, setComment] = useState(""); // Optional لو حابة تعليق
-  const navigate = useNavigate(); // <-- Add this line
+  const [comment, setComment] = useState("");
+  const navigate = useNavigate();
 
   const getAuthTokens = () =>
     sessionStorage.getItem("authTokens") || localStorage.getItem("authTokens");
@@ -37,10 +37,9 @@ const CurrentBooking = () => {
     const tokens = getAuthTokens();
     if (!tokens) return null;
     try {
-      const res = await axios.post(
-        "http://localhost:8000/api/token/refresh/",
-        { refresh: JSON.parse(tokens).refresh }
-      );
+      const res = await axios.post("http://localhost:8000/api/token/refresh/", {
+        refresh: JSON.parse(tokens).refresh,
+      });
       const newTokens = { ...JSON.parse(tokens), access: res.data.access };
       sessionStorage.getItem("authTokens")
         ? sessionStorage.setItem("authTokens", JSON.stringify(newTokens))
@@ -194,6 +193,7 @@ const CurrentBooking = () => {
   const handleRating = async (star) => {
     setRating(star);
   };
+
   const handleRescan = async () => {
     if (!exitData) return;
     try {
@@ -211,7 +211,7 @@ const CurrentBooking = () => {
       setComment("");
       setTimeout(() => {
         navigate("/nearby-garages");
-      }, 1000); // Redirect after short delay
+      }, 1000);
     } catch (err) {
       toast.error("Failed to submit review.");
       console.error(err.response?.data || err.message);
@@ -219,13 +219,14 @@ const CurrentBooking = () => {
   };
 
   const closeExitPopup = () => {
+    const navigate = useNavigate();
     setShowExitPopup(false);
     setRating(0);
     setComment("");
     setExitData(null);
     setTimeout(() => {
       navigate("/nearby-garages");
-    }, 300); // Redirect after short delay
+    }, 300);
   };
 
   useEffect(() => {
@@ -266,15 +267,15 @@ const CurrentBooking = () => {
 
   if (loading)
     return (
-      <div className="flex justify-center items-center h-64">
+      <div className="flex justify-center items-center h-64 dark:bg-gray-900">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
       </div>
     );
 
   if (error)
     return (
-      <div className="p-4 max-w-md mx-auto">
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+      <div className="p-4 max-w-md mx-auto dark:bg-gray-900 dark:text-white">
+        <div className="bg-red-100 dark:bg-red-200 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
           {error}
         </div>
         <button
@@ -288,7 +289,7 @@ const CurrentBooking = () => {
 
   if (!booking)
     return (
-      <div className="min-h-screen p-4">
+      <div className="min-h-screen p-4 dark:bg-gray-900 dark:text-white">
         <div className="text-center mt-20">
           <p>No active bookings</p>
           <button
@@ -302,7 +303,8 @@ const CurrentBooking = () => {
     );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-100 via-blue-50 to-white p-4 font-sans">
+    <div className="min-h-screen bg-gradient-to-br from-blue-100 via-blue-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4 font-sans text-gray-900 dark:text-white">
+     
       <div className="max-w-6xl mx-auto mt-10 grid grid-cols-1 md:grid-cols-2 gap-10">
         <div
           className="bg-blue-50 p-10 rounded-3xl shadow-xl flex flex-col gap-4"
@@ -459,3 +461,5 @@ const CurrentBooking = () => {
 };
 
 export default CurrentBooking;
+
+
