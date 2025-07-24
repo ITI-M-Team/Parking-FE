@@ -8,21 +8,33 @@ import {
 } from "react-leaflet";
 import { useNavigate } from "react-router-dom";
 import "leaflet/dist/leaflet.css";
+import backgroundImage from "../assets/images/img.jpg.jpg";
 
-export default function NearbyGaragesMap({ darkMode, setDarkMode }) {
+export default function NearbyGaragesMap({ darkMode }) {
   const [userLocation, setUserLocation] = useState(null);
   const [location, setLocation] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [garages, setGarages] = useState([]);
+  const [userName, setUserName] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+
+
   const mapRef = useRef();
   const markerRefs = useRef({});
   const userMarkerRef = useRef();
   const navigate = useNavigate();
 
   useEffect(() => {
-    getUserLocationOnLoad();
-  }, []);
+  getUserLocationOnLoad();
+
+  // ✅ Get user name from authTokens
+  const username = localStorage.getItem("username");
+if (username) {
+  setUserName(username);
+}
+
+}, []);
+
 
   const getUserLocationOnLoad = () => {
     navigator.geolocation.getCurrentPosition(
@@ -43,9 +55,7 @@ export default function NearbyGaragesMap({ darkMode, setDarkMode }) {
   const fetchGarages = async (lat, lon, query = "") => {
     try {
       const res = await fetch(
-        `http://localhost:8000/api/garages/nearby/?lat=${lat}&lon=${lon}&search=${encodeURIComponent(
-          query
-        )}`
+        `http://localhost:8000/api/garages/nearby/?lat=${lat}&lon=${lon}&search=${encodeURIComponent(query)}`
       );
       const data = await res.json();
       setGarages(data);
@@ -58,9 +68,7 @@ export default function NearbyGaragesMap({ darkMode, setDarkMode }) {
 
   const handleSearch = async () => {
     if (!searchQuery || !userLocation) return;
-
     await fetchGarages(userLocation.lat, userLocation.lng, searchQuery);
-
     setTimeout(() => {
       if (garages.length > 0) {
         const first = garages[0];
@@ -82,17 +90,10 @@ export default function NearbyGaragesMap({ darkMode, setDarkMode }) {
         setUserLocation(coords);
         setLocation(coords);
         fetchGarages(latitude, longitude);
-
-        if (mapRef.current) {
-          mapRef.current.flyTo([latitude, longitude], 14);
-        }
-
+        mapRef.current?.flyTo([latitude, longitude], 14);
         setTimeout(() => {
-          if (userMarkerRef.current) {
-            userMarkerRef.current.openPopup();
-          }
+          if (userMarkerRef.current) userMarkerRef.current.openPopup();
         }, 500);
-
         document.querySelector("#map-section")?.scrollIntoView({
           behavior: "smooth",
           block: "center",
@@ -110,57 +111,93 @@ export default function NearbyGaragesMap({ darkMode, setDarkMode }) {
       click(e) {
         const { lat, lng } = e.latlng;
         setLocation({ lat, lng });
-        if (userLocation) {
-          fetchGarages(userLocation.lat, userLocation.lng);
-        }
+        if (userLocation) fetchGarages(userLocation.lat, userLocation.lng);
         mapRef.current?.flyTo([lat, lng], 14);
       },
     });
     return null;
   }
 
-  const styles = darkMode ? darkStyles : lightStyles;
+  const wrapperClasses = `flex flex-col items-center min-h-screen px-4 py-6 overflow-x-hidden ${
+    darkMode ? "bg-gray-900 text-white" : "text-black"
+  } bg-cover bg-center`;
+
+  const mapHeight =
+    typeof window !== "undefined" && window.innerWidth < 768 ? "40vh" : "50vh";
+    
 
   return (
-    <div style={styles.wrapper}>
-      {/* <button onClick={() => setDarkMode(!darkMode)} style={styles.darkModeToggle}>
-        {darkMode ? "☀️ Light" : "🌙 Dark"}
-      </button> */}
+    <div
+      className={wrapperClasses}
+      style={{ backgroundImage: `url(${backgroundImage})` }}
+    >
+      
+      {/* ✅ Welcome Message */}
+      {userName && (
+  <div className="bg-white/10 backdrop-blur-md text-center text-white px-6 py-4 rounded-xl shadow-md mb-6 w-full max-w-xl">
+    <h2 className="text-4xl font-bold mb-2">
+      👋 Welcome back,
+    </h2>
+    <p className="text-2xl font-semibold text-green-400">
+      {userName}!
+    </p>
+  </div>
+)}
 
-      <div style={styles.controls}>
+    
+      {/* Controls */}
+      <div className="flex flex-wrap justify-center gap-2 mb-4 w-full max-w-4xl">
         <input
           type="text"
           placeholder="Search for a place"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          style={styles.input}
+          className={`px-3 py-2 rounded border w-56 text-sm ${
+            darkMode
+              ? "bg-gray-700 text-white border-gray-500"
+              : "bg-white border-gray-300"
+          }`}
         />
-        <button onClick={handleSearch} style={styles.button}>
+        <button
+          onClick={handleSearch}
+          className="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700 text-sm"
+        >
           Search
         </button>
-        <button onClick={handleUseMyLocation} style={styles.button}>
+        <button
+          onClick={handleUseMyLocation}
+          className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 text-sm"
+        >
           📍 Use My Location
         </button>
       </div>
 
-      {errorMessage && <div style={styles.error}>{errorMessage}</div>}
+      {/* Error */}
+      {errorMessage && (
+        <div className="text-red-500 font-semibold mb-4">{errorMessage}</div>
+      )}
 
-      <div id="map-section" style={styles.mapContainer}>
+      {/* Map */}
+      <div
+        id="map-section"
+        className="w-full max-w-6xl mb-6 rounded shadow-md overflow-hidden"
+      >
         <MapContainer
           center={location ? [location.lat, location.lng] : [30.05, 31.23]}
           zoom={13}
-          style={styles.map}
+          style={{ height: mapHeight }}
           whenCreated={(mapInstance) => (mapRef.current = mapInstance)}
         >
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
           <MapClickHandler />
-
           {userLocation && (
-            <Marker position={[userLocation.lat, userLocation.lng]} ref={userMarkerRef}>
+            <Marker
+              position={[userLocation.lat, userLocation.lng]}
+              ref={userMarkerRef}
+            >
               <Popup>📍 You are here</Popup>
             </Marker>
           )}
-
           {garages.map((garage) => (
             <Marker
               key={garage.id}
@@ -182,192 +219,69 @@ export default function NearbyGaragesMap({ darkMode, setDarkMode }) {
           ))}
         </MapContainer>
       </div>
+      {/* Garage Cards */}
 
-      <div style={styles.cardContainer}>
-        {[...garages]
-          .sort((a, b) => a.distance - b.distance)
-          .slice(0, 5)
-          .map((garage) => (
-            <div
-              key={garage.id}
-              style={{
-                background: "linear-gradient(to right, #0f0c29, #302b63, #24243e)",
-                width: "340px",
-                height: "280px",
-                borderRadius: "20px",
-                boxShadow: "0 10px 20px rgba(0,0,0,0.7)",
-                color: "white",
-                padding: "20px",
-                marginBottom: "20px",
-                position: "relative",
-                cursor: "pointer",
-                transition: "transform 0.3s ease",
-                overflow: "hidden",
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
-              onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-            >
-              <h3
-                style={{
-                  marginBottom: "8px",
-                  fontSize: "22px",
-                  fontFamily: "'Fira Code', monospace",
-                }}
-              >
-                {garage.name}
-              </h3>
-              <p style={{ fontSize: "14px", marginBottom: "4px", opacity: 0.8 }}>
-                {garage.address}
-              </p>
-              <p style={{ fontSize: "14px", marginBottom: "4px", opacity: 0.8 }}>
-                <strong>Latitude:</strong> {garage.latitude.toFixed(4)}
-              </p>
-              <p style={{ fontSize: "14px", marginBottom: "4px", opacity: 0.8 }}>
-                <strong>Longitude:</strong> {garage.longitude.toFixed(4)}
-              </p>
-              <p style={{ fontSize: "14px", fontWeight: "bold", marginBottom: "50px" }}>
-                Distance: {garage.distance?.toFixed(2)} km
-              </p>
-              <div style={{ display: "flex", gap: "10px", position: "absolute", bottom: "20px", left: "20px", right: "20px" }}>
-                <button
-                  style={{
-                    backgroundColor: "#FF8C42",
-                    border: "none",
-                    borderRadius: "12px",
-                    padding: "8px 16px",
-                    color: "white",
-                    fontWeight: "600",
-                    cursor: "pointer",
-                    flex: 1,
-                    transition: "background-color 0.3s ease",
-                  }}
-                  onClick={() => {
-                    if (mapRef.current) {
-                      mapRef.current.setView([garage.latitude, garage.longitude], 16);
-                    }
-                    const marker = markerRefs.current[garage.id];
-                    if (marker) {
-                      marker.openPopup();
-                    }
-                    document.querySelector("#map-section")?.scrollIntoView({
-                      behavior: "smooth",
-                      block: "center",
-                    });
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#e57a32")}
-                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#FF8C42")}
-                >
-                  View on Map
-                </button>
-                <button
-                  style={{
-                    backgroundColor: "#007bff",
-                    border: "none",
-                    borderRadius: "12px",
-                    padding: "8px 16px",
-                    color: "white",
-                    fontWeight: "600",
-                    cursor: "pointer",
-                    flex: 1,
-                    transition: "background-color 0.3s ease",
-                  }}
-                  onClick={() => navigate(`/garages/${garage.id}`)}
-                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#0056b3")}
-                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#007bff")}
-                >
-                  Details
-                </button>
-              </div>
-            </div>
-          ))}
+<div className="flex flex-wrap lg:flex-nowrap justify-center gap-6 w-full px-4 max-w-6xl overflow-x-auto">
+  {(searchQuery.trim()
+    ? garages.filter((garage) =>
+        garage.name.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : garages
+        .sort((a, b) => a.distance - b.distance)
+        .slice(0, 5)
+  ).map((garage) => (
+    <div
+      key={garage.id}
+className="rounded-xl shadow-lg p-4 w-72 h-[260px] flex-shrink-0 hover:scale-105 transform transition duration-300 cursor-pointer relative bg-gradient-to-r from-[#0f0c29] via-[#302b63] to-[#24243e] text-white"
+    >
+      <h3 className="text-lg font-bold mb-1">{garage.name}</h3>
+      <p className="text-sm opacity-80 mb-1">{garage.address}</p>
+      <p className="text-sm opacity-80 mb-1">
+        <strong>Lat:</strong> {garage.latitude.toFixed(4)}
+      </p>
+      <p className="text-sm opacity-80 mb-1">
+        <strong>Lng:</strong> {garage.longitude.toFixed(4)}
+      </p>
+      <p className="text-sm font-semibold mb-2">
+        Distance: {garage.distance?.toFixed(2)} km
+      </p>
+
+      <div
+        className={`rounded-md px-2 py-1 text-center text-xs font-semibold mb-2 ${
+          garage.available_spots === 0
+            ? "bg-red-600 text-white"
+            : "bg-green-600 text-white"
+        }`}
+      >
+        {garage.available_spots === 0
+          ? "🚫 No available spots"
+          : `✅ ${garage.available_spots} spot(s) available`}
       </div>
+
+      <div className="absolute bottom-4 left-4 right-4 flex gap-2">
+        <button
+          onClick={() => {
+            mapRef.current?.setView([garage.latitude, garage.longitude], 16);
+            markerRefs.current[garage.id]?.openPopup();
+            document.querySelector("#map-section")?.scrollIntoView({
+              behavior: "smooth",
+              block: "center",
+            });
+          }}
+          className="bg-orange-500 hover:bg-orange-600 text-white rounded-lg px-3 py-1 flex-1 text-sm"
+        >
+          View
+        </button>
+        <button
+          onClick={() => navigate(`/garages/${garage.id}`)}
+          className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-3 py-1 flex-1 text-sm"
+        >
+          Details
+        </button>
+      </div>
+    </div>
+  ))}
+</div>
     </div>
   );
 }
-
-const baseStyles = {
-  wrapper: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    minHeight: "100vh",
-    padding: "20px",
-    position: "relative",
-  },
-  controls: {
-    marginBottom: "15px",
-    display: "flex",
-    gap: "10px",
-    flexWrap: "wrap",
-    justifyContent: "center",
-  },
-  input: {
-    padding: "8px",
-    fontSize: "16px",
-    width: "250px",
-    borderRadius: "6px",
-    border: "1px solid #ccc",
-  },
-  button: {
-    padding: "8px 16px",
-    fontSize: "16px",
-    borderRadius: "6px",
-    border: "none",
-    backgroundColor: "#4CAF50",
-    color: "white",
-    cursor: "pointer",
-  },
-  error: {
-    color: "red",
-    fontWeight: "bold",
-    marginBottom: "10px",
-  },
-  mapContainer: {
-    width: "90%",
-    maxWidth: "1000px",
-    height: "80vh",
-    marginBottom: "30px",
-  },
-  map: {
-    width: "100%",
-    height: "100%",
-    borderRadius: "12px",
-    boxShadow: "0 0 10px rgba(0,0,0,0.2)",
-  },
-  cardContainer: {
-    display: "flex",
-    flexWrap: "wrap",
-    justifyContent: "center",
-    gap: "20px",
-    padding: "0 20px",
-    width: "100%",
-  },
-};
-
-const lightStyles = {
-  ...baseStyles,
-  wrapper: {
-    ...baseStyles.wrapper,
-   
-    color: "#000",
-  },
-};
-
-const darkStyles = {
-  ...baseStyles,
-  wrapper: {
-    ...baseStyles.wrapper,
-    backgroundColor: "rgb(31,41,55)",
-    color: "#fff",
-  },
-  input: {
-    ...baseStyles.input,
-    backgroundColor: "#333",
-    color: "#fff",
-    border: "1px solid #666",
-  },
-  button: {
-    ...baseStyles.button,
-    backgroundColor: "#666",
-  },
-};

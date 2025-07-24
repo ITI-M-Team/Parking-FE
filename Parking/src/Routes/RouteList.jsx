@@ -23,7 +23,8 @@ import GarageRegister from '../components/GarageData/GarageRegister';
 import GarageEdit from '../components/GarageData/GarageEdit';
 import GarageOccupancy from '../components/GarageData/GarageOccupancy';
 import QRCodeScanner from '../components/QRCodeScanner';
-import QrcodeScanner1 from '../components/NewScanner.jsx'; // Importing QRCodeScanner component
+import QrcodeScanner1 from '../components/NewScanner.jsx';
+import WalletTopupPage from '../components/WalletTopup.jsx'; // Importing QRCodeScanner component
 // for basic authentication
 import AuthProtectedRoute from '../components/Verification/AuthProtectedRoute';
 // route to protect verification status
@@ -60,6 +61,8 @@ function RouteList() {
                 <Route path="/garage/edit/:id" element={<OwnerProtectedRoute><GarageEdit darkMode={darkMode} setDarkMode={setDarkMode} /></OwnerProtectedRoute> } />
                 <Route path="/garage/occupancy/:id" element={<OwnerProtectedRoute><GarageOccupancy darkMode={darkMode} setDarkMode={setDarkMode} /></OwnerProtectedRoute>} />
                  <Route path="/scanner" element={<OwnerProtectedRoute><QrcodeScanner1 darkMode={darkMode} setDarkMode={setDarkMode} /></OwnerProtectedRoute>} />
+                 {/* Wallet Top-up now inside layout with navbar */}
+                <Route path="/wallet-topup" element={<AuthProtectedRoute><WalletTopupPage darkMode={darkMode} setDarkMode={setDarkMode} /></AuthProtectedRoute>} />
                 {/* <Route path="/scanner" element={<OwnerProtectedRoute><QRCodeScanner darkMode={darkMode} setDarkMode={setDarkMode} /></OwnerProtectedRoute>} /> */}
                 {/* ------------ */}
                 <Route path="*" element={<Navigate to="/not-authorized" replace />} />

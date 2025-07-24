@@ -496,6 +496,14 @@ const Header = ({ darkMode, setDarkMode }) => {
                           <User className="w-4 h-4 mr-3" />
                           Settings
                         </Link>
+                        <Link
+                        to="/wallet-topup"
+                        className={`flex items-center px-4 py-2 transition-colors ${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`}
+                        onClick={() => setShowDropdown(false)}
+                      >
+                        <User className="w-4 h-4 mr-3" />
+                        Wallet
+                      </Link>
                         {/* Garage Owner Dashboard Links in Dropdown */}
                         {isGarageOwner() && (
                           <>
