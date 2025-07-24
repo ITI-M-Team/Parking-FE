@@ -403,108 +403,146 @@ const QRCodeScanner = () => {
   };
 
   return (
-    <div className="p-4 max-w-md mx-auto">
-      <h2 className="text-xl font-bold mb-4">Scan QR Code for Entry or Exit</h2>
-       
-      {/* User Info & Debug section */}
-      <div className="mb-4 p-3 bg-gray-100 rounded">
-        <div className="text-sm mb-2">
-          <strong>Current User ID:</strong> {getCurrentUserId() || "Unknown"}
-        </div>
-        
-        <div className="grid grid-cols-1 gap-2">
-          <button
-            onClick={fetchUserBookings}
-            disabled={loading}
-            className="bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 text-white px-3 py-1 rounded text-sm"
-          >
-            {loading ? "Loading..." : "🔄 Refresh My Bookings"}
-          </button>
+    <div className="min-h-screen bg-gray-100 dark:bg-[#0f172a] py-6">
+      <div className="p-4 max-w-md mx-auto bg-white dark:bg-[#1e293b] rounded-2xl shadow-xl">
+        <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white text-center">
+          Scan QR Code for Entry or Exit
+        </h2>
+         
+        {/* User Info & Debug section */}
+        <div className="mb-4 p-3 bg-gray-100 dark:bg-[#334155] rounded-lg">
+          <div className="text-sm mb-2 text-gray-800 dark:text-gray-200">
+            <strong>Current User ID:</strong> {getCurrentUserId() || "Unknown"}
+          </div>
           
-          {userBookings.length > 0 && (
+          <div className="grid grid-cols-1 gap-2">
             <button
-              onClick={testWithValidBookingId}
-              className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm"
+              onClick={fetchUserBookings}
+              disabled={loading}
+              className="bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition-all duration-300"
             >
-              🎯 Test with My Active Booking
+              {loading ? "Loading..." : "🔄 Refresh My Bookings"}
             </button>
+            
+            {userBookings.length > 0 && (
+              <button
+                onClick={testWithValidBookingId}
+                className="bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white px-3 py-1 rounded text-sm transition-all duration-300"
+              >
+                🎯 Test with My Active Booking
+              </button>
+            )}
+            
+            <button
+              onClick={testWithManualBookingId}
+              className="bg-purple-500 hover:bg-purple-600 dark:bg-purple-600 dark:hover:bg-purple-700 text-white px-3 py-1 rounded text-sm transition-all duration-300"
+            >
+              🧪 Test with Manual Booking ID
+            </button>
+          </div>
+          
+          {/* Active bookings display */}
+          {userBookings.length > 0 && (
+            <div className="mt-3 p-2 bg-green-50 dark:bg-green-900/30 rounded">
+              <div className="text-sm font-semibold text-green-800 dark:text-green-200">Your Active Booking:</div>
+              {userBookings.map(booking => (
+                <div key={booking.id} className="text-xs text-green-700 dark:text-green-300">
+                  ID: {booking.id} | Status: {booking.status} | 
+                  Garage: {booking.garage?.name || 'N/A'} | 
+                  Spot: {booking.parking_spot?.spot_number || 'N/A'}
+                </div>
+              ))}
+            </div>
           )}
           
+          {debugInfo && (
+            <div className="text-sm font-mono bg-white dark:bg-[#0f172a] text-gray-800 dark:text-gray-200 p-2 rounded border dark:border-gray-600 mt-2 whitespace-pre-wrap">
+              {debugInfo}
+            </div>
+          )}
+          
+          {/* Token status display */}
+          <div className="mt-2 text-xs bg-blue-50 dark:bg-blue-900/30 p-2 rounded">
+            <div className="text-gray-700 dark:text-gray-300">
+              <strong>Access Token:</strong> {getAccessToken() ? "✅ Present" : "❌ Missing"}
+            </div>
+            <div className="text-gray-700 dark:text-gray-300">
+              <strong>Refresh Token:</strong> {getRefreshToken() ? "✅ Present" : "❌ Missing"}
+            </div>
+          </div>
+        </div>
+
+        <div id="reader" className="mb-4 bg-white dark:bg-[#334155] rounded-lg overflow-hidden"></div>
+
+        {message && (
+          <div className={`p-3 rounded-md text-white mb-4 ${
+            messageType === "success" ? "bg-green-600" : "bg-red-600"
+          }`}>
+            {message}
+          </div>
+        )}
+
+        {scanned && !showExitPopup && (
           <button
-            onClick={testWithManualBookingId}
-            className="bg-purple-500 hover:bg-purple-600 text-white px-3 py-1 rounded text-sm"
+            onClick={handleRescan}
+            className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-all duration-300"
           >
-            🧪 Test with Manual Booking ID
+            🔁 Rescan QR Code
           </button>
-        </div>
-        
-        {/* Active bookings display */}
-        {userBookings.length > 0 && (
-          <div className="mt-3 p-2 bg-green-50 rounded">
-            <div className="text-sm font-semibold text-green-800">Your Active Booking:</div>
-            {userBookings.map(booking => (
-              <div key={booking.id} className="text-xs text-green-700">
-                ID: {booking.id} | Status: {booking.status} | 
-                Garage: {booking.garage?.name || 'N/A'} | 
-                Spot: {booking.parking_spot?.spot_number || 'N/A'}
+        )}
+
+        {showExitPopup && exitData && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-black dark:bg-opacity-70 flex items-center justify-center z-50">
+            <div className="bg-white dark:bg-[#1e293b] p-6 rounded-2xl shadow-2xl max-w-sm w-full mx-4 border-0 dark:border dark:border-gray-600">
+              <h3 className="text-lg font-bold mb-4 text-center text-gray-900 dark:text-white">
+                🚗 Visit Summary
+              </h3>
+
+              <div className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="font-semibold text-dark dark:text-white">Garage:</span>
+                  <span className="text-dark dark:text-white">{exitData.garage_name}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-semibold text-dark dark:text-white">Spot:</span>
+                  <span className="text-dark dark:text-white">#{exitData.spot_id}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-semibold text-dark dark:text-white">Entry Time:</span>
+                  <span className="text-dark dark:text-white">{formatTime(exitData.start_time)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-semibold text-dark dark:text-white">Exit Time:</span>
+                  <span className="text-dark dark:text-white">{formatTime(exitData.end_time)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-semibold text-dark dark:text-white">Total Duration:</span>
+                  <span className="text-dark dark:text-white">{formatDuration(exitData.total_duration_minutes)}</span>
+                </div>
+                <div className="flex justify-between font-bold text-lg border-t border-gray-200 dark:border-gray-600 pt-2">
+                  <span className="text-dark dark:text-white">Total Cost:</span>
+                  <span className="text-green-600 dark:text-green-400">{exitData.actual_cost} EGP</span>
+                </div>
               </div>
-            ))}
+
+              <div className="mt-6 flex gap-2">
+                <button 
+                  onClick={closeExitPopup} 
+                  className="flex-1 bg-gray-600 hover:bg-gray-700 dark:bg-gray-700 dark:hover:bg-gray-800 text-white px-4 py-2 rounded-lg transition-all duration-300"
+                >
+                  Close
+                </button>
+                <button 
+                  onClick={handleRescan} 
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-all duration-300"
+                >
+                  Rescan
+                </button>
+              </div>
+            </div>
           </div>
         )}
-        
-        {debugInfo && (
-          <div className="text-sm font-mono bg-white p-2 rounded border mt-2 whitespace-pre-wrap">
-            {debugInfo}
-          </div>
-        )}
-        
-        {/* Token status display */}
-        <div className="mt-2 text-xs bg-blue-50 p-2 rounded">
-          <div><strong>Access Token:</strong> {getAccessToken() ? "✅ Present" : "❌ Missing"}</div>
-          <div><strong>Refresh Token:</strong> {getRefreshToken() ? "✅ Present" : "❌ Missing"}</div>
-        </div>
       </div>
-
-      <div id="reader" className="mb-4"></div>
-
-      {message && (
-        <div className={`p-3 rounded-md text-white mb-4 ${
-          messageType === "success" ? "bg-green-600" : "bg-red-600"
-        }`}>
-          {message}
-        </div>
-      )}
-
-      {scanned && !showExitPopup && (
-        <button
-          onClick={handleRescan}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
-        >
-          🔁 Rescan QR Code
-        </button>
-      )}
-
-      {showExitPopup && exitData && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg max-w-sm w-full mx-4">
-            <h3 className="text-lg font-bold mb-4 text-center">🚗 Visit Summary</h3>
-
-            <div className="space-y-3">
-              <div className="flex justify-between"><span className="font-semibold">Garage:</span><span>{exitData.garage_name}</span></div>
-              <div className="flex justify-between"><span className="font-semibold">Spot:</span><span>#{exitData.spot_id}</span></div>
-              <div className="flex justify-between"><span className="font-semibold">Entry Time:</span><span>{formatTime(exitData.start_time)}</span></div>
-              <div className="flex justify-between"><span className="font-semibold">Exit Time:</span><span>{formatTime(exitData.end_time)}</span></div>
-              <div className="flex justify-between"><span className="font-semibold">Total Duration:</span><span>{formatDuration(exitData.total_duration_minutes)}</span></div>
-              <div className="flex justify-between font-bold text-lg border-t pt-2"><span>Total Cost:</span><span className="text-green-600">{exitData.actual_cost} EGP</span></div>
-            </div>
-
-            <div className="mt-6 flex gap-2">
-              <button onClick={closeExitPopup} className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md">Close</button>
-              <button onClick={handleRescan} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">Rescan</button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
