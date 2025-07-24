@@ -342,16 +342,16 @@ const Header = ({ darkMode, setDarkMode }) => {
           display: 'none'
         }}
       ></div>
-      <header className={`shadow-sm border-b px-4 sm:px-6 py-4 transition-colors sticky top-0 z-50 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+      <header className={`shadow-sm border-b px-4 sm:px-6 py-3 transition-colors sticky top-0 z-50 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
         <div className="max-w-full mx-auto">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-y-4">{/* Logo */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-y-3">{/* Logo */}
             {/* Logo */}
             <div className="flex items-center gap-3 flex-wrap">
               <Link to="/nearby-garages" className="flex items-center space-x-2">
                 <img
                   src="/src/assets/images/parkly-02.png"
                   alt="Parkly Logo"
-                  className="w-20 h-20 object-contain"
+                  className="w-14 h-14 object-contain"
                 />
                 <span className={`text-xl font-bold transition-colors ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                   Parkly
@@ -359,7 +359,7 @@ const Header = ({ darkMode, setDarkMode }) => {
               </Link>
 
               {/* Desktop Navigation */}
-              <nav className="hidden md:flex items-center space-x-8 ml-8">
+              <nav className="hidden md:flex items-center space-x-6 ml-4">
                 <Link
                   to="/home"
                   className={`transition-colors ${darkMode ? 'text-gray-300 hover:text-blue-400' : 'text-gray-700 hover:text-blue-600'}`}
@@ -408,7 +408,7 @@ const Header = ({ darkMode, setDarkMode }) => {
               <div className="relative" ref={languageDropdownRef}>
                 <button
                   onClick={toggleLanguageDropdown}
-                  className={`flex items-center space-x-2 px-3 py-2 text-sm rounded-md transition hover:scale-105 ${darkMode ? 'bg-gray-700 text-white hover:bg-gray-600' : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+                  className={`flex items-center space-x-1 px-3 py-1.5 text-sm rounded-md transition hover:scale-105 ${darkMode ? 'bg-gray-700 text-white hover:bg-gray-600' : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
                     } ${!isTranslateReady ? 'opacity-50 cursor-not-allowed' : ''}`}
                   disabled={!isTranslateReady}
                   title={!isTranslateReady ? "Translation loading..." : "Select language"}
@@ -445,7 +445,7 @@ const Header = ({ darkMode, setDarkMode }) => {
                 onClick={toggleTheme}
                 className={`px-4 py-2 text-sm rounded-md transition hover:scale-105 ${darkMode ? 'bg-gray-700 text-white hover:bg-gray-600' : 'bg-gray-300 text-gray-900 hover:bg-gray-200'}`}
               >
-                {darkMode ? "☀ Light Mode" : "🌙 Dark Mode"}
+                {darkMode ? "☀ " : "🌙"}
               </button>
 
               {/* Authentication-based rendering */}

@@ -2,22 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { MapPin, Star, Clock } from "lucide-react";
 
-const themeClasses = {
-  background: 'bg-gradient-to-br from-blue-50 to-indigo-100',
-  card: 'bg-white border border-gray-200',
-  text: {
-    primary: 'text-gray-900',
-    secondary: 'text-gray-600',
-    muted: 'text-gray-500',
-  },
-  input: 'bg-white border-gray-300 text-gray-900',
-  button: {
-    primary: 'bg-blue-600 hover:bg-blue-700',
-    secondary: 'bg-gray-100 hover:bg-gray-200 text-gray-700',
-  },
-};
-
-const GarageDetails = () => {
+const GarageDetails = ({ darkMode }) => {
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -164,31 +149,33 @@ const GarageDetails = () => {
 
   if (error) {
     return (
-      <div className="max-w-2xl mx-auto p-6 mt-10 bg-white border border-red-500 text-black rounded-lg shadow">
-        <h2 className="text-xl font-bold text-red-600">🚫 Error</h2>
-        <p className="mt-4">{error}</p>
-        <button
-          onClick={() => navigate("/")}
-          className="mt-6 px-4 py-2 bg-[#CF0018] text-white rounded hover:bg-red-700"
-        >
-          Back to Home
-        </button>
+      <div className={`min-h-screen py-10 transition-colors ${darkMode ? 'bg-gray-900 text-white' : 'bg-white text-black'}`}>
+        <div className="max-w-2xl mx-auto p-6 mt-10 border border-red-500 rounded-lg shadow">
+          <h2 className="text-xl font-bold text-red-600">🚫 Error</h2>
+          <p className="mt-4">{error}</p>
+          <button
+            onClick={() => navigate("/")}
+            className="mt-6 px-4 py-2 bg-[#CF0018] text-white rounded hover:bg-red-700"
+          >
+            Back to Home
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen py-10 bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-      <div className="max-w-4xl mx-auto p-6 bg-white border border-gray-200 rounded-xl shadow-lg">
-        <h1 className="text-3xl font-bold text-blue-700 mb-6">Garage Details</h1>
+    <div className={`min-h-screen py-10 transition-colors ${darkMode ? 'bg-gray-900 text-white' : 'bg-gradient-to-br from-blue-50 via-white to-indigo-50 text-black'}`}>
+      <div className={`max-w-4xl mx-auto p-6 border rounded-xl shadow-lg ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+        <h1 className="text-3xl font-bold text-blue-600 mb-6 dark:text-white">Garage Details</h1>
 
         {!garage ? (
           <div className="text-center">Loading garage...</div>
         ) : (
           <>
-            <div className="mb-6 bg-gradient-to-br from-blue-100 to-indigo-50 border border-gray-200 rounded-lg shadow p-4 flex flex-col items-center">
-              <h2 className="text-3xl font-bold mb-2 text-center text-blue-700">{garage.name}</h2>
-              <p className="text-lg font-semibold mb-4 text-blue-700 text-center">{garage.price_per_hour} EGP/hour</p>
+            <div className={`mb-6 rounded-lg shadow p-4 flex flex-col items-center ${darkMode ? 'bg-gray-700 border border-gray-600' : 'bg-gradient-to-br from-blue-100 to-indigo-50 border border-gray-200'}`}>
+              <h2 className="text-3xl font-bold mb-2 text-blue-700 dark:text-white">{garage.name}</h2>
+              <p className="text-lg font-semibold mb-4 text-blue-700 dark:text-blue-300">{garage.price_per_hour} EGP/hour</p>
               {garage.image && (
                 <img
                   src={garage.image}
@@ -196,8 +183,8 @@ const GarageDetails = () => {
                   className="w-full max-w-5xl h-[22rem] object-cover rounded-lg border mb-6"
                 />
               )}
-              <div className="flex flex-wrap justify-center gap-6 mt-2">
-                <span className="flex items-center gap-1 text-gray-600">
+              <div className="flex flex-wrap justify-center gap-6 mt-2 text-gray-600 dark:text-gray-300">
+                <span className="flex items-center gap-1">
                   <MapPin className="w-4 h-4" />
                   {garage.address}
                 </span>
@@ -206,7 +193,7 @@ const GarageDetails = () => {
                   <span className="font-semibold text-lg">{garage.average_rating?.toFixed(1) || "No ratings"}</span>
                 </span>
                 <span className="flex items-center gap-1">
-                  <Clock className="w-5 h-5 text-blue-700" />
+                  <Clock className="w-5 h-5 text-blue-700 dark:text-blue-300" />
                   <span className="font-semibold text-lg">
                     {garage.opening_hour?.slice(0, 5)} - {garage.closing_hour?.slice(0, 5)}
                   </span>
@@ -214,7 +201,7 @@ const GarageDetails = () => {
               </div>
             </div>
 
-            <div className="mb-6 bg-blue-50 rounded-xl p-4 shadow-inner">
+            <div className={`mb-6 rounded-xl p-4 shadow-inner ${darkMode ? 'bg-gray-700' : 'bg-blue-50'}`}>
               <div className="flex flex-wrap gap-2 mb-4 justify-center">
                 {[
                   { label: "All", value: "all", count: spots.length },
@@ -231,7 +218,8 @@ const GarageDetails = () => {
                     }}
                     className={`px-4 py-2 rounded-lg border text-sm font-semibold capitalize ${
                       filter === value
-                        ? 'bg-blue-600 text-white' : 'bg-white text-blue-600 border-blue-600'
+                        ? 'bg-blue-600 text-white'
+                        : `bg-white text-blue-600 border-blue-600 dark:bg-gray-800 dark:text-white`
                     }`}
                   >
                     {label} ({count})
@@ -263,7 +251,8 @@ const GarageDetails = () => {
                   onClick={() => setCurrentPage(i + 1)}
                   className={`px-3 py-1 rounded border text-sm font-medium ${
                     currentPage === i + 1
-                      ? 'bg-blue-600 text-white' : 'bg-white text-blue-600 border-blue-600'
+                      ? 'bg-blue-600 text-white'
+                      : `bg-white text-blue-600 border-blue-600 dark:bg-gray-800 dark:text-white`
                   }`}
                 >
                   {i + 1}
@@ -286,7 +275,7 @@ const GarageDetails = () => {
             </div>
 
             {confirmationMessage && (
-              <div className="mt-6 text-center text-green-600 font-semibold">
+              <div className="mt-6 text-center text-green-500 font-semibold">
                 {confirmationMessage}
               </div>
             )}
