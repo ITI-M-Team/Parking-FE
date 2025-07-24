@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.5",
+    "@heroicons/react": "^2.2.0",
     "@react-google-maps/api": "^2.20.7",
     "axios": "^1.10.0",
     "bootstrap": "^5.3.7",

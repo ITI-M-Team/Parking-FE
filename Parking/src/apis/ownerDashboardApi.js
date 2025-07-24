@@ -58,19 +58,19 @@
 // };
 
 // export default ownerDashboardApi;
+// ==================================================================
+//  File: src/apis/ownerDashboardApi.js
+// ==================================================================
 
-// src/apis/ownerDashboard.js
-import API from '../api/axios'; // ← غير من './config' إلى '../api/axios'
-
-const getAuthHeaders = () => {
-  // مفيش داعي نضيف الـ Authorization هنا، API.interceptors هيعمله تلقائيًا
-  return {}; // يمكن تحذف الدالة دي كمان لو مش مستخدمها
-};
+import API from '../api/axios';
 
 const ownerDashboardApi = {
+  /**
+   * Fetches all dashboard data for the logged-in owner.
+   */
   getDashboardData: async () => {
     try {
-      const response = await API.get('/owner/dashboard/'); // مش بحتج headers
+      const response = await API.get('/owner/dashboard/');
       return response.data;
     } catch (error) {
       console.error('Error fetching owner dashboard data:', error);
@@ -78,6 +78,9 @@ const ownerDashboardApi = {
     }
   },
 
+  /**
+   * Updates the number of available spots for a specific garage.
+   */
   updateSpotAvailability: async (garageId, newAvailableSpotsCount) => {
     try {
       const response = await API.put(
@@ -91,12 +94,17 @@ const ownerDashboardApi = {
     }
   },
 
+  /**
+   * Sends a request to generate and email a weekly report.
+   */
   sendWeeklyReport: async (garageId, email) => {
     try {
-      const response = await API.post(
-        '/reports/weekly/',
-        { garage_id: garageId, email }
-      );
+      // THE FIX IS HERE: Ensure there are no leading spaces in the URL.
+      // Correct URL: '/reports/weekly/'
+      const response = await API.post('/reports/weekly/', {
+        garage_id: garageId,
+        email: email,
+      });
       return response.data;
     } catch (error) {
       console.error('Error sending weekly report:', error);
