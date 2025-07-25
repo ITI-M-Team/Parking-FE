@@ -31,7 +31,10 @@ import AuthProtectedRoute from '../components/Verification/AuthProtectedRoute';
 import VerificationProtectedRoute from '../components/Verification/VerificationProtectedRoute';
 // route to protect owner/garage specific routes
 import OwnerProtectedRoute from '../components/Verification/OwnerProtectedRoute';
+import AdminDashboard2  from '../Pages/AdminDemo'; // Importing AdminDashboard2 component
+import GarageVerificationStatusPage from '../components/GarageData/GarageVerificationStatusPage.jsx'; 
 import { Navigate } from 'react-router-dom';
+
 function RouteList() {
     const [darkMode, setDarkMode] = useState(() => {
         return localStorage.getItem("theme") === "dark";
@@ -55,12 +58,12 @@ function RouteList() {
                 <Route path="/currentbooking/" element={<VerificationProtectedRoute><CurrentBooking darkMode={darkMode} setDarkMode={setDarkMode} /></VerificationProtectedRoute>}/>
                 {/* ------------- */}
                 {/* Routes that require owner/garage role - Protected for owners and superusers only */}
-                <Route path="/dashboard/garage" element={<OwnerProtectedRoute><GarageDashboard darkMode={darkMode} setDarkMode={setDarkMode} /></OwnerProtectedRoute>} />
-                <Route path="/dashboard/owner" element={<OwnerProtectedRoute><OwnerDashboard darkMode={darkMode} setDarkMode={setDarkMode} /></OwnerProtectedRoute>}/> {/* <--- أضف هذا المسار */}
+                <Route path="/dashboard/owner" element={<OwnerProtectedRoute> <OwnerDashboard darkMode={darkMode} setDarkMode={setDarkMode} /></OwnerProtectedRoute>}/>
                 <Route path="/garage/register" element={<OwnerProtectedRoute><GarageRegister darkMode={darkMode} setDarkMode={setDarkMode} /></OwnerProtectedRoute>} />
                 <Route path="/garage/edit/:id" element={<OwnerProtectedRoute><GarageEdit darkMode={darkMode} setDarkMode={setDarkMode} /></OwnerProtectedRoute> } />
                 <Route path="/garage/occupancy/:id" element={<OwnerProtectedRoute><GarageOccupancy darkMode={darkMode} setDarkMode={setDarkMode} /></OwnerProtectedRoute>} />
                  <Route path="/scanner" element={<OwnerProtectedRoute><QrcodeScanner1 darkMode={darkMode} setDarkMode={setDarkMode} /></OwnerProtectedRoute>} />
+                  <Route path="/garage/verification-status/:garageId" element={<OwnerProtectedRoute><GarageVerificationStatusPage darkMode={darkMode} /></OwnerProtectedRoute>} />
                  {/* Wallet Top-up now inside layout with navbar */}
                 <Route path="/wallet-topup" element={<AuthProtectedRoute><WalletTopupPage darkMode={darkMode} setDarkMode={setDarkMode} /></AuthProtectedRoute>} />
                 {/* <Route path="/scanner" element={<OwnerProtectedRoute><QRCodeScanner darkMode={darkMode} setDarkMode={setDarkMode} /></OwnerProtectedRoute>} /> */}
@@ -76,6 +79,7 @@ function RouteList() {
             <Route path="/password-reset" element={<><PasswordResetFlow darkMode={darkMode} setDarkMode={setDarkMode} /></>} />           
 
             {/* Admin route - super user only */}
+            <Route path='/admin2' element={<AdminProtectedRoute> <AdminDashboard2 darkMode={darkMode} setDarkMode={setDarkMode} /> </AdminProtectedRoute>} />
             <Route path='/admin' element={<AdminProtectedRoute> <AdminDashboard darkMode={darkMode} setDarkMode={setDarkMode} /> </AdminProtectedRoute>} />
             {/* Error pages */}
             <Route path='/not-authorized' element={<NotAuthorizedPage />} />

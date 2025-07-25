@@ -342,16 +342,16 @@ const Header = ({ darkMode, setDarkMode }) => {
           display: 'none'
         }}
       ></div>
-      <header className={`shadow-sm border-b px-4 sm:px-6 py-3 transition-colors sticky top-0 z-50 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+      <header className={`shadow-sm border-b px-4 sm:px-6 py-2 transition-colors sticky top-0 z-50 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
         <div className="max-w-full mx-auto">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-y-3">{/* Logo */}
+          <div className="flex items-center justify-between h-12">
             {/* Logo */}
-            <div className="flex items-center gap-3 flex-wrap">
+            <div className="flex items-center gap-3">
               <Link to="/nearby-garages" className="flex items-center space-x-2">
                 <img
                   src="/src/assets/images/parkly-02.png"
                   alt="Parkly Logo"
-                  className="w-14 h-14 object-contain"
+                  className="w-10 h-10 object-contain"
                 />
                 <span className={`text-xl font-bold transition-colors ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                   Parkly
@@ -359,23 +359,23 @@ const Header = ({ darkMode, setDarkMode }) => {
               </Link>
 
               {/* Desktop Navigation */}
-              <nav className="hidden md:flex items-center space-x-6 ml-4">
+              <nav className="hidden lg:flex items-center space-x-6 ml-6">
                 <Link
                   to="/home"
-                  className={`transition-colors ${darkMode ? 'text-gray-300 hover:text-blue-400' : 'text-gray-700 hover:text-blue-600'}`}
+                  className={`text-sm transition-colors ${darkMode ? 'text-gray-300 hover:text-blue-400' : 'text-gray-700 hover:text-blue-600'}`}
                 >
                   Home
                 </Link>
                 <Link
                   to="/nearby-garages"
-                  className={`transition-colors ${darkMode ? 'text-gray-300 hover:text-blue-400' : 'text-gray-700 hover:text-blue-600'}`}
+                  className={`text-sm transition-colors ${darkMode ? 'text-gray-300 hover:text-blue-400' : 'text-gray-700 hover:text-blue-600'}`}
                 >
                   Find Garages
                 </Link>
                 {isLoggedIn && (
                   <Link
                     to="/currentbooking"
-                    className={`transition-colors ${darkMode ? 'text-gray-300 hover:text-blue-400' : 'text-gray-700 hover:text-blue-600'}`}
+                    className={`text-sm transition-colors ${darkMode ? 'text-gray-300 hover:text-blue-400' : 'text-gray-700 hover:text-blue-600'}`}
                   >
                     My Bookings
                   </Link>
@@ -385,14 +385,14 @@ const Header = ({ darkMode, setDarkMode }) => {
                   <>
                     <Link
                       to="/garage/register"
-                      className={`flex items-center space-x-1 transition-colors ${darkMode ? 'text-gray-300 hover:text-blue-400' : 'text-gray-700 hover:text-blue-600'}`}
+                      className={`flex items-center space-x-1 text-sm transition-colors ${darkMode ? 'text-gray-300 hover:text-blue-400' : 'text-gray-700 hover:text-blue-600'}`}
                     >
                       <PlusCircle className="w-4 h-4" />
                       <span>Add Garage</span>
                     </Link>
                     <Link
                       to="/scanner"
-                      className={`flex items-center space-x-1 transition-colors ${darkMode ? 'text-gray-300 hover:text-blue-400' : 'text-gray-700 hover:text-blue-600'}`}
+                      className={`flex items-center space-x-1 text-sm transition-colors ${darkMode ? 'text-gray-300 hover:text-blue-400' : 'text-gray-700 hover:text-blue-600'}`}
                     >
                       <QrCode className="w-4 h-4" />
                       <span>Scanner</span>
@@ -403,18 +403,18 @@ const Header = ({ darkMode, setDarkMode }) => {
             </div>
 
             {/* Right side actions */}
-            <div className="flex items-center gap-3 flex-wrap sm:flex-nowrap">
-              {/* Test translation */}
+            <div className="flex items-center gap-2">
+              {/* Language Selector */}
               <div className="relative" ref={languageDropdownRef}>
                 <button
                   onClick={toggleLanguageDropdown}
-                  className={`flex items-center space-x-1 px-3 py-1.5 text-sm rounded-md transition hover:scale-105 ${darkMode ? 'bg-gray-700 text-white hover:bg-gray-600' : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+                  className={`flex items-center space-x-1 px-2 py-1 text-sm rounded-md transition hover:scale-105 ${darkMode ? 'bg-gray-700 text-white hover:bg-gray-600' : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
                     } ${!isTranslateReady ? 'opacity-50 cursor-not-allowed' : ''}`}
                   disabled={!isTranslateReady}
                   title={!isTranslateReady ? "Translation loading..." : "Select language"}
                 >
                   <Globe className="w-4 h-4" />
-                  <span className="hidden sm:inline">{currentLanguage.flag} {currentLanguage.name}</span>
+                  <span className="hidden sm:inline text-xs">{currentLanguage.flag} {currentLanguage.name}</span>
                   <span className="sm:hidden">{currentLanguage.flag}</span>
                   {!isTranslateReady && <span className="animate-pulse">●</span>}
                 </button>
@@ -439,19 +439,19 @@ const Header = ({ darkMode, setDarkMode }) => {
                   </div>
                 )}
               </div>
-              {/* Test translation */}
+
               {/* Theme Toggle */}
               <button
                 onClick={toggleTheme}
-                className={`px-4 py-2 text-sm rounded-md transition hover:scale-105 ${darkMode ? 'bg-gray-700 text-white hover:bg-gray-600' : 'bg-gray-300 text-gray-900 hover:bg-gray-200'}`}
+                className={`px-3 py-1 text-xs rounded-md transition hover:scale-105 ${darkMode ? 'bg-gray-700 text-white hover:bg-gray-600' : 'bg-gray-300 text-gray-900 hover:bg-gray-200'}`}
               >
-                {darkMode ? "☀ " : "🌙"}
+                {darkMode ? "☀ Light" : "🌙 Dark"}
               </button>
 
               {/* Authentication-based rendering */}
               {isLoggedIn ? (
                 <>
-                  <span className={`text-sm transition-colors ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                  <span className={`text-xs transition-colors hidden sm:inline ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                     {userProfile?.username || 'User'}
                   </span>
 
@@ -459,7 +459,7 @@ const Header = ({ darkMode, setDarkMode }) => {
                   <div className="relative" ref={dropdownRef}>
                     <button
                       onClick={toggleDropdown}
-                      className={`flex items-center space-x-2 p-2 rounded-lg transition-colors ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
+                      className={`flex items-center space-x-2 p-1 rounded-lg transition-colors ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
                       aria-label="User menu"
                     >
                       {userProfile?.profile_image ? (
@@ -516,14 +516,6 @@ const Header = ({ darkMode, setDarkMode }) => {
                               <User className="w-4 h-4 mr-3" />
                               Dashboard
                             </Link>
-                            {/* <Link
-                            to="/dashboard/garage"
-                            className={`flex items-center px-4 py-2 transition-colors ${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`}
-                            onClick={() => setShowDropdown(false)}
-                          >
-                            <User className="w-4 h-4 mr-3" />
-                            Garage Dashboard
-                          </Link> */}
                           </>
                         )}
                         <hr className={`border-gray-200 dark:border-gray-700 my-1 ${darkMode ? 'border-gray-700' : 'border-gray-200'}`} />
@@ -540,16 +532,16 @@ const Header = ({ darkMode, setDarkMode }) => {
                 </>
               ) : (
                 /* Login/Register buttons for non-authenticated users */
-                <div className="hidden sm:flex items-center space-x-3">
+                <div className="hidden sm:flex items-center space-x-2">
                   <Link
                     to="/login"
-                    className={`px-4 py-2 transition-colors ${darkMode ? 'text-gray-300 hover:text-blue-400' : 'text-gray-700 hover:text-blue-600'}`}
+                    className={`px-3 py-1 text-xs transition-colors ${darkMode ? 'text-gray-300 hover:text-blue-400' : 'text-gray-700 hover:text-blue-600'}`}
                   >
                     Login
                   </Link>
                   <Link
                     to="/register"
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    className="px-3 py-1 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition-colors"
                   >
                     Sign Up
                   </Link>
@@ -559,13 +551,13 @@ const Header = ({ darkMode, setDarkMode }) => {
               {/* Mobile menu button */}
               <button
                 onClick={toggleMobileMenu}
-                className={`md:hidden p-2 rounded-lg transition-colors ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
+                className={`lg:hidden p-1 rounded-lg transition-colors ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
                 aria-label="Toggle mobile menu"
               >
                 {showMobileMenu ? (
-                  <X className={`w-6 h-6 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`} />
+                  <X className={`w-5 h-5 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`} />
                 ) : (
-                  <Menu className={`w-6 h-6 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`} />
+                  <Menu className={`w-5 h-5 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`} />
                 )}
               </button>
             </div>
@@ -573,7 +565,7 @@ const Header = ({ darkMode, setDarkMode }) => {
 
           {/* Mobile Menu */}
           {showMobileMenu && (
-            <div className={`md:hidden border-t py-4 ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+            <div className={`lg:hidden border-t py-3 ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
               <nav className="flex flex-col space-y-2">
                 {/* Mobile Language Selector */}
                 <div className="px-4 py-2">
@@ -653,13 +645,6 @@ const Header = ({ darkMode, setDarkMode }) => {
                         >
                           Dashboard
                         </Link>
-                        {/* <Link
-                        to="/dashboard/garage"
-                        className={`px-4 py-2 rounded-lg transition-colors ${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`}
-                        onClick={() => setShowMobileMenu(false)}
-                      >
-                        Garage Dashboard
-                      </Link> */}
                       </>
                     )}
 

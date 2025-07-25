@@ -21,6 +21,7 @@ const GarageEdit = () => {
     reservation_grace_period: "",
     number_of_spots: "",
     image: null,
+    contract_document: null,
   });
 
   const [errors, setErrors] = useState({});
@@ -161,7 +162,14 @@ const GarageEdit = () => {
             <img src={currentImageUrl} alt="Current Garage" className="w-32 h-32 object-cover mt-2 rounded" />
           )}
           {errors.image && <p className="error">{errors.image}</p>}
-
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Contract Document</label>
+          <input
+            type="file"
+            name="contract_document"
+            onChange={handleChange}
+            className="input"
+          />
+          {errors.contract_document && <p className="error">{errors.contract_document}</p>}
           <button type="submit" className="button">Save Changes</button>
         </form>
       </div>
