@@ -47,7 +47,7 @@ const WalletTopUp = (  ) => {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 dark:bg-slate-900 p-4">
         <div className="w-full max-w-lg text-center">
-            <h2 className="text-2xl font-bold mb-2 text-dark dark:text-white">Complete Your Payment</h2>
+            <h2 className="text-2xl font-bold mb-2 text-gray dark:text-white">Complete Your Payment</h2>
             <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">Please complete the payment in the window below.</p>
         </div>
         <div className="w-full max-w-md h-[75vh] bg-white rounded-lg shadow-2xl overflow-hidden">
