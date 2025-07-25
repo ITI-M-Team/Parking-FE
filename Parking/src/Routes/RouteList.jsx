@@ -79,8 +79,8 @@ function RouteList() {
             <Route path="/password-reset" element={<><PasswordResetFlow darkMode={darkMode} setDarkMode={setDarkMode} /></>} />           
 
             {/* Admin route - super user only */}
-            <Route path='/admin2' element={<AdminProtectedRoute> <AdminDashboard2 darkMode={darkMode} setDarkMode={setDarkMode} /> </AdminProtectedRoute>} />
-            <Route path='/admin' element={<AdminProtectedRoute> <AdminDashboard darkMode={darkMode} setDarkMode={setDarkMode} /> </AdminProtectedRoute>} />
+            <Route path='/admin' element={<AdminProtectedRoute> <AdminDashboard2 darkMode={darkMode} setDarkMode={setDarkMode} /> </AdminProtectedRoute>} />
+            {/* <Route path='/admin' element={<AdminProtectedRoute> <AdminDashboard darkMode={darkMode} setDarkMode={setDarkMode} /> </AdminProtectedRoute>} /> */}
             {/* Error pages */}
             <Route path='/not-authorized' element={<NotAuthorizedPage />} />
         </Routes>

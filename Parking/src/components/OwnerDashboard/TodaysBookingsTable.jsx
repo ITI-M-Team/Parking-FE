@@ -81,7 +81,7 @@ import React from 'react';
 import { format } from 'date-fns';
 
 function TodaysBookingsTable({ darkMode, bookings }) {
-  // دالة لعرض "N/A" لو القيمة غير موجودة
+  // Function to display "N/A" if value is missing
   const renderValue = (value) => {
     if (value === null || value === undefined || value === '') {
       return <span className={darkMode ? 'text-gray-500' : 'text-gray-400'}>N/A</span>;
@@ -89,11 +89,11 @@ function TodaysBookingsTable({ darkMode, bookings }) {
     return value;
   };
 
-  // دالة لتنسيق الوقت
+  // Function to format time
   const formatBookingTime = (time) => {
     if (!time) return renderValue(null);
     try {
-      return format(new Date(time), 'p'); // تنسيق الوقت: "4:30 PM"
+      return format(new Date(time), 'p'); // Format time: "4:30 PM"
     } catch (error) {
       return renderValue(null);
     }
@@ -112,7 +112,9 @@ function TodaysBookingsTable({ darkMode, bookings }) {
             <thead className={darkMode ? 'bg-gray-700' : 'bg-gray-50'}>
               <tr>
                 <th className={`px-4 py-2 text-left text-xs font-medium uppercase ${darkMode ? 'text-gray-300' : 'text-gray-500'}`}>Driver</th>
-                <th className={`px-4 py-2 text-left text-xs font-medium uppercase ${darkMode ? 'text-gray-300' : 'text-gray-500'}`}>Time</th>
+                <th className={`px-4 py-2 text-left text-xs font-medium uppercase ${darkMode ? 'text-gray-300' : 'text-gray-500'}`}>Spot</th>
+                <th className={`px-4 py-2 text-left text-xs font-medium uppercase ${darkMode ? 'text-gray-300' : 'text-gray-500'}`}>Start Time</th>
+                <th className={`px-4 py-2 text-left text-xs font-medium uppercase ${darkMode ? 'text-gray-300' : 'text-gray-500'}`}>End Time</th>
                 <th className={`px-4 py-2 text-left text-xs font-medium uppercase ${darkMode ? 'text-gray-300' : 'text-gray-500'}`}>Cost</th>
                 <th className={`px-4 py-2 text-left text-xs font-medium uppercase ${darkMode ? 'text-gray-300' : 'text-gray-500'}`}>Status</th>
               </tr>
@@ -120,11 +122,23 @@ function TodaysBookingsTable({ darkMode, bookings }) {
             <tbody className={`divide-y ${darkMode ? 'divide-gray-700' : 'divide-gray-200'}`}>
               {bookings.map((booking) => (
                 <tr key={booking.id}>
-                  <td className="px-4 py-3 whitespace-nowrap text-sm">{renderValue(booking.driver_username)}</td>
-                  <td className="px-4 py-3 whitespace-nowrap text-sm">{formatBookingTime(booking.created_at)}</td>
+                  {/* Fixed: Use driver_name instead of driver_username */}
+                  <td className="px-4 py-3 whitespace-nowrap text-sm">{renderValue(booking.driver_name)}</td>
+                  
+                  {/* Added: Show spot number */}
+                  <td className="px-4 py-3 whitespace-nowrap text-sm">{renderValue(booking.spot_number)}</td>
+                  
+                  {/* Fixed: Use start_time instead of created_at */}
+                  <td className="px-4 py-3 whitespace-nowrap text-sm">{formatBookingTime(booking.start_time)}</td>
+                  
+                  {/* Added: Show end time */}
+                  <td className="px-4 py-3 whitespace-nowrap text-sm">{formatBookingTime(booking.end_time)}</td>
+                  
+                  {/* Fixed: Use total_price instead of actual_cost */}
                   <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
-                    {booking.actual_cost ? `$${parseFloat(booking.actual_cost).toFixed(2)}` : renderValue(null)}
+                    {booking.total_price ? `$${parseFloat(booking.total_price).toFixed(2)}` : renderValue(null)}
                   </td>
+                  
                   <td className="px-4 py-3 whitespace-nowrap text-sm">
                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                       booking.status === 'completed' || booking.status === 'confirmed' ? 'bg-green-100 text-green-800' :
