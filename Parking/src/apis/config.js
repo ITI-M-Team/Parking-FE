@@ -1,15 +1,15 @@
-// import axios from 'axios';
+import axios from 'axios';
 
 
-// const instance = axios.create({
-//   baseURL: "http://localhost:8000/api",
-// });
+const instance = axios.create({
+  baseURL: "http://localhost:8000/api",
+});
 // export default instance
 
 
 // src/api/axios.js
 // src/api/axios.js
-import axios from "axios";
+// import axios from "axios";
 
 // إنشاء instance من axios
 const API = axios.create({
